@@ -6,13 +6,15 @@
 #define _PETRI_H
 
 #include <cstdint>
+#include <functional>
 #include <string>
+#include <vector>
 
 class Place {
     // Represents a place in the Petri net
     protected:
-        uint32_t initial_tokens;
-        uint32_t current_tokens;
+        uint32_t initialTokens;
+        uint32_t currentTokens;
         // TODO: Place action??
 
     public:
@@ -31,6 +33,25 @@ struct TransitionEdge {
     Place *to;
     // Number of tokens consumed in the transition
     uint32_t weight;
+};
+
+struct TransitionEventParams {
+    // TODO:
+};
+
+class Transition {
+    
+    protected:
+        std::vector<TransitionEdge> enterEdges;
+        std::vector<TransitionEdge> exitEdges;
+        std::function<void(TransitionEventParams)> transitionEventAction;
+
+    public:
+        std::string identifier;
+
+    void addEntryEdge(TransitionEdge e);
+    void addExitEdge(TransitionEdge e);
+    void setAction(std::function<void(TransitionEventParams)>);
 };
 
 #endif
