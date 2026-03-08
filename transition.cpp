@@ -16,3 +16,7 @@ void Transition::addExitEdge(TransitionEdge e) {
 void Transition::setAction(std::function<void(TransitionEventParams)> action) {
     transitionEventAction = action;
 }
+
+void Transition::setFireCondition(TransitionFireCondition cond) {
+    fireCondition = cond;
+}

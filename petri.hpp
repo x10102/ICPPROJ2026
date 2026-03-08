@@ -39,12 +39,20 @@ struct TransitionEventParams {
     // TODO:
 };
 
+struct TransitionFireCondition {
+    uint32_t delayMs;
+    std::string inputEventName;
+    // TODO: Bool expression - variadic std::function??
+    // No clue how we are supposed to do that
+};
+
 class Transition {
     
     protected:
         std::vector<TransitionEdge> enterEdges;
         std::vector<TransitionEdge> exitEdges;
         std::function<void(TransitionEventParams)> transitionEventAction;
+        TransitionFireCondition fireCondition; // Maybe this should be a unique_ptr?
 
     public:
         std::string identifier;
@@ -52,6 +60,7 @@ class Transition {
     void addEntryEdge(TransitionEdge e);
     void addExitEdge(TransitionEdge e);
     void setAction(std::function<void(TransitionEventParams)>);
+    void setFireCondition(TransitionFireCondition cond);
 };
 
 #endif
