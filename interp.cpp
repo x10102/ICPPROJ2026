@@ -44,11 +44,13 @@ void Interpreter::addPlace(const Place p) {
 }
 
 // Shortcut to add multiple places at once, called with an initializer list as argument
+// Could most likely be extended using a template to accept any iterable
 void Interpreter::addPlaces(const std::initializer_list<Place> places) {
     for(auto &p : places)
         this->addPlace(p);
 }
 
+// Shortcut to add multiple transitions at once, same as above
 void Interpreter::addTransitions(const std::initializer_list<Transition> transitions) {
     for(auto &t : transitions)
         this->addTransition(t);
