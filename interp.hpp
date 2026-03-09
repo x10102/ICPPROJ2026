@@ -14,11 +14,11 @@ class Interpreter {
         uint32_t max_order;
 
     public:
-        void add_place(Place p);
-        void add_transition(Transition t);
-        void do_immediate_transitions();
+        void addPlace(Place p);
+        void addTransition(Transition t);
+        void doImmediateTransitions();
         Interpreter();
-        
+
 };
 
 #endif

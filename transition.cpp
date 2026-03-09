@@ -12,6 +12,7 @@
 
 Transition::Transition(std::string identifier) {
     this->identifier = identifier;
+    this->fireCondition = {0, ""};
 }
 
 void Transition::addEntryEdge(TransitionEdge e) {
@@ -38,11 +39,23 @@ void Transition::setFireCondition(TransitionFireCondition cond) {
     fireCondition = cond;
 }
 
+// Returns true if a transition has a delayed fire, false otherwise
+bool Transition::isDelayed() {
+    return this->fireCondition.delayMs != 0;
+}
+
+// Returns true if a transition can fire on a specified input event
+bool Transition::firesOnEvent(std::string s) {
+    if(this->fireCondition.inputEventName.empty())
+        return true;
+    return this->fireCondition.inputEventName.compare(s) == 0;
+}
+
 bool Transition::canFire() {
     // TODO: All the other bullshit conditions
     // TODO: Something completely different for the timed transition, probably will need a thread with a polling loop
     for(auto &edge : enterEdges) {
-        if(edge.place->get_token_count() < edge.weight)
+        if(edge.place->getTokenCount() < edge.weight)
             return false;
     }
     return true;
@@ -55,12 +68,12 @@ void Transition::fire() {
     LOG_T("Transition fire: %s", identifier.c_str());
     // Consume tokens through entry edges
     for(auto &edge : enterEdges) {
-        edge.place->remove_tokens(edge.weight);
+        edge.place->removeTokens(edge.weight);
         LOG_T("Remove %u tokens from %s", edge.weight, edge.place->identifier.c_str());
     }
     // Insert tokens through exit edges
     for(auto &edge : exitEdges) {
-        edge.place->add_tokens(edge.weight);
+        edge.place->addTokens(edge.weight);
         LOG_T("Add %u tokens to %s", edge.weight, edge.place->identifier.c_str());
     }
 }

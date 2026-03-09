@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
@@ -18,10 +16,10 @@ int main(int argc, char *argv[]) {
     t2.addEntryEdge(&a1, 1);
     t2.addExitEdge(&a3, 1);
     Interpreter interp;
-    interp.add_place(a1);
-    interp.add_place(a2);
-    interp.add_transition(t1);
-    interp.add_transition(t2);
-    interp.do_immediate_transitions();
+    interp.addPlace(a1);
+    interp.addPlace(a2);
+    interp.addTransition(t1);
+    interp.addTransition(t2);
+    interp.doImmediateTransitions();
     return 0;
 }
