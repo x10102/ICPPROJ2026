@@ -1,11 +1,26 @@
 #include "petri.hpp"
 #include <algorithm>
 #include <cstdint>
+#include <string>
 #include <vector>
 #include "interp.hpp"
 
 Interpreter::Interpreter() {
     this->max_order = 0;
+}
+
+// Triggers an input event -
+// - Sets the appropriate input to the value passed
+// - Updates the last input name
+// - Triggers transition processing
+void Interpreter::inputEvent(std::string input, std::string value) {
+    this->inputValues[input] = value;
+    this->last_input = input;
+    this->doTransitions();
+}
+
+bool Interpreter::inputDefined(std::string input) {
+    return this->inputValues.count(input) != 0;
 }
 
 // Adds a transition to the interpreter
@@ -21,7 +36,7 @@ void Interpreter::addPlace(Place p) {
     this->places[p.identifier] = p;
 }
 
-void Interpreter::doImmediateTransitions() {
+void Interpreter::doTransitions() {
     // We will store transitions which can be fired here, along with their order
     // After that we sort the array and fire them in order, skipping those that no longer meet the conditions
     std::vector<std::pair<uint32_t, Transition*>> to_fire;
@@ -50,7 +65,7 @@ void Interpreter::doImmediateTransitions() {
 
         // Evil C++17 pair unpacking
         for(auto &[order, transition] : to_fire) {
-            if(transition->canFire() && !transition->isDelayed()) {
+            if(transition->canFire() && !transition->isDelayed() && transition->firesOnEvent(last_input)) {
                 transition->fire();
                 fire_count++;
             }

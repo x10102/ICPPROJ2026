@@ -20,6 +20,6 @@ int main(int argc, char *argv[]) {
     interp.addPlace(a2);
     interp.addTransition(t1);
     interp.addTransition(t2);
-    interp.doImmediateTransitions();
+    interp.doTransitions();
     return 0;
 }
