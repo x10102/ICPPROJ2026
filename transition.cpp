@@ -40,12 +40,12 @@ void Transition::setFireCondition(TransitionFireCondition cond) {
 }
 
 // Returns true if a transition has a delayed fire, false otherwise
-bool Transition::isDelayed() {
+bool Transition::isDelayed() const {
     return this->fireCondition.delayMs != 0;
 }
 
 // Returns true if a transition can fire on a specified input event
-bool Transition::firesOnEvent(std::string s) {
+bool Transition::firesOnEvent(const std::string s) const {
     if(this->fireCondition.inputEventName.empty())
         return true;
     return this->fireCondition.inputEventName.compare(s) == 0;

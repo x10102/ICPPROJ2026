@@ -24,9 +24,9 @@ class Place {
     Place(std::string identifier, uint32_t initial_tokens);
     Place()=default;
 
-    uint32_t getTokenCount(void);
-    void addTokens(uint32_t token_count);
-    bool removeTokens(uint32_t token_count);
+    uint32_t getTokenCount(void) const;
+    void addTokens(const uint32_t token_count);
+    bool removeTokens(const uint32_t token_count);
 };
 
 struct TransitionEdge {
@@ -70,8 +70,8 @@ class Transition {
     void setFireCondition(TransitionFireCondition cond);
     void fire();
     bool canFire();
-    bool isDelayed();
-    bool firesOnEvent(std::string s);
+    bool isDelayed() const;
+    bool firesOnEvent(const std::string s) const;
 };
 
 #endif

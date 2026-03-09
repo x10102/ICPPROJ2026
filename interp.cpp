@@ -73,7 +73,7 @@ void Interpreter::doTransitions() {
         for(auto &transition : transitions) {
         if(transition.second.canFire()) {
             Transition *t = &transition.second;
-            uint32_t order = transitionOrder[t->identifier];
+            const uint32_t order = transitionOrder[t->identifier];
             to_fire.push_back({order, t});
         }  
         }

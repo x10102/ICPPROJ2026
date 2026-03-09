@@ -13,15 +13,15 @@ Place::Place(std::string identifier, uint32_t initial_tokens) {
     this->currentTokens = initial_tokens;
 }
 
-uint32_t Place::getTokenCount(void) {
+uint32_t Place::getTokenCount(void) const {
     return currentTokens;
 }
 
-void Place::addTokens(uint32_t token_count) {
+void Place::addTokens(const uint32_t token_count) {
     currentTokens += token_count;
 }
 
-bool Place::removeTokens(uint32_t token_count) {
+bool Place::removeTokens(const uint32_t token_count) {
     // Removes n tokens from the place
     // Returning false if the operation would drop the token count below 0
     // true otherwise 
