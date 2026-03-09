@@ -6,9 +6,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <initializer_list>
-#include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
@@ -128,8 +126,11 @@ void Interpreter::doTransitions() {
                     // Create a thread and detach it from the current scope
                     uint32_t delay = tr->getFireCondition()->delayMs;
                     // No easy way to call an instance method as a thread start other than this
-                    auto thr = std::thread([tr, delay, this]{this->delayedFire(tr, delay);});
-                    //timerThreads.push_back(thr);
+                    // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
+                    auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
+                    // Threads aren't copyable - move it into the vector
+                    timerThreads.push_back(std::move(thr));
+                    
                 }
             }
         }

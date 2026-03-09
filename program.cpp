@@ -4,8 +4,6 @@
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
-#include <chrono>
-#include <thread>
 
 using namespace std;
 
@@ -37,6 +35,6 @@ int main(int argc, char *argv[]) {
     interp.addTransitions({t1, t2, t3});
     interp.inputEvent("hi", "hi");
     interp.inputEvent("lmao", "lol");
-    //interp.waitForAllTimers();
+    interp.waitForAllTimers();
     return 0;
 }
