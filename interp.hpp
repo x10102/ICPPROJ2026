@@ -13,6 +13,7 @@ class Interpreter {
     public:
         void add_place(Place p);
         void add_transition(Transition t);
+        void do_immediate_transitions();
 };
 
 #endif

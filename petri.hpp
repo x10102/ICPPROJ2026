@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+class Transition;
 class Place {
     // Represents a place in the Petri net
     protected:
@@ -29,8 +30,8 @@ class Place {
 
 struct TransitionEdge {
     // Represents a directed edge in the Petri net
-    Place *from;
-    Place *to;
+    Place *place;
+    Transition *transition;
     // Number of tokens consumed in the transition
     uint32_t weight;
 };
@@ -58,10 +59,15 @@ class Transition {
     public:
         std::string identifier;
 
+    Transition(std::string identifier);
     void addEntryEdge(TransitionEdge e);
+    void addEntryEdge(Place *from, uint32_t weight);
     void addExitEdge(TransitionEdge e);
+    void addExitEdge(Place *to, uint32_t weight);
     void setAction(std::function<void(TransitionEventParams)>);
     void setFireCondition(TransitionFireCondition cond);
+    void fire();
+    bool canFire();
 };
 
 #endif

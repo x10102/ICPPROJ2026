@@ -10,6 +10,7 @@
 Place::Place(std::string identifier, uint32_t initial_tokens) {
     this->identifier = identifier;
     this->initialTokens = initial_tokens;
+    this->currentTokens = initial_tokens;
 }
 
 uint32_t Place::get_token_count(void) {
