@@ -1,6 +1,3 @@
-
-#include <map>
-
 #include "petri.hpp"
 #include "interp.hpp"
 
