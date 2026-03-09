@@ -7,6 +7,12 @@ CPPFILES=program.cpp place.cpp transition.cpp
 program: $(CPPFILES)
 	$(COMPILE) $^ -o $@.out
 
+program-dbg: $(CPPFILES)
+	$(COMPILE) $^ -DDEBUG -o program.out
+
+program-trace: $(CPPFILES)
+	$(COMPILE) $^ -DTRACE -o program.out
+
 clean:
 	rm program program.out
 
