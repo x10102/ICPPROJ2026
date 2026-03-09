@@ -22,6 +22,7 @@ class Place {
         std::string identifier;
 
     Place(std::string identifier, uint32_t initial_tokens);
+    Place()=default;
 
     uint32_t get_token_count(void);
     void add_tokens(uint32_t token_count);
@@ -60,6 +61,7 @@ class Transition {
         std::string identifier;
 
     Transition(std::string identifier);
+    Transition() = default;
     void addEntryEdge(TransitionEdge e);
     void addEntryEdge(Place *from, uint32_t weight);
     void addExitEdge(TransitionEdge e);

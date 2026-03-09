@@ -18,6 +18,7 @@ class Interpreter {
         void add_transition(Transition t);
         void do_immediate_transitions();
         Interpreter();
+        
 };
 
 #endif
