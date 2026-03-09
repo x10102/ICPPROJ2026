@@ -1,5 +1,5 @@
 CC=g++
-ARGS=-g
+ARGS=-g -std=c++17
 
 COMPILE=$(CC) $(ARGS)
 CPPFILES=program.cpp place.cpp transition.cpp
