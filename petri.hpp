@@ -44,6 +44,7 @@ struct TransitionFireCondition {
     std::string inputEventName;
     // TODO: Bool expression - variadic std::function??
     // No clue how we are supposed to do that
+    // Possibly function that gets passed a struct with the current interpreter state
 };
 
 class Transition {
