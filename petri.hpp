@@ -1,4 +1,4 @@
-// Petri.hpp - Petri net objects interface
+// petri.hpp - Petri net objects interface
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 

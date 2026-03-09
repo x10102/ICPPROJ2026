@@ -1,3 +1,6 @@
+// debug.hpp - debug logging macros
+// Authors:
+// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 
 #ifdef TRACE
     #define DEBUG

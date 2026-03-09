@@ -1,4 +1,4 @@
-// Place.cpp - Place class implementation
+// place.cpp - Place class implementation
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 

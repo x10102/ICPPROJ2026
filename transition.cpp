@@ -1,4 +1,4 @@
-// Place.cpp - Transition class implementation
+// transition.cpp - Transition class implementation
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 

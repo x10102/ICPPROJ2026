@@ -1,8 +1,13 @@
+// interp.hpp - interpreter interface
+// Authors:
+// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+
 #ifndef _INTERP_H
 #define _INTERP_H
 
 #include "petri.hpp"
 #include <cstdint>
+#include <initializer_list>
 #include <string>
 #include <unordered_map>
 class Interpreter {
@@ -16,11 +21,13 @@ class Interpreter {
         uint32_t max_order;
 
     public:
-        void addPlace(Place p);
-        void addTransition(Transition t);
+        void addPlace(const Place p);
+        void addPlaces(const std::initializer_list<Place> places);
+        void addTransition(const Transition t);
+        void addTransitions(const std::initializer_list<Transition> transitions);
         void doTransitions();
-        void inputEvent(std::string input, std::string value);
-        bool inputDefined(std::string input);
+        void inputEvent(const std::string input, const std::string value);
+        bool inputDefined(const std::string input);
         Interpreter();
 
 };
