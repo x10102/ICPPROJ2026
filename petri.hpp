@@ -68,6 +68,7 @@ class Transition {
     void addExitEdge(Place *to, uint32_t weight);
     void setAction(std::function<void(TransitionEventParams)>);
     void setFireCondition(TransitionFireCondition cond);
+    TransitionFireCondition* getFireCondition();
     void fire();
     bool canFire();
     bool isDelayed() const;

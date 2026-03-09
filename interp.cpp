@@ -4,9 +4,12 @@
 
 #include "petri.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <initializer_list>
+#include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 #include "interp.hpp"
 #include "debug.hpp"
@@ -56,6 +59,19 @@ void Interpreter::addTransitions(const std::initializer_list<Transition> transit
         this->addTransition(t);
 }
 
+void Interpreter::delayedFire(Transition &tr, uint32_t delay_ms) {
+    // TODO: compensate for the time it takes to start the thread
+    // (might not be significant, have to measure that)
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
+    // TODO: check the boolean guard
+    if(tr.canFire()) {
+        tr.fire();
+        LOG_D("Fired transition %s after %u ms delay", tr.identifier.c_str(), delay_ms);
+    } else {
+        LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr.identifier.c_str());
+    }
+}
+
 void Interpreter::doTransitions() {
     // We will store transitions which can be fired here, along with their order
     // After that we sort the array and fire them in order, skipping those that no longer meet the conditions
@@ -63,6 +79,13 @@ void Interpreter::doTransitions() {
 
     // If any transitions fired during the last loop, we have to run another check
     uint32_t fire_count;
+
+    // Acquire the transition lock in case any timed transitions want to fire while this is running
+    std::lock_guard tr_lock(this->transition_lock);
+    
+    // RAII magic right there - the lock_guard constructor acquires the lock and the destructor releases it
+    // So we effectively lock it for the duration of this scope, C++ does the work for us!
+    // Can't decide if this is beautiful or ugly, but it's good practice apparently
 
     do {
         // Clear the list of transitions to fire and reset the count
@@ -85,9 +108,16 @@ void Interpreter::doTransitions() {
 
         // Evil C++17 pair unpacking
         for(auto &[order, transition] : to_fire) {
-            if(transition->canFire() && !transition->isDelayed() && transition->firesOnEvent(last_input)) {
-                transition->fire();
-                fire_count++;
+            // TODO: Check the boolean guard
+            if(transition->canFire() && transition->firesOnEvent(last_input)) {
+                if(!transition->isDelayed()) {
+                    transition->fire();
+                    fire_count++;
+                } else {
+                    // Create a thread and detach it from the current scope
+                    std::thread delay_thread(&Interpreter::delayedFire, this, *transition, transition->getFireCondition()->delayMs);
+                    delay_thread.detach();
+                }
             }
         }
     } while(fire_count > 0);

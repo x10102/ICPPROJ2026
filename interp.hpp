@@ -10,6 +10,7 @@
 #include <initializer_list>
 #include <string>
 #include <unordered_map>
+#include <mutex>
 class Interpreter {
 
     protected:
@@ -18,7 +19,10 @@ class Interpreter {
         std::unordered_map<std::string, uint32_t> transitionOrder;
         std::unordered_map<std::string, std::string> inputValues;
         std::string last_input;
+        std::mutex transition_lock;
         uint32_t max_order;
+
+        void delayedFire(Transition &tr, uint32_t delay_ms);
 
     public:
         void addPlace(const Place p);

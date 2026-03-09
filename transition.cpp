@@ -39,6 +39,10 @@ void Transition::setFireCondition(TransitionFireCondition cond) {
     fireCondition = cond;
 }
 
+TransitionFireCondition *Transition::getFireCondition() {
+    return &fireCondition;
+}
+
 // Returns true if a transition has a delayed fire, false otherwise
 bool Transition::isDelayed() const {
     return this->fireCondition.delayMs != 0;
