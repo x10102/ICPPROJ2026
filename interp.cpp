@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <initializer_list>
 #include <mutex>
 #include <string>
@@ -59,16 +60,24 @@ void Interpreter::addTransitions(const std::initializer_list<Transition> transit
         this->addTransition(t);
 }
 
-void Interpreter::delayedFire(Transition &tr, uint32_t delay_ms) {
+void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
     // TODO: compensate for the time it takes to start the thread
     // (might not be significant, have to measure that)
     std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
     // TODO: check the boolean guard
-    if(tr.canFire()) {
-        tr.fire();
-        LOG_D("Fired transition %s after %u ms delay", tr.identifier.c_str(), delay_ms);
+    std::lock_guard guard(this->transition_lock);
+    if(tr->canFire()) {
+        tr->fire();
+        LOG_D("Fired transition %s after %u ms delay", tr->identifier.c_str(), delay_ms);
     } else {
-        LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr.identifier.c_str());
+        LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr->identifier.c_str());
+    }
+}
+
+void Interpreter::waitForAllTimers() {
+    for(auto thr = timerThreads.begin(); thr < timerThreads.end(); thr++) {
+        thr->join();
+        timerThreads.erase(thr);
     }
 }
 
@@ -94,11 +103,11 @@ void Interpreter::doTransitions() {
 
         // Iterating over a hash map eww
         for(auto &transition : transitions) {
-        if(transition.second.canFire()) {
-            Transition *t = &transition.second;
-            const uint32_t order = transitionOrder[t->identifier];
-            to_fire.push_back({order, t});
-        }  
+            if(transition.second.canFire()) {
+                Transition *t = &transition.second;
+                const uint32_t order = transitionOrder[t->identifier];
+                to_fire.push_back({order, t});
+            }  
         }
         
         // Pair comparison is defined as comparing the first item, then the second.
@@ -114,9 +123,13 @@ void Interpreter::doTransitions() {
                     transition->fire();
                     fire_count++;
                 } else {
+                    // Make the transition into a regular pointer, the compiler is not happy with the unpacked one
+                    Transition *tr = transition;
                     // Create a thread and detach it from the current scope
-                    std::thread delay_thread(&Interpreter::delayedFire, this, *transition, transition->getFireCondition()->delayMs);
-                    delay_thread.detach();
+                    uint32_t delay = tr->getFireCondition()->delayMs;
+                    // No easy way to call an instance method as a thread start other than this
+                    auto thr = std::thread([tr, delay, this]{this->delayedFire(tr, delay);});
+                    //timerThreads.push_back(thr);
                 }
             }
         }

@@ -4,6 +4,8 @@
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
+#include <chrono>
+#include <thread>
 
 using namespace std;
 
@@ -26,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     t3.addEntryEdge(&a4, 4);
     t3.addExitEdge(&a5, 4);
-    t3.setFireCondition({0, "lmao"});
+    t3.setFireCondition({1000, "lmao"});
 
     auto a = {a1, a2};
 
@@ -35,5 +37,6 @@ int main(int argc, char *argv[]) {
     interp.addTransitions({t1, t2, t3});
     interp.inputEvent("hi", "hi");
     interp.inputEvent("lmao", "lol");
+    //interp.waitForAllTimers();
     return 0;
 }
