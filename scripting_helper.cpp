@@ -1,3 +1,6 @@
+// scripting_helper.cpp - Inscription language helpers implementation
+// Authors:
+// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 #include "scripting_helper.hpp"
 #include "interp.hpp"
 #include "debug.hpp"
