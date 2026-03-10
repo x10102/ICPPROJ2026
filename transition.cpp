@@ -58,6 +58,7 @@ bool Transition::firesOnEvent(const std::string s) const {
 bool Transition::canFire() {
     // TODO: All the other bullshit conditions
     // TODO: Something completely different for the timed transition, probably will need a thread with a polling loop
+    if(enterEdges.empty() || exitEdges.empty()) return false;
     for(auto &edge : enterEdges) {
         if(edge.place->getTokenCount() < edge.weight)
             return false;
