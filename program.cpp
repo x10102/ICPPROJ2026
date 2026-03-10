@@ -8,30 +8,33 @@
 #include "petri.hpp"
 #include "debug.hpp"
 
+#define PLACE(var, id, tok) Place *var = interp.createPlace(id, tok)
+#define TRANSITION(var, id) Transition *var = interp.createTransition(id)
+#define CONDITION(tr, name, delay) tr->setFireCondition({delay, name})
+#define ENTRY_EDGE(from, tr, weight) tr->addEntryEdge(from, weight)
+#define EXIT_EDGE(tr, to, weight) tr->addExitEdge(to, weight)
+
 using namespace std;
 
 void interactive_test() {
     Interpreter interp;
 
-    Place *a1 = interp.createPlace("amogus misto", 1);
-    Place *a2 = interp.createPlace("diddy misto", 0);
-    Place *a3 = interp.createPlace("secret misto", 0);
-    Place *a4 = interp.createPlace("izolovane misto", 4);
-    Place *a5 = interp.createPlace("druhe tajne misto", 0);
-    Transition *t1 = interp.createTransition("autobus");
-    Transition *t2 = interp.createTransition("metro");
-    Transition *t3 = interp.createTransition("nejaka vec");
-
-    t1->addEntryEdge(a1, 1);
-    t1->addExitEdge(a2, 1);
-
-    t2->addEntryEdge(a1, 1);
-    t2->addExitEdge(a3, 1);
-
-    t3->addEntryEdge(a4, 4);
-    t3->addExitEdge(a5, 4);
-    t3->setFireCondition({1000, "lmao"});
-
+    PLACE(a1, "prvni" ,1);
+    PLACE(a2, "druhy", 0);
+    PLACE(a3, "treti", 0);
+    TRANSITION(t3, "auto");
+    TRANSITION(t1, "autobus");
+    TRANSITION(t2, "metro");
+    
+    ENTRY_EDGE(a1, t1, 1);
+    EXIT_EDGE(t1, a2, 2);
+    ENTRY_EDGE(a2, t2, 1);
+    EXIT_EDGE(t2, a1, 2);
+    CONDITION(t2, "waw", 0);
+    ENTRY_EDGE(a2, t3, 64);
+    EXIT_EDGE(t3, a3, 64);
+    
+    
     LOG_I("Enter interactive test");
     LOG_I("Trigger events with: <event> <value>")
     LOG_I("Enter blank line to print state")
