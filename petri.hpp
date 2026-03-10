@@ -41,10 +41,6 @@ struct TransitionEdge {
     uint32_t weight;
 };
 
-struct TransitionEventParams {
-    // TODO:
-};
-
 struct TransitionFireCondition {
     uint32_t delayMs;
     std::string inputEventName;
@@ -56,7 +52,7 @@ class Transition {
     protected:
         std::vector<TransitionEdge> enterEdges;
         std::vector<TransitionEdge> exitEdges;
-        std::function<void(TransitionEventParams)> transitionEventAction;
+        std::function<void(void)> transitionEventAction;
         TransitionFireCondition fireCondition;
 
     public:
@@ -68,7 +64,7 @@ class Transition {
     void addEntryEdge(Place *from, uint32_t weight);
     void addExitEdge(TransitionEdge e);
     void addExitEdge(Place *to, uint32_t weight);
-    void setAction(std::function<void(TransitionEventParams)>);
+    void setAction(std::function<void(void)> action);
     void setFireCondition(TransitionFireCondition cond);
     TransitionFireCondition* getFireCondition(void);
     void fire(void);

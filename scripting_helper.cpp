@@ -41,15 +41,19 @@ bool defined(string input_id) {
 
 // Generates an output event
 void output(string output_id, string val) {
-    // TODO: This should at least send the output event to the editor
-    // For now we just log it
-    LOG_I("OUTPUT_EVENT: %s=%s", output_id.c_str(), val.c_str());
+    interpreter->outputEvent(output_id, val);
 }
+
+// Returns the current number of tokens in the specified place
 uint32_t tokens(string place_id) {
     Place *place = interpreter->getPlace(place_id);
     if(place == nullptr) return 0;
     return place->getTokenCount();
 }
+
+// Returns the time elapsed since the number of tokens in the
+// specified place last changed
+// As for the transition, idk bro
 uint64_t elapsed(string place_or_transition_id) {
     Place *p = interpreter->getPlace(place_or_transition_id);
     if(p == nullptr) {

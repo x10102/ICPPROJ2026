@@ -39,6 +39,12 @@ void Interpreter::inputEvent(const std::string input, const std::string value) {
     this->doTransitions();
 }
 
+void Interpreter::outputEvent(string output, string value) {
+    // TODO: This should at least send the output event to the editor
+    // For now we just log it
+    LOG_I("OUTPUT_EVENT: %s=%s", output.c_str(), value.c_str());
+}
+
 bool Interpreter::inputDefined(const std::string input) {
     return this->inputValues.count(input) != 0;
 }

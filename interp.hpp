@@ -36,6 +36,7 @@ class Interpreter {
         Transition* createTransition(string identifier);
         void doTransitions();
         void inputEvent(const std::string input, const std::string value);
+        void outputEvent(const std::string output, const std::string value);
         void waitForAllTimers();
         void terminate();
         void printState();
