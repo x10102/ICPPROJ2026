@@ -37,6 +37,57 @@ public:
     QPointF center() const {return mapToScene(rect().center());}
 };
 
-//TODO ArcItem
+class ArcItem : public QGraphicsLineItem {
+public:
+    ArcItem(QGraphicsItem *from, QGraphicsItem *to, QGraphicsItem *parent = nullptr) :
+        QGraphicsLineItem(parent), m_from(from), m_to(to){
+        setPen(QPen(Qt::black, 2));
+        updatePosition();
+    }
+
+    void updatePosition() {
+        QPointF a = nodeCenter(m_from);
+        QPointF b = nodeCenter(m_to);
+        setLine(QLineF(a,b));
+    }
+
+    QGraphicsItem *fromItem() const { return m_from;}
+    QGraphicsItem *toItem() const { return m_to;}
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
+        QGraphicsLineItem::paint(painter, option, widget);
+
+        QLineF l = line();
+        if (l.length() < 1.0)
+            return;
+
+        const qreal arrowSize = 12.0;
+        QPointF tip = l.p2();
+        double angle = std::atan2(-l.dy(), l.dx());
+
+        QPointF p1 = tip + QPointF(
+                        std::sin(angle + M_PI / 3 - M_PI) * arrowSize,
+                        std::cos(angle + M_PI / 3 - M_PI) * arrowSize);
+        QPointF p2 = tip + QPointF(
+                        std::sin(angle - M_PI / 3 + M_PI) * arrowSize,
+                        std::cos(angle - M_PI / 3 + M_PI) * arrowSize);
+
+        painter->setBrush(Qt::black);
+        painter->drawPolygon(QPolygonF({tip, p1, p2}));
+    }
+
+private:
+    static QPointF nodeCenter(QGraphicsItem *item){
+        if(auto *p = dynamic_cast<PlaceItem *>(item))
+            return p->center();
+        if(auto *t = dynamic_cast<TransitionItem *>(item))
+            return t->center();
+        return item->scenePos();
+    }
+
+    QGraphicsItem *m_from;
+    QGraphicsItem *m_to;
+};
 
 #endif // ITEMS_H

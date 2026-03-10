@@ -23,7 +23,10 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     case Tool::AddTransition:
         addItem(new TransitionItem(pos));
         break;
-    //case Tool::AddArc:
+    case Tool::AddArc:
+        //TODO fuck, what to do here?
+        // Nejak si pamatovat dve kliknuti a spojit je i guess
+        break;
 
     case Tool::Select:
     default:

@@ -4,7 +4,7 @@
 #include <QGraphicsScene>
 #include "items.h"
 
-enum class Tool { Select, AddPlace, AddTransition }; //TODO AddArc
+enum class Tool { Select, AddPlace, AddTransition, AddArc};
 
 class PetriScene : public QGraphicsScene {
     Q_OBJECT

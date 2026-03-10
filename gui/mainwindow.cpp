@@ -37,7 +37,7 @@ void MainWindow::setupToolbar(){
     QAction *selectAct = makeAction("Select", Tool::Select);
     QAction *placeAct = makeAction("Place", Tool::AddPlace);
     QAction *transitionAct = makeAction("Transition", Tool::AddTransition);
-    // TODO QAction *ArcAct
+    QAction *ArcAct = makeAction("Arc", Tool::AddArc);
 
     setActiveTool(Tool::Select, selectAct);
 
