@@ -32,6 +32,7 @@ class Interpreter {
 
     public:
         Place* createPlace(string identifier, uint32_t initial_tokens);
+        Place* getPlace(string identifier);
         Transition* createTransition(string identifier);
         void doTransitions();
         void inputEvent(const std::string input, const std::string value);
@@ -39,6 +40,7 @@ class Interpreter {
         void terminate();
         void printState();
         bool inputDefined(const std::string input);
+        std::string *lastInputValue(const std::string input);
         Interpreter();
 
 };

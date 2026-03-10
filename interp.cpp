@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -42,8 +43,16 @@ bool Interpreter::inputDefined(const std::string input) {
     return this->inputValues.count(input) != 0;
 }
 
+string *Interpreter::lastInputValue(string input) {
+    try {
+        return &this->inputValues.at(input);
+    } catch(const out_of_range &e) {
+        return nullptr;
+    }
+}
+
 void Interpreter::printState() {
-    LOG_T("Print state");
+    //LOG_T("Print state");
     ostringstream oss;
     oss << setfill('=') << setw(38) << left << "PLACES" << endl << endl << setfill(' ');
     for(auto &place : this->places) {
@@ -79,6 +88,16 @@ Place* Interpreter::createPlace(string identifier, uint32_t initial_tokens) {
     Place *ptr = p.get();
     places.emplace(identifier, std::move(p));
     return ptr;
+}
+
+// Returns a pointer to a place with the specified identifier
+// or nullptr if it doesn't exist
+Place* Interpreter::getPlace(string identifier) {
+    try {
+        return this->places.at(identifier).get();
+    } catch(const out_of_range &e) {
+        return nullptr;
+    }
 }
 
 // Thread entry point for delayed transitions

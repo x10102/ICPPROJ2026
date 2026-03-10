@@ -4,8 +4,13 @@
 
 #include <cstdint>
 #include <string>
+#include <chrono>
 
 #include "petri.hpp"
+
+// We have to do this otherwise we will have 200 character long lines
+// I LOVE the C++ standard library!
+using namespace std::chrono;
 
 Place::Place(std::string identifier, uint32_t initial_tokens) {
     this->identifier = identifier;
@@ -17,12 +22,17 @@ uint32_t Place::getTokenCount(void) const {
     return currentTokens;
 }
 
+milliseconds Place::getLastChangeTime(void) const {
+    return lastChange;
+}
+
 uint32_t Place::getInitTokens(void) const {
     return initialTokens;
 }
 
 void Place::addTokens(const uint32_t token_count) {
     currentTokens += token_count;
+    lastChange = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
 }
 
 bool Place::removeTokens(const uint32_t token_count) {
@@ -31,6 +41,7 @@ bool Place::removeTokens(const uint32_t token_count) {
     // true otherwise 
     if(currentTokens >= token_count) {
         currentTokens -= token_count;
+        lastChange = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
         return true;
     } else {
         return false;

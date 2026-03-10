@@ -1,0 +1,61 @@
+#include "scripting_helper.hpp"
+#include "interp.hpp"
+#include "debug.hpp"
+#include <chrono>
+
+using namespace chrono;
+
+Interpreter *interpreter;
+// This could be an interpreter instance member, but I don't know yet if the interpreter
+// will always be initialized at/microseconds after app start
+static milliseconds START_TIME = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
+
+// This should be called only once
+// Sets the interpreter that the helper functions will refer to
+void setHelperInterpreter(Interpreter *itr) {
+    interpreter = itr;
+}
+
+inline static milliseconds current_ms(void) {
+    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
+}
+
+// Returns the last value of the input with the specified id
+const char* valueof(string input_id) {
+    if(!interpreter->inputDefined(input_id))
+        return nullptr;
+    const string* last_val = interpreter->lastInputValue(input_id);
+    // This should be fine - c_str returns a pointer to the string object's internal buffer
+    // That string object is owned by the interpreter instance, which will in any case outlive expressions using this
+    return last_val->c_str();
+}
+
+// Returns true if the input was set at any point
+bool defined(string input_id) {
+    return interpreter->inputDefined(input_id);
+}
+
+// Generates an output event
+void output(string output_id, string val) {
+    // TODO: This should at least send the output event to the editor
+    // For now we just log it
+    LOG_I("OUTPUT_EVENT: %s=%s", output_id.c_str(), val.c_str());
+}
+uint32_t tokens(string place_id) {
+    Place *place = interpreter->getPlace(place_id);
+    if(place == nullptr) return 0;
+    return place->getTokenCount();
+}
+uint64_t elapsed(string place_or_transition_id) {
+    Place *p = interpreter->getPlace(place_or_transition_id);
+    if(p == nullptr) {
+        // TODO: Idk what we're supposed to do here, project spec doesn't make it too clear
+        // Have to ask
+        LOG_I("elapsed() called for transition or nonexistent place - not implemented");
+        return 0;
+    }
+    return (current_ms() - p->getLastChangeTime()).count();
+}
+uint64_t now() {
+    return (current_ms() - START_TIME).count();
+}   

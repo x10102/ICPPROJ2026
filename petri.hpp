@@ -9,6 +9,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <chrono>
 
 class Transition;
 class Place {
@@ -16,6 +17,7 @@ class Place {
     protected:
         uint32_t initialTokens;
         uint32_t currentTokens;
+        std::chrono::milliseconds lastChange;
         // TODO: Place action??
 
     public:
@@ -26,6 +28,7 @@ class Place {
 
     uint32_t getTokenCount(void) const;
     uint32_t getInitTokens(void) const;
+    std::chrono::milliseconds getLastChangeTime(void) const;
     void addTokens(const uint32_t token_count);
     bool removeTokens(const uint32_t token_count);
 };
@@ -62,17 +65,17 @@ class Transition {
         std::string identifier;
 
     Transition(std::string identifier);
-    Transition() = default;
+    Transition(void) = default;
     void addEntryEdge(TransitionEdge e);
     void addEntryEdge(Place *from, uint32_t weight);
     void addExitEdge(TransitionEdge e);
     void addExitEdge(Place *to, uint32_t weight);
     void setAction(std::function<void(TransitionEventParams)>);
     void setFireCondition(TransitionFireCondition cond);
-    TransitionFireCondition* getFireCondition();
-    void fire();
-    bool canFire();
-    bool isDelayed() const;
+    TransitionFireCondition* getFireCondition(void);
+    void fire(void);
+    bool canFire(void);
+    bool isDelayed(void) const;
     bool firesOnEvent(const std::string s) const;
 };
 
