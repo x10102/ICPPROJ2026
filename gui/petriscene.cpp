@@ -2,6 +2,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
+#include <QKeyEvent>
 
 PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
     setSceneRect(0,0,2000,2000);
@@ -49,18 +50,49 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
 
     QAction *addOne = menu.addAction("Přidej token");
     QAction *removeOne = menu.addAction("Oddělej token");
-    QAction *setZero = menu.addAction("TODO - vynulovat tokeny");
+    QAction *setZero = menu.addAction("Vynulovat tokeny");
     QAction *reset = menu.addAction("TODO - resetovat tokeny");
+    menu.addSeparator();
+    QAction *remove = menu.addAction("Smazat místo");
 
     removeOne->setEnabled(place->tokens() > 0);
     setZero->setEnabled(place->tokens() > 0);
 
     QAction *chosen = menu.exec(screenPos);
-    if (chosen == addOne) { place->addToken();}
-    else if (chosen == removeOne) { place->removeToken();}
-    else if (chosen == setZero) { } //TODO
-    else if (chosen == reset) { } //TODO
+    if (chosen == addOne) {
+        place->addToken();
+    }
+    else if (chosen == removeOne) {
+        place->removeToken();
+    }
+    else if (chosen == setZero) {
+        while(place->tokens()){
+            place->removeToken();
+        }
+    }
+    else if (chosen == reset) {
+        //TODO
+    }
+    else if (chosen == remove) {
+        removeItem(place);
+        delete place;
+    }
 
+}
+
+
+void PetriScene::keyPressEvent(QKeyEvent *event){
+    if (event->key() == Qt::Key_Delete){
+        auto selected = selectedItems();
+        if (selected.isEmpty())
+            return;
+        for (QGraphicsItem *item : selected){
+            removeItem(item);
+            delete item;
+        }
+        return;
+    }
+    QGraphicsScene::keyPressEvent(event);
 }
 
 void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){

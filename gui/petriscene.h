@@ -42,10 +42,12 @@ public:
     Tool currentTool() const {return m_tool;}
 
 protected:
-    /// @brief Zpracuje stisknutí tlačítka myši podle aktivního nástroje.
+    /// @brief Zpracuje stisknutí tlačítka myši.
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
     /// @brief Zpracuje pohyb myši (aktuálně bez využití).
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+    /// @brief Zpracuje stisk klávesy.
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     /// @brief Zobrazí kontextové menu pro dané místo.
