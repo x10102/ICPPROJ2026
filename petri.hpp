@@ -25,6 +25,7 @@ class Place {
     Place()=default;
 
     uint32_t getTokenCount(void) const;
+    uint32_t getInitTokens(void) const;
     void addTokens(const uint32_t token_count);
     bool removeTokens(const uint32_t token_count);
 };

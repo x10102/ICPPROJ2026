@@ -17,6 +17,10 @@ uint32_t Place::getTokenCount(void) const {
     return currentTokens;
 }
 
+uint32_t Place::getInitTokens(void) const {
+    return initialTokens;
+}
+
 void Place::addTokens(const uint32_t token_count) {
     currentTokens += token_count;
 }

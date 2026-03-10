@@ -6,15 +6,21 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <initializer_list>
+#include <iostream>
+#include <iomanip>
+#include <memory>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
 #include "interp.hpp"
 #include "debug.hpp"
 
+using namespace std;
+
 Interpreter::Interpreter() {
     this->max_order = 0;
+    this->exiting = false;
 }
 
 // Triggers an input event -
@@ -22,6 +28,10 @@ Interpreter::Interpreter() {
 // - Updates the last input name
 // - Triggers transition processing
 void Interpreter::inputEvent(const std::string input, const std::string value) {
+    if(this->exiting) {
+        LOG_I("Ignoring input event %s while exiting", input.c_str());
+        return;
+    }
     LOG_D("Input event: %s=%s", input.c_str(), value.c_str());
     this->inputValues[input] = value;
     this->last_input = input;
@@ -32,37 +42,54 @@ bool Interpreter::inputDefined(const std::string input) {
     return this->inputValues.count(input) != 0;
 }
 
-// Adds a transition to the interpreter
+void Interpreter::printState() {
+    ostringstream oss;
+    oss << setfill('=') << setw(38) << left << "PLACES" << endl << endl << setfill(' ');
+    for(auto &place : this->places) {
+        oss << left << setw(20) << place.first;
+        oss << "ITOK: " << setw(2) << place.second->getInitTokens() << ' '
+        << "CTOK: " << setw(2) << place.second->getTokenCount() << endl;
+    }
+    oss << endl << endl;
+    cout << oss.str();
+}
+
+// Terminate the interpreter - will ignore all input events and wait for all timer threads to exit
+void Interpreter::terminate() {
+    this->exiting = true;
+    LOG_I("Exit request received");
+    LOG_I("Waiting for all threads to terminate...");
+    this->waitForAllTimers();
+}
+
+// Creates a transition and returns a pointer to it
 // !IMPORTANT: Transitions added first have priority in conflicts
-void Interpreter::addTransition(const Transition t) {
-    this->transitions[t.identifier] = t;
-    // Every transition gets assigned a sequential, unique priority value
-    // Lower value => higher priority - transitions added earlier fire first in case of conflict
-    this->transitionOrder[t.identifier] = this->max_order++;
+Transition* Interpreter::createTransition(string identifier) {
+    auto t = make_unique<Transition>(identifier);
+    Transition *ptr = t.get();
+    transitions.emplace(identifier, std::move(t));
+    this->transitionOrder[identifier] = this->max_order++;
+    return ptr;
 }
 
-void Interpreter::addPlace(const Place p) {
-    this->places[p.identifier] = p;
+// Creates a place
+Place* Interpreter::createPlace(string identifier, uint32_t initial_tokens) {
+    auto p = make_unique<Place>(identifier, initial_tokens);
+    Place *ptr = p.get();
+    places.emplace(identifier, std::move(p));
+    return ptr;
 }
 
-// Shortcut to add multiple places at once, called with an initializer list as argument
-// Could most likely be extended using a template to accept any iterable
-void Interpreter::addPlaces(const std::initializer_list<Place> places) {
-    for(auto &p : places)
-        this->addPlace(p);
-}
-
-// Shortcut to add multiple transitions at once, same as above
-void Interpreter::addTransitions(const std::initializer_list<Transition> transitions) {
-    for(auto &t : transitions)
-        this->addTransition(t);
-}
-
+// Thread entry point for delayed transitions
 void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
     // TODO: compensate for the time it takes to start the thread
     // (might not be significant, have to measure that)
     std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
     // TODO: check the boolean guard
+    if(exiting) {
+        LOG_I("Ignoring delayed fire of %s while exiting", tr->identifier.c_str());
+        return;
+    }
     std::lock_guard guard(this->transition_lock);
     if(tr->canFire()) {
         tr->fire();
@@ -101,8 +128,8 @@ void Interpreter::doTransitions() {
 
         // Iterating over a hash map eww
         for(auto &transition : transitions) {
-            if(transition.second.canFire()) {
-                Transition *t = &transition.second;
+            if(transition.second->canFire()) {
+                Transition *t = transition.second.get();
                 const uint32_t order = transitionOrder[t->identifier];
                 to_fire.push_back({order, t});
             }  
