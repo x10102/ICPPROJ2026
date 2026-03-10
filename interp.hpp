@@ -32,11 +32,7 @@ class Interpreter {
 
     public:
         Place* createPlace(string identifier, uint32_t initial_tokens);
-        void addPlace(unique_ptr<Place> p);
-        void addPlaces(const std::initializer_list<Place> places);
         Transition* createTransition(string identifier);
-        void addTransition(unique_ptr<Transition> t);
-        void addTransitions(const std::initializer_list<Transition> transitions);
         void doTransitions();
         void inputEvent(const std::string input, const std::string value);
         void waitForAllTimers();
