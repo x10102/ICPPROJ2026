@@ -186,7 +186,7 @@ void Interpreter::doTransitions() {
                 // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
                 auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
                 // Threads aren't copyable - move it into the vector
-                timerThreads.push_back(std::move(thr));
+                timerThreads.emplace_back(std::move(thr));
                 
             }
         }
