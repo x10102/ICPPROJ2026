@@ -1,7 +1,9 @@
 // program.cpp - program entry point
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+#include <cstddef>
 #include <iostream>
+#include <string>
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
@@ -30,14 +32,35 @@ void interactive_test() {
     t3->addExitEdge(a5, 4);
     t3->setFireCondition({1000, "lmao"});
 
-    interp.inputEvent("hi", "hi");
-    interp.inputEvent("lmao", "lol");
-    interp.waitForAllTimers();
-    interp.printState();
+    LOG_I("Enter interactive test");
+    LOG_I("Trigger events with: <event> <value>")
+    LOG_I("Enter blank line to print state")
+    LOG_I("Enter \"exit\" to end")
+    while(true) {
+        string buffer;
+        cout << "interp# ";
+        getline(cin, buffer);
+        size_t space_pos = buffer.find(" ");
+
+        if(space_pos == string::npos) {
+            if(buffer.compare("exit") == 0) {
+                interp.terminate();
+                break;
+            } else if(buffer.compare("\n")) {
+                interp.printState();
+            } else {
+                cout << "INVALID" << endl;
+            }
+            continue;
+        }
+        string evt_name = buffer.substr(0, space_pos);
+        string evt_val = buffer.substr(space_pos, buffer.length()-space_pos);
+        interp.inputEvent(evt_name, evt_val);
+    }
 }
 
 int main(int argc, char *argv[]) {
-    LOG_I("Enter interactive test")
+    
     interactive_test();
     return 0;
 }

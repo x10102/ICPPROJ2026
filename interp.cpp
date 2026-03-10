@@ -43,6 +43,7 @@ bool Interpreter::inputDefined(const std::string input) {
 }
 
 void Interpreter::printState() {
+    LOG_T("Print state");
     ostringstream oss;
     oss << setfill('=') << setw(38) << left << "PLACES" << endl << endl << setfill(' ');
     for(auto &place : this->places) {
@@ -152,6 +153,7 @@ void Interpreter::doTransitions() {
                     Transition *tr = transition;
                     // Create a thread and detach it from the current scope
                     uint32_t delay = tr->getFireCondition()->delayMs;
+                    LOG_D("Schedule transition %s after %u ms", tr->identifier.c_str(), delay);
                     // No easy way to call an instance method as a thread start other than this
                     // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
                     auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
