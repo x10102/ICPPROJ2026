@@ -16,9 +16,35 @@ public:
         setBrush(Qt::white);
         setPen(QPen(Qt::black, 2));
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
+        setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
     }
 
     QPointF center() const {return mapToScene(rect().center());}
+
+    int tokens() const { return m_tokens;}
+    void addToken() {
+        m_tokens = qMax(0, m_tokens+1);
+        update();
+    }
+    void removeToken() {
+        m_tokens = qMax(0, m_tokens-1);
+        update();
+    }
+
+protected:
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
+        QGraphicsEllipseItem::paint(painter, option, widget);
+
+        QFont f = painter->font();
+        f.setBold(true);
+        f.setPointSize(11);
+        painter->setFont(f);
+        painter->setPen(Qt::black);
+        painter->drawText(rect().toRect(), Qt::AlignCenter, QString::number(m_tokens));
+    }
+
+private:
+    int m_tokens = 0;
 };
 
 class TransitionItem : public QGraphicsEllipseItem {

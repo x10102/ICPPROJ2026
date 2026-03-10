@@ -19,6 +19,8 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+    void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
+
     Tool m_tool = Tool::Select;
 };
 
