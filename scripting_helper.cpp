@@ -23,6 +23,7 @@ void setHelperInterpreter(Interpreter *itr) {
     interpreter = itr;
 }
 
+// Helper function - returns the current millisecond count from the steady_clock
 inline static milliseconds current_ms(void) {
     return duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
 }
@@ -67,6 +68,8 @@ uint64_t elapsed(string place_or_transition_id) {
     }
     return (current_ms() - p->getLastChangeTime()).count();
 }
+
+// Returns the number of milliseconds elapsed since the program started
 uint64_t now() {
     return (current_ms() - START_TIME).count();
 }   
