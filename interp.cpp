@@ -111,13 +111,12 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
     // TODO: compensate for the time it takes to start the thread
     // (might not be significant, have to measure that)
     std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
-    // TODO: check the boolean guard
     if(exiting) {
         LOG_I("Ignoring delayed fire of %s while exiting", tr->identifier.c_str());
         return;
     }
     std::lock_guard guard(this->transition_lock);
-    if(tr->canFire()) {
+    if(tr->canFire() && tr->checkGuard()) {
         tr->fire();
         LOG_D("Fired transition %s after %u ms delay", tr->identifier.c_str(), delay_ms);
     } else {

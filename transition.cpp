@@ -73,7 +73,6 @@ bool Transition::canFire() {
 }
 
 void Transition::fire() {
-    // TODO: Possibly remove this?
     if(!canFire())
         throw std::logic_error("ERROR: Invalid transition fire");
     LOG_T("Transition fire: %s", identifier.c_str());
