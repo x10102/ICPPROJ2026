@@ -5,10 +5,14 @@
 
 using namespace chrono;
 
+// One evil global variable per app is okay, right? >w<
+// (We could like make a HelperManager class with this as instance member,
+// but then we'd have to use a lot of evil macros instead)
 Interpreter *interpreter;
+
 // This could be an interpreter instance member, but I don't know yet if the interpreter
 // will always be initialized at/microseconds after app start
-static milliseconds START_TIME = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
+static const milliseconds START_TIME = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
 
 // This should be called only once
 // Sets the interpreter that the helper functions will refer to

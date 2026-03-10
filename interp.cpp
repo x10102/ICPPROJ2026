@@ -162,24 +162,27 @@ void Interpreter::doTransitions() {
 
         // Evil C++17 pair unpacking
         for(auto &[order, transition] : to_fire) {
-            // TODO: Check the boolean guard
-            if(transition->canFire() && transition->firesOnEvent(last_input)) {
-                if(!transition->isDelayed()) {
-                    transition->fire();
-                    fire_count++;
-                } else {
-                    // Make the transition into a regular pointer, the compiler is not happy with the unpacked one
-                    Transition *tr = transition;
-                    // Create a thread and detach it from the current scope
-                    uint32_t delay = tr->getFireCondition()->delayMs;
-                    LOG_D("Schedule transition %s after %u ms", tr->identifier.c_str(), delay);
-                    // No easy way to call an instance method as a thread start other than this
-                    // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
-                    auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
-                    // Threads aren't copyable - move it into the vector
-                    timerThreads.push_back(std::move(thr));
-                    
-                }
+
+            // Don't even bother with anything else if the transition
+            // doesn't fire on this event or boolean guard evals to 'false'
+            if(!transition->firesOnEvent(last_input) || !transition->checkGuard())
+                continue;
+
+            if(!transition->isDelayed()) {
+                transition->fire();
+                fire_count++;
+            } else {
+                // Make the transition into a regular pointer, the compiler is not happy with the unpacked one
+                Transition *tr = transition;
+                // Create a thread and detach it from the current scope
+                uint32_t delay = tr->getFireCondition()->delayMs;
+                LOG_D("Schedule transition %s after %u ms", tr->identifier.c_str(), delay);
+                // No easy way to call an instance method as a thread start other than this
+                // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
+                auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
+                // Threads aren't copyable - move it into the vector
+                timerThreads.push_back(std::move(thr));
+                
             }
         }
     } while(fire_count > 0);

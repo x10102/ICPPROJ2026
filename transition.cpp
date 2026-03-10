@@ -39,6 +39,14 @@ void Transition::setFireCondition(TransitionFireCondition cond) {
     fireCondition = cond;
 }
 
+bool Transition::checkGuard(void) {
+    // We can do this, boolean comparison is defined on std::function
+    // as 'true' if there's a callable target inside
+    if(!fireCondition.boolExpr) return true;
+    // Evaluate the lambda function and return the result
+    return fireCondition.boolExpr();
+}
+
 TransitionFireCondition *Transition::getFireCondition() {
     return &fireCondition;
 }

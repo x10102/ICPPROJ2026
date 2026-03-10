@@ -2,7 +2,7 @@ CC=g++
 ARGS=-g -std=c++17
 
 COMPILE=$(CC) $(ARGS)
-CPPFILES=program.cpp place.cpp transition.cpp interp.cpp
+CPPFILES=program.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
 
 program: $(CPPFILES)
 	$(COMPILE) $^ -o $@.out

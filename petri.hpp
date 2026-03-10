@@ -48,9 +48,7 @@ struct TransitionEventParams {
 struct TransitionFireCondition {
     uint32_t delayMs;
     std::string inputEventName;
-    // TODO: Bool expression - variadic std::function??
-    // No clue how we are supposed to do that
-    // Possibly function that gets passed a struct with the current interpreter state
+    std::function<bool(void)> boolExpr;
 };
 
 class Transition {
@@ -59,7 +57,7 @@ class Transition {
         std::vector<TransitionEdge> enterEdges;
         std::vector<TransitionEdge> exitEdges;
         std::function<void(TransitionEventParams)> transitionEventAction;
-        TransitionFireCondition fireCondition; // Maybe this should be a unique_ptr?
+        TransitionFireCondition fireCondition;
 
     public:
         std::string identifier;
@@ -77,6 +75,7 @@ class Transition {
     bool canFire(void);
     bool isDelayed(void) const;
     bool firesOnEvent(const std::string s) const;
+    bool checkGuard(void);
 };
 
 #endif

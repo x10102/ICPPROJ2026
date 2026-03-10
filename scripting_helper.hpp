@@ -1,8 +1,7 @@
 #include "interp.hpp"
 #include <cstdint>
 
-// Global variables... unfortunate but can't reasonably do this without them
-extern Interpreter *interpreter;
+#define LAMBDA_FROM_EXPR(e) [](){return e;}
 
 void setHelperInterpreter(Interpreter *itr);
 const char* valueof(string input_id);
