@@ -36,7 +36,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     else if (event->button() == Qt::RightButton){
         QGraphicsItem *clicked = itemAt(event->scenePos(), QTransform());
         if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
-            showPlaceContextMenu(place, event->screenPos().toPointF().toPoint());
+            showPlaceContextMenu(place, event->screenPos());
         }
     }
     else {
