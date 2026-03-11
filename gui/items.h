@@ -153,6 +153,10 @@ public:
     QGraphicsItem *fromItem() const { return m_from;}
     /// @brief Vrátí cílový uzel hrany.
     QGraphicsItem *toItem() const { return m_to;}
+    /// @brief TODO
+    int weight() {return m_weight;}
+    /// @brief TODO
+    void setWeight(int w) {m_weight = qMax(0, w);}
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
@@ -189,6 +193,7 @@ private:
 
     QGraphicsItem *m_from; ///< Zdrojový uzel
     QGraphicsItem *m_to;   ///< Cílový uzel
+    int m_weight = 1; ///< TODO
 };
 
 #endif // ITEMS_H
