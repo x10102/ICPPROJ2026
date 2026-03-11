@@ -47,6 +47,8 @@ public:
 signals:
     /// @brief Signál emitován při výběru místa v režimu Select.
     void placeSelected(PlaceItem *place);
+    /// @brief Signál emitován při výběru přechodu v režimu Select.
+    void transitionSelected(TransitionItem *transition);
     /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
     void selectionCleared();
 

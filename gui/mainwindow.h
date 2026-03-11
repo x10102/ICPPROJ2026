@@ -15,6 +15,7 @@ class QAction;
 class QDockWidget;
 class QLineEdit;
 class QSpinBox;
+class QLabel;
 
 /**
  * @brief Hlavní okno aplikace.
@@ -40,14 +41,16 @@ private:
      */
     void setActiveTool(Tool tool, QAction *action);
 
-    PetriScene    *m_scene        = nullptr; ///< Scéna Petriho sítě
-    QGraphicsView *m_view         = nullptr; ///< Pohled na scénu
-    QAction       *m_activeAction = nullptr; ///< Aktuálně aktivní tlačítko toolbaru
+    PetriScene     *m_scene             = nullptr; ///< Scéna Petriho sítě
+    QGraphicsView  *m_view              = nullptr; ///< Pohled na scénu
+    QAction        *m_activeAction      = nullptr; ///< Aktuálně aktivní tlačítko toolbaru
 
-    QDockWidget   *m_dock         = nullptr;
-    QLineEdit     *m_nameEdit     = nullptr;
-    QSpinBox      *m_tokenSpin    = nullptr;
-    PlaceItem     *m_editedPlace  = nullptr;
+    QDockWidget    *m_dock              = nullptr;
+    QLineEdit      *m_nameEdit          = nullptr;
+    QSpinBox       *m_tokenSpin         = nullptr;
+    QLabel         *m_tokenLabel        = nullptr;
+    PlaceItem      *m_editedPlace       = nullptr;
+    TransitionItem *m_editedTransition  = nullptr;
 };
 
 #endif // MAINWINDOW_H

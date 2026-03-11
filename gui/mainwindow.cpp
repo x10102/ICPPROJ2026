@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupSidebar();
 
     connect(m_scene, &PetriScene::placeSelected, this, [this](PlaceItem *place) {
+        m_editedTransition = nullptr;
+        m_tokenSpin->setVisible(true);
+        m_tokenLabel->setVisible(true);
+
         m_editedPlace = place;
         m_nameEdit->blockSignals(true);
         m_tokenSpin->blockSignals(true);
@@ -34,8 +38,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_dock->show();
     });
 
+    connect(m_scene, &PetriScene::transitionSelected, this, [this](TransitionItem *transition) {
+        m_editedPlace = nullptr;
+        m_tokenSpin->setVisible(false);
+        m_tokenLabel->setVisible(false);
+
+        m_editedTransition = transition;
+        m_nameEdit->blockSignals(true);
+        m_nameEdit->setText(transition->name());
+        m_nameEdit->blockSignals(false);
+        m_dock->show();
+    });
+
     connect(m_scene, &PetriScene::selectionCleared, this, [this](){
         m_editedPlace = nullptr;
+        m_editedTransition = nullptr;
         m_dock->hide();
     });
 }
@@ -82,12 +99,14 @@ void MainWindow::setupSidebar(){
     m_tokenSpin = new QSpinBox;
     m_tokenSpin->setMinimum(0);
     m_tokenSpin->setMaximum(9999);
+    m_tokenLabel = new QLabel("Tokeny:");
 
     form->addRow("Jméno: ", m_nameEdit);
-    form->addRow("Tokeny: ", m_tokenSpin);
+    form->addRow(m_tokenLabel, m_tokenSpin);
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) m_editedPlace->setName(text);
+        if (m_editedTransition) m_editedTransition->setName(text);
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
         if (m_editedPlace) m_editedPlace->setTokens(val);

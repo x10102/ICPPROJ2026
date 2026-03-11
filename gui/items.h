@@ -105,6 +105,19 @@ public:
 
     /// @brief Vrátí střed přechodu v souřadnicích scény.
     QPointF center() const {return mapToScene(rect().center());}
+    /// @brief Vrátí jméno přechodu
+    QString name() const {return m_name;}
+    /**
+     * @brief Nastaví jméno přechodu
+     * @param name Nové jméno
+     */
+    void setName(const QString &name) {
+        m_name = name;
+        update();
+    }
+
+private:
+    QString m_name; ///< Název přechodu
 };
 
 /**

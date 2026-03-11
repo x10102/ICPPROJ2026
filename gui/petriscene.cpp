@@ -58,6 +58,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 emit selectionCleared();
             else if (auto *place = dynamic_cast<PlaceItem *>(selectedItems().first()))
                 emit placeSelected(place);
+            else if (auto *transition = dynamic_cast<TransitionItem *>(selectedItems().first()))
+                emit transitionSelected(transition);
             else
                 emit selectionCleared();
             break;
@@ -67,6 +69,9 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         QGraphicsItem *clicked = itemAt(event->scenePos(), QTransform());
         if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
             showPlaceContextMenu(place, event->screenPos());
+        }
+        else if (auto *transition = dynamic_cast<TransitionItem *>(clicked)) {
+            showTransitionContextMenu(transition, event->screenPos());
         }
     }
     else {
