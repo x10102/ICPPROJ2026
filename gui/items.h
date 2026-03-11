@@ -50,6 +50,21 @@ public:
         m_tokens = qMax(0, m_tokens-1);
         update();
     }
+    /// @brief Nastaví počet tokenů na zadanou hodnotu.
+    void setTokens(int val){
+        m_tokens = qMax(0,val);
+        update();
+    }
+    /// @brief Vrátí jméno místa
+    QString name() const { return m_name;}
+    /**
+     * @brief Nastaví jméno místa
+     * @param name Nové jméno
+     */
+    void setName(const QString &name) {
+        m_name = name;
+        update();
+    }
 
 protected:
     /// @brief Vykreslí místo a počet tokenů uprostřed.
@@ -66,6 +81,7 @@ protected:
 
 private:
     int m_tokens = 0; ///< Aktuální počet tokenů
+    QString m_name; ///< Název místa
 };
 
 /**

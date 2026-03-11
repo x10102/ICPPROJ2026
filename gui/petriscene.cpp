@@ -30,7 +30,19 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::Select:
         default:
+            if (event->modifiers() & Qt::ControlModifier)
+                event->setModifiers(Qt::NoModifier);
+
             QGraphicsScene::mousePressEvent(event);
+
+            if (auto *place = dynamic_cast<PlaceItem *>(mouseGrabberItem()))
+                emit placeSelected(place);
+            else if (selectedItems().isEmpty())
+                emit selectionCleared();
+            else if (auto *place = dynamic_cast<PlaceItem *>(selectedItems().first()))
+                emit placeSelected(place);
+            else
+                emit selectionCleared();
             break;
         }
     }
@@ -80,6 +92,16 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
 
 }
 
+void PetriScene::showTransitionContextMenu(TransitionItem *transition, QPoint screenPos){
+    QMenu menu;
+
+    QAction *temp = menu.addAction("Random temporary thingie lol");
+
+    QAction *chosen = menu.exec(screenPos);
+    if (chosen == temp) {
+        return;
+    }
+}
 
 void PetriScene::keyPressEvent(QKeyEvent *event){
     if (event->key() == Qt::Key_Delete){

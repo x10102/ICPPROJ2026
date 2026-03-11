@@ -41,6 +41,12 @@ public:
     /// @brief Vrátí aktuálně vybraný nástroj.
     Tool currentTool() const {return m_tool;}
 
+signals:
+    /// @brief Signál emitován při výběru místa v režimu Select.
+    void placeSelected(PlaceItem *place);
+    /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
+    void selectionCleared();
+
 protected:
     /// @brief Zpracuje stisknutí tlačítka myši.
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
@@ -52,6 +58,8 @@ protected:
 private:
     /// @brief Zobrazí kontextové menu pro dané místo.
     void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
+    /// @brief Zobrazí kontextové menu pro daný přechod.
+    void showTransitionContextMenu(TransitionItem *transition, QPoint screenPos);
 
     Tool m_tool = Tool::Select; ///< Aktuálně aktivní nástroj
 };

@@ -12,6 +12,9 @@
 
 class QGraphicsView;
 class QAction;
+class QDockWidget;
+class QLineEdit;
+class QSpinBox;
 
 /**
  * @brief Hlavní okno aplikace.
@@ -27,6 +30,8 @@ public:
 private:
     /// @brief Vytvoří toolbar s tlačítky pro výběr nástrojů.
     void setupToolbar();
+    /// @brief Vytvoří sidebar s popisem uzlů
+    void setupSidebar();
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.
@@ -38,6 +43,11 @@ private:
     PetriScene    *m_scene        = nullptr; ///< Scéna Petriho sítě
     QGraphicsView *m_view         = nullptr; ///< Pohled na scénu
     QAction       *m_activeAction = nullptr; ///< Aktuálně aktivní tlačítko toolbaru
+
+    QDockWidget   *m_dock         = nullptr;
+    QLineEdit     *m_nameEdit     = nullptr;
+    QSpinBox      *m_tokenSpin    = nullptr;
+    PlaceItem     *m_editedPlace  = nullptr;
 };
 
 #endif // MAINWINDOW_H
