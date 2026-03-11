@@ -5,7 +5,7 @@
 #include <QKeyEvent>
 
 PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
-    setSceneRect(0,0,2000,2000);
+    setSceneRect(0,0,SCENE_W,SCENE_H);
 }
 
 void PetriScene::setTool(Tool tool) {
@@ -23,11 +23,28 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         case Tool::AddTransition:
             addItem(new TransitionItem(pos));
             break;
-        case Tool::AddArc:
-            //TODO fuck, what to do here?
-            // Nejak si pamatovat dve kliknuti a spojit je i guess
-            break;
+        case Tool::AddArc: {
+            QGraphicsItem *clicked = itemAt(pos, QTransform());
 
+            bool isNode = (dynamic_cast<PlaceItem *>(clicked) || dynamic_cast<TransitionItem *>(clicked));
+            if (!isNode) {
+                cancelArc();
+                break;
+            }
+
+            if (!m_arcSource){
+                m_arcSource = clicked;
+            }
+            else {
+                if (clicked != m_arcSource){
+                    drawArc(clicked);
+                }
+                else {
+                    cancelArc();
+                }
+            }
+            break;
+        }
         case Tool::Select:
         default:
             if (event->modifiers() & Qt::ControlModifier)
@@ -78,9 +95,7 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
         place->removeToken();
     }
     else if (chosen == setZero) {
-        while(place->tokens()){
-            place->removeToken();
-        }
+        place->setTokens(0);
     }
     else if (chosen == reset) {
         //TODO
@@ -118,7 +133,21 @@ void PetriScene::keyPressEvent(QKeyEvent *event){
 }
 
 void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
-    // TODO nejaky update na arcs
-
+    for (QGraphicsItem *item : items()) {
+        if (auto *arc = dynamic_cast<ArcItem *>(item)) {
+            arc->updatePosition();
+        }
+    }
     QGraphicsScene::mouseMoveEvent(event);
+}
+
+void PetriScene::drawArc(QGraphicsItem *target)
+{
+    addItem(new ArcItem(m_arcSource, target));
+    m_arcSource = nullptr;
+}
+
+void PetriScene::cancelArc()
+{
+    m_arcSource = nullptr;
 }

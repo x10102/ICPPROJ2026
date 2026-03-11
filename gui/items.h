@@ -111,6 +111,8 @@ public:
  * @brief Grafická reprezentace hrany (arc) v Petriho síti.
  *
  * Vykresluje orientovanou hranu se šipkou mezi dvěma uzly.
+ *
+ * @todo Šipka na konci hrany je vykreslena uprostřed uzlu a nejde vidět
  */
 class ArcItem : public QGraphicsLineItem {
 public:
@@ -122,7 +124,8 @@ public:
      */
     ArcItem(QGraphicsItem *from, QGraphicsItem *to, QGraphicsItem *parent = nullptr) :
         QGraphicsLineItem(parent), m_from(from), m_to(to){
-        setPen(QPen(Qt::black, 2));
+        setPen(QPen(Qt::lightGray, 2));
+        setZValue(-1);
         updatePosition();
     }
 
@@ -157,7 +160,7 @@ protected:
                         std::sin(angle - M_PI / 3 + M_PI) * arrowSize,
                         std::cos(angle - M_PI / 3 + M_PI) * arrowSize);
 
-        painter->setBrush(Qt::black);
+        painter->setBrush(Qt::lightGray);
         painter->drawPolygon(QPolygonF({tip, p1, p2}));
     }
 

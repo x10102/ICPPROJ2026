@@ -30,6 +30,9 @@ class PetriScene : public QGraphicsScene {
     Q_OBJECT
 
 public:
+    static constexpr qreal SCENE_W = 2000.0; ///< Šířka scény v pixelech
+    static constexpr qreal SCENE_H = 2000.0; ///< Výška scény v pixelech
+
     explicit PetriScene(QObject *parent = nullptr);
 
     /**
@@ -60,8 +63,13 @@ private:
     void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
     /// @brief Zobrazí kontextové menu pro daný přechod.
     void showTransitionContextMenu(TransitionItem *transition, QPoint screenPos);
+    /// @brief TODO
+    void drawArc(QGraphicsItem *target);
+    /// @brief TODO
+    void cancelArc();
 
     Tool m_tool = Tool::Select; ///< Aktuálně aktivní nástroj
+    QGraphicsItem *m_arcSource = nullptr; ///< TODO
 };
 
 #endif // PETRISCENE_H
