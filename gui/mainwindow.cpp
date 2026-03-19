@@ -9,6 +9,8 @@
 #include <QSpinBox>
 #include <QWidget>
 #include <QLabel>
+#include <QScrollBar>
+#include <QPlainTextEdit>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
@@ -22,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     setupToolbar();
     setupSidebar();
+    setupTerminal();
+ 
+    connect(m_scene, &PetriScene::logMessage, this, &MainWindow::appendLog);
 
     connect(m_scene, &PetriScene::placeSelected, this, [this](PlaceItem *place) {
         // Schovat vlastnosti přechodu a zobrazit vlastnosti místa
@@ -64,6 +69,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     });
 }
 
+void MainWindow::setupTerminal() {
+    m_terminalDock = new QDockWidget("Terminál", this);
+    m_terminalDock->setAllowedAreas(Qt::BottomDockWidgetArea);
+ 
+    m_terminal = new QPlainTextEdit;
+    m_terminal->setReadOnly(true);
+    m_terminal->setMaximumBlockCount(500);
+    QFont f("Monospace");
+    f.setStyleHint(QFont::TypeWriter);
+    f.setPointSize(9);
+    m_terminal->setFont(f);
+    m_terminal->setMinimumHeight(100);
+ 
+    m_terminalDock->setWidget(m_terminal);
+    addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
+    m_terminalDock->hide();
+ 
+    // Toggle button in toolbar — added after toolbar is set up
+    // so we just add it here via a stored toolbar reference
+}
+ 
+void MainWindow::appendLog(const QString &msg) {
+    m_terminal->appendPlainText(msg);
+    // Auto-scroll to bottom
+    m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
+}
+
 void MainWindow::setupToolbar(){
     QToolBar *tb = addToolBar("Nástroje");
     tb->setMovable(false);
@@ -87,6 +119,14 @@ void MainWindow::setupToolbar(){
     QAction *ArcAct = makeAction("Arc", Tool::AddArc);
 
     setActiveTool(Tool::Select, selectAct);
+
+    tb->addSeparator();
+    QAction *termAct = tb->addAction("Terminál");
+    termAct->setCheckable(true);
+    connect(termAct, &QAction::toggled, this, [this](bool checked) {
+        checked ? m_terminalDock->show() : m_terminalDock->hide();
+    });
+    connect(m_terminalDock, &QDockWidget::visibilityChanged, termAct, &QAction::setChecked);
 
     (void)placeAct;
     (void)transitionAct;

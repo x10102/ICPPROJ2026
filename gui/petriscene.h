@@ -51,6 +51,8 @@ signals:
     void transitionSelected(TransitionItem *transition);
     /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
     void selectionCleared();
+    /// @brief Signál emitován při logovatelné akci uživatele.
+    void logMessage(const QString &message);
 
 protected:
     /// @brief Zpracuje stisknutí tlačítka myši.
@@ -65,10 +67,12 @@ private:
     void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
     /// @brief Zobrazí kontextové menu pro daný přechod.
     void showTransitionContextMenu(TransitionItem *transition, QPoint screenPos);
-    /// @brief TODO
+    /// @brief Kreslí hranu mezi zdrojovým uzlem a cílem.
     void drawArc(QGraphicsItem *target);
-    /// @brief TODO
+    /// @brief Zruší kreslení hrany.
     void cancelArc();
+    /// @brief Emituje logMessage se časovým razítkem.
+    void log(const QString &msg);
 
     Tool m_tool = Tool::Select; ///< Aktuálně aktivní nástroj
     QGraphicsItem *m_arcSource = nullptr; ///< TODO

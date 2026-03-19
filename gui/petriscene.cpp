@@ -3,6 +3,7 @@
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QKeyEvent>
+#include <QDateTime>
 
 PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
     setSceneRect(0,0,SCENE_W,SCENE_H);
@@ -12,17 +13,28 @@ void PetriScene::setTool(Tool tool) {
     m_tool = tool;
 }
 
+void PetriScene::log(const QString &msg) {
+    QString time = QDateTime::currentDateTime().toString("hh:mm:ss");
+    emit logMessage(QString("[%1] %2").arg(time, msg));
+}
+
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     if (event->button() == Qt::LeftButton) {
         QPointF pos = event->scenePos();
 
         switch (m_tool) {
-        case Tool::AddPlace:
-            addItem(new PlaceItem(pos));
+        case Tool::AddPlace: {
+            auto *place = new PlaceItem(pos);
+            addItem(place);
+            log(QString("Místo %1 přidáno").arg(place->name()));
             break;
-        case Tool::AddTransition:
-            addItem(new TransitionItem(pos));
+        }
+        case Tool::AddTransition: {
+            auto *transition = new TransitionItem(pos);
+            addItem(transition);
+            log(QString("Přechod %1 přidán").arg(transition->name()));
             break;
+        }
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
 
@@ -101,13 +113,16 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     }
     else if (chosen == setZero) {
         place->setTokens(0);
+        log(QString("%1: tokeny vynulovány").arg(place->name()));
     }
     else if (chosen == reset) {
         //TODO
     }
     else if (chosen == remove) {
+        log(QString("Místo %1 smazáno").arg(place->name()));
         removeItem(place);
         delete place;
+        emit selectionCleared();
     }
 
 }
@@ -149,6 +164,19 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
 void PetriScene::drawArc(QGraphicsItem *target)
 {
     addItem(new ArcItem(m_arcSource, target));
+
+    auto nameOf = [](QGraphicsItem *item) -> QString {
+        if (auto *p = dynamic_cast<PlaceItem *>(item))      return p->name();
+        if (auto *t = dynamic_cast<TransitionItem *>(item)) return t->name();
+        return "?";
+    };
+    log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));
+
+    if (auto *t = dynamic_cast<TransitionItem *>(m_arcSource))
+        emit transitionSelected(t);
+    else if (auto *t = dynamic_cast<TransitionItem *>(target))
+        emit transitionSelected(t);
+
     m_arcSource = nullptr;
 }
 

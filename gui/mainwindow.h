@@ -17,6 +17,7 @@ class QLineEdit;
 class QSpinBox;
 class QLabel;
 class QVBoxLayout;
+class QPlainTextEdit;
 
 /**
  * @brief Hlavní okno aplikace.
@@ -36,6 +37,10 @@ private:
     void setupToolbar();
     /// @brief Vytvoří sidebar s popisem uzlů
     void setupSidebar();
+    /// @brief Vytvoří terminál v dolní části okna
+    void setupTerminal();
+    /// @brief Přidá zprávu do terminálu
+    void appendLog(const QString &msg);
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.
@@ -61,6 +66,9 @@ private:
     TransitionItem *m_editedTransition  = nullptr;
     QWidget        *m_arcPanel          = nullptr;
     QVBoxLayout    *m_arcLayout         = nullptr;
+
+    QDockWidget    *m_terminalDock      = nullptr;
+    QPlainTextEdit *m_terminal          = nullptr;
 };
 
 #endif // MAINWINDOW_H
