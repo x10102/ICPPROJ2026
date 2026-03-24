@@ -11,6 +11,10 @@
 #include <QLabel>
 #include <QScrollBar>
 #include <QPlainTextEdit>
+#include <QProcess>
+#include <QCoreApplication>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
@@ -25,6 +29,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupToolbar();
     setupSidebar();
     setupTerminal();
+    startInterpreter();
  
     connect(m_scene, &PetriScene::logMessage, this, &MainWindow::appendLog);
 
@@ -72,7 +77,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 void MainWindow::setupTerminal() {
     m_terminalDock = new QDockWidget("Terminál", this);
     m_terminalDock->setAllowedAreas(Qt::BottomDockWidgetArea);
- 
+
+    QWidget *container = new QWidget;
+    QVBoxLayout *vbox = new QVBoxLayout(container);
+    vbox->setContentsMargins(4, 4, 4, 4);
+    vbox->setSpacing(4);
+
     m_terminal = new QPlainTextEdit;
     m_terminal->setReadOnly(true);
     m_terminal->setMaximumBlockCount(500);
@@ -81,18 +91,41 @@ void MainWindow::setupTerminal() {
     f.setPointSize(9);
     m_terminal->setFont(f);
     m_terminal->setMinimumHeight(100);
- 
-    m_terminalDock->setWidget(m_terminal);
+    vbox->addWidget(m_terminal);
+
+    // Vstup pro příkazy uživatele
+    QWidget *inputRow = new QWidget;
+    QHBoxLayout *hbox = new QHBoxLayout(inputRow);
+    hbox->setContentsMargins(0, 0, 0, 0);
+    hbox->setSpacing(4);
+
+    m_terminalInput = new QLineEdit;
+    m_terminalInput->setFont(f);
+    m_terminalInput->setPlaceholderText("event value  (nebo neco takoveho idk - stiskni enter)");
+    hbox->addWidget(m_terminalInput);
+
+    QPushButton *sendBtn = new QPushButton("Send");
+    hbox->addWidget(sendBtn);
+
+    vbox->addWidget(inputRow);
+
+    connect(m_terminalInput, &QLineEdit::returnPressed, this, [this]() {
+        sendToInterpreter(m_terminalInput->text());
+        m_terminalInput->clear();
+    });
+    connect(sendBtn, &QPushButton::clicked, this, [this]() {
+        sendToInterpreter(m_terminalInput->text());
+        m_terminalInput->clear();
+    });
+
+    m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
     m_terminalDock->hide();
- 
-    // Toggle button in toolbar — added after toolbar is set up
-    // so we just add it here via a stored toolbar reference
 }
  
 void MainWindow::appendLog(const QString &msg) {
     m_terminal->appendPlainText(msg);
-    // Auto-scroll to bottom
+    // Auto-scroll na konec terminálu
     m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
 }
 
@@ -273,4 +306,48 @@ void MainWindow::setActiveTool(Tool tool, QAction *action) {
     m_scene->setTool(tool);
 
     m_view->setDragMode(tool==Tool::Select ? QGraphicsView::ScrollHandDrag : QGraphicsView::NoDrag);
+}
+
+void MainWindow::sendToInterpreter(const QString &text) {
+    if (!m_process || m_process->state() != QProcess::Running)
+        return;
+    m_process->write((text + "\n").toLocal8Bit());
+    appendLog("> " + text);
+}
+
+void MainWindow::startInterpreter() {
+    QString path = QCoreApplication::applicationDirPath() + "/../../program.out";
+
+    m_process = new QProcess(this);
+
+    connect(m_process, &QProcess::readyReadStandardOutput, this, [this]() {
+        const QString output = QString::fromLocal8Bit(m_process->readAllStandardOutput());
+        for (const QString &line : output.split('\n')) {
+            if (!line.trimmed().isEmpty())
+                appendLog(line);
+        }
+    });
+
+    connect(m_process, &QProcess::readyReadStandardError, this, [this]() {
+        const QString output = QString::fromLocal8Bit(m_process->readAllStandardError());
+        for (const QString &line : output.split('\n')) {
+            if (!line.trimmed().isEmpty())
+                appendLog(line);
+        }
+    });
+
+    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this](int code, QProcess::ExitStatus) {
+        appendLog(QString("--- interpreter exited (code %1) ---").arg(code));
+    });
+
+    m_process->start(path, QStringList{});
+
+    if (m_process->waitForStarted(2000)) {
+        appendLog("--- interpreter started ---");
+        m_terminalDock->show();
+    } else {
+        appendLog("ERROR: Failed to start interpreter: " + path);
+        m_terminalDock->show();
+    }
 }

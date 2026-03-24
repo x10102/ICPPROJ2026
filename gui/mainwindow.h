@@ -18,6 +18,8 @@ class QSpinBox;
 class QLabel;
 class QVBoxLayout;
 class QPlainTextEdit;
+class QProcess;
+class QPushButton;
 
 /**
  * @brief Hlavní okno aplikace.
@@ -41,6 +43,10 @@ private:
     void setupTerminal();
     /// @brief Přidá zprávu do terminálu
     void appendLog(const QString &msg);
+    /// @brief Spustí interpreter jako subprocess
+    void startInterpreter();
+    /// @brief Odešle řádek na stdin interpreteru
+    void sendToInterpreter(const QString &text);
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.
@@ -69,6 +75,9 @@ private:
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr;
+    QLineEdit      *m_terminalInput     = nullptr;
+
+    QProcess       *m_process           = nullptr;
 };
 
 #endif // MAINWINDOW_H
