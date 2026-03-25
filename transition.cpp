@@ -95,3 +95,21 @@ void Transition::fire() {
 void Transition::setIdentifier(const std::string identifier) {
     this->identifier = identifier;
 }
+
+const std::vector<TransitionEdge>& Transition::getEntryEdges() const {
+    return enterEdges;
+}
+
+const std::vector<TransitionEdge>& Transition::getExitEdges() const {
+    return exitEdges;
+}
+
+void Transition::setEntryEdgeWeight(Place *from, uint32_t weight) {
+    for (auto &edge : enterEdges)
+        if (edge.place == from) { edge.weight = weight; return; }
+}
+
+void Transition::setExitEdgeWeight(Place *to, uint32_t weight) {
+    for (auto &edge : exitEdges)
+        if (edge.place == to) { edge.weight = weight; return; }
+}

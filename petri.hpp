@@ -74,6 +74,10 @@ class Transition {
     bool firesOnEvent(const std::string s) const;
     bool checkGuard(void);
     void setIdentifier(const std::string identifier);
+    const std::vector<TransitionEdge>& getEntryEdges() const;
+    const std::vector<TransitionEdge>& getExitEdges()  const;
+    void setEntryEdgeWeight(Place *from, uint32_t weight);
+    void setExitEdgeWeight(Place *to,   uint32_t weight);
 };
 
 #endif

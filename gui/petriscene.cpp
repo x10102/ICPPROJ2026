@@ -208,7 +208,22 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
 
 void PetriScene::drawArc(QGraphicsItem *target)
 {
-    addItem(new ArcItem(m_arcSource, target));
+    ArcItem *arc = new ArcItem(m_arcSource, target);
+    addItem(arc);
+
+    if (m_interp) {
+        auto *srcPlace = dynamic_cast<PlaceItem *>(m_arcSource);
+        auto *srcTrans = dynamic_cast<TransitionItem *>(m_arcSource);
+        auto *dstPlace = dynamic_cast<PlaceItem *>(target);
+        auto *dstTrans = dynamic_cast<TransitionItem *>(target);
+
+        if (srcPlace && dstTrans && srcPlace->interpPlace() && dstTrans->interpTransition())
+            // Place → Transition: entry edge
+            dstTrans->interpTransition()->addEntryEdge(srcPlace->interpPlace(), arc->weight());
+        else if (srcTrans && dstPlace && srcTrans->interpTransition() && dstPlace->interpPlace())
+            // Transition → Place: exit edge
+            srcTrans->interpTransition()->addExitEdge(dstPlace->interpPlace(), arc->weight());
+    }
 
     auto nameOf = [](QGraphicsItem *item) -> QString {
         if (auto *p = dynamic_cast<PlaceItem *>(item))      return p->name();

@@ -19,6 +19,7 @@ void QtInterpreter::printState() {
                         .arg(place->getTokenCount());
         }
     }
+
     result += "\n-- TRANSITIONS --\n";
     if (transitions.empty()) {
         result += " (no transitions)\n";
@@ -29,5 +30,27 @@ void QtInterpreter::printState() {
                         .arg(QString::fromStdString(id));
         }
     }
+
+    result += "\n-- ARCS --\n";
+    bool anyArc = false;
+    for (const auto &[id, transition] : transitions) {
+        for (const auto &edge : transition->getEntryEdges()) {
+            result += QString("  %1 --> %2  (w:%3)\n")
+                          .arg(QString::fromStdString(edge.place->identifier))
+                          .arg(QString::fromStdString(id))
+                          .arg(edge.weight);
+            anyArc = true;
+        }
+        for (const auto &edge : transition->getExitEdges()) {
+            result += QString("  %1 --> %2  (w:%3)\n")
+                          .arg(QString::fromStdString(id))
+                          .arg(QString::fromStdString(edge.place->identifier))
+                          .arg(edge.weight);
+            anyArc = true;
+        }
+    }
+    if (!anyArc)
+        result += " (no arcs)\n";
+
     emit statePrinted(result.trimmed());
 }

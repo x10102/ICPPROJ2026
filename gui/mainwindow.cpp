@@ -307,8 +307,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             QWidget *row = new QWidget;
             QHBoxLayout *hbox = new QHBoxLayout(row);
             hbox->setContentsMargins(0, 0, 0, 0);
-            QString label = QString("%1 ->").arg(placeName);
-            hbox->addWidget(new QLabel(label));
+            hbox->addWidget(new QLabel(QString("%1 ->").arg(placeName)));
 
             QSpinBox *wspin = new QSpinBox;
             wspin->setMinimum(0);
@@ -317,8 +316,10 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             wspin->setFixedWidth(60);
             hbox->addWidget(wspin);
 
-            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc](int val) {
+            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
                 arc->setWeight(val);
+                if (transition->interpTransition() && place && place->interpPlace())
+                    transition->interpTransition()->setEntryEdgeWeight(place->interpPlace(), val);
             });
 
             m_arcLayout->addWidget(row);
@@ -335,8 +336,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             QWidget *row = new QWidget;
             QHBoxLayout *hbox = new QHBoxLayout(row);
             hbox->setContentsMargins(0, 0, 0, 0);
-            QString label = QString("-> %1").arg(placeName);
-            hbox->addWidget(new QLabel(label));
+            hbox->addWidget(new QLabel(QString("-> %1").arg(placeName)));
 
             QSpinBox *wspin = new QSpinBox;
             wspin->setMinimum(0);
@@ -345,8 +345,10 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             wspin->setFixedWidth(60);
             hbox->addWidget(wspin);
 
-            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc](int val) {
+            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
                 arc->setWeight(val);
+                if (transition->interpTransition() && place && place->interpPlace())
+                    transition->interpTransition()->setExitEdgeWeight(place->interpPlace(), val);
             });
 
             m_arcLayout->addWidget(row);
