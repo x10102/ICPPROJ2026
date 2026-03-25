@@ -19,13 +19,11 @@ public:
 
     /// @brief Přesměruje Interpreter::outputEvent na outputReceived signál.
     void outputEvent(const std::string output, const std::string value) override;
-
-    /// @brief Vrátí všechny místa a počet tokenů - aktuálně pro testovací účely
-    QString stateString() const;
+    void printState() override;
 
 signals:
-    /// @brief Signál, který se vyšle při každém Interperter::outputEvent
     void outputReceived(const QString &name, const QString &value);
+    void statePrinted(const QString &state);
 };
 
 #endif // QTINTERP_H

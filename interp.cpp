@@ -88,6 +88,10 @@ Transition* Interpreter::createTransition(string identifier) {
     return ptr;
 }
 
+bool Interpreter::removePlace(const string &identifier) {
+    return places.erase(identifier) > 0;
+}
+
 // Renames place, ie. changes identifier of place
 bool Interpreter::renamePlace(const string &oldId, const string &newId) {
     auto it = places.find(oldId);

@@ -141,6 +141,8 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
         log(QString("%1: tokeny resetovány").arg(place->name()));
     }
     else if (chosen == remove) {
+        if (m_interp && place->interpPlace())
+            m_interp->removePlace(place->interpPlace()->identifier);
         log(QString("Místo %1 smazáno").arg(place->name()));
         removeItem(place);
         delete place;
@@ -166,6 +168,11 @@ void PetriScene::keyPressEvent(QKeyEvent *event){
         if (selected.isEmpty())
             return;
         for (QGraphicsItem *item : selected){
+            if (m_interp) {
+                if (auto *place = dynamic_cast<PlaceItem *>(item))
+                    if (place->interpPlace())
+                        m_interp->removePlace(place->interpPlace()->identifier);
+            }
             removeItem(item);
             delete item;
         }

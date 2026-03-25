@@ -34,13 +34,14 @@ class Interpreter {
         Place* createPlace(string identifier, uint32_t initial_tokens);
         Place* getPlace(string identifier);
         bool renamePlace(const string &oldId, const string &newId);
+        bool removePlace(const string &identifier);
         Transition* createTransition(string identifier);
         void doTransitions();
         void inputEvent(const std::string input, const std::string value);
         virtual void outputEvent(const std::string output, const std::string value);
         void waitForAllTimers();
         void terminate();
-        void printState();
+        virtual void printState();
         bool inputDefined(const std::string input);
         std::string *lastInputValue(const std::string input);
         Interpreter();

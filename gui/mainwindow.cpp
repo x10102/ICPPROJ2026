@@ -181,10 +181,7 @@ void MainWindow::setupToolbar(){
 
     QAction *stateAct = tb->addAction("State");
     connect(stateAct, &QAction::triggered, this, [this]() {
-        appendInterpLog("--- interpreter state ---");
-        appendInterpLog(m_interp->stateString());
-        appendInterpLog("-------------------------");
-        m_terminalDock->show();
+        m_interp->printState();
     });
 
     (void)placeAct;
@@ -357,9 +354,14 @@ void MainWindow::startInterpreter() {
     // Let scripting helpers (valueof, tokens, output, etc.) find this instance
     setHelperInterpreter(m_interp);
 
-    // Route output events to the interpreter tab
     connect(m_interp, &QtInterpreter::outputReceived, this, [this](const QString &name, const QString &value) {
         appendInterpLog(QString("OUTPUT: %1 = %2").arg(name, value));
+    });
+    connect(m_interp, &QtInterpreter::statePrinted, this, [this](const QString &state) {
+        appendInterpLog("--- state ---");
+        appendInterpLog(state);
+        appendInterpLog("-------------");
+        m_terminalDock->show();
     });
 
     appendInterpLog("--- interpreter ready ---");
