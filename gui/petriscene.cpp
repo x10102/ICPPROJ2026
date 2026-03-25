@@ -42,8 +42,14 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         }
         case Tool::AddTransition: {
             auto *transition = new TransitionItem(pos);
+            QString name = QString("t%1").arg(++m_transitionCounter);
+            transition->setName(name);
             addItem(transition);
-            log(QString("Přechod %1 přidán").arg(transition->name()));
+            if (m_interp) {
+                Transition *t = m_interp->createTransition(name.toStdString());
+                transition->setInterpTransition(t);
+            }
+            log(QString("Přechod %1 přidán").arg(name));
             break;
         }
         case Tool::AddArc: {
@@ -120,10 +126,12 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     if (chosen == addOne) {
         if (ip) ip->addTokens(1);
         place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() + 1);
+        log(QString("%1: přidán jeden token").arg(place->name()));
     }
     else if (chosen == removeOne) {
         if (ip) ip->removeTokens(1);
         place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() - 1);
+        log(QString("%1: odebrán jeden token").arg(place->name()));
     }
     else if (chosen == setZero) {
         if (ip) ip->removeTokens(ip->getTokenCount());
@@ -154,11 +162,16 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
 void PetriScene::showTransitionContextMenu(TransitionItem *transition, QPoint screenPos){
     QMenu menu;
 
-    QAction *temp = menu.addAction("Random temporary thingie lol");
+    QAction *remove = menu.addAction("Odstranit přechod");
 
     QAction *chosen = menu.exec(screenPos);
-    if (chosen == temp) {
-        return;
+    if (chosen == remove) {
+        if (m_interp && transition->interpTransition())
+            m_interp->removeTransition(transition->interpTransition()->identifier);
+        log(QString("Přechod %1 smazán").arg(transition->name()));
+        removeItem(transition);
+        delete transition;
+        emit selectionCleared();
     }
 }
 
@@ -172,6 +185,9 @@ void PetriScene::keyPressEvent(QKeyEvent *event){
                 if (auto *place = dynamic_cast<PlaceItem *>(item))
                     if (place->interpPlace())
                         m_interp->removePlace(place->interpPlace()->identifier);
+                if (auto *transition = dynamic_cast<TransitionItem *>(item))
+                    if (transition->interpTransition())
+                        m_interp->removeTransition(transition->interpTransition()->identifier);
             }
             removeItem(item);
             delete item;

@@ -15,7 +15,8 @@
 #include <QPainter>
 #include <cmath>
 
-class Place; // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
+class Place;      // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
+class Transition; // forward declaration — TransitionItem holds a pointer to its interpreter counterpart
 
 /**
  * @brief Grafická reprezentace místa (place) v Petriho síti.
@@ -89,7 +90,7 @@ protected:
 private:
     int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
     QString m_name;               ///< Název místa
-    Place *m_interpPlace = nullptr; ///< Pointer to the interpreter Place this item represents
+    Place *m_interpPlace = nullptr; ///< Pointer na interpreter Place, kterou tato place reprezentuje
 };
 
 /**
@@ -124,8 +125,12 @@ public:
         update();
     }
 
+    void setInterpTransition(Transition *t) { m_interpTransition = t; }
+    Transition *interpTransition() const { return m_interpTransition; }
+
 private:
-    QString m_name; ///< Název přechodu
+    QString m_name;                       ///< Název přechodu
+    Transition *m_interpTransition = nullptr; ///< Pointer na interpreter Transition, kterou tato transition reprezentuje
 };
 
 /**

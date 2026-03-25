@@ -91,3 +91,7 @@ void Transition::fire() {
         transitionEventAction();
     }
 }
+
+void Transition::setIdentifier(const std::string identifier) {
+    this->identifier = identifier;
+}

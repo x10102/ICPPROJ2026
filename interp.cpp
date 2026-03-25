@@ -88,6 +88,30 @@ Transition* Interpreter::createTransition(string identifier) {
     return ptr;
 }
 
+bool Interpreter::removeTransition(const string &identifier) {
+    transitionOrder.erase(identifier);
+    return transitions.erase(identifier) > 0;
+}
+
+// Renames transition, ie. changes identifier of transition
+bool Interpreter::renameTransition(const string &oldId, const string &newId) {
+    auto it = transitions.find(oldId);
+    if (it == transitions.end() || transitions.count(newId))
+        return false;
+    it->second->setIdentifier(newId);
+    transitions.emplace(newId, std::move(it->second));
+    transitions.erase(it);
+    return true;
+}
+
+// Creates a place
+Place* Interpreter::createPlace(string identifier, uint32_t initial_tokens) {
+    auto p = make_unique<Place>(identifier, initial_tokens);
+    Place *ptr = p.get();
+    places.emplace(identifier, std::move(p));
+    return ptr;
+}
+
 bool Interpreter::removePlace(const string &identifier) {
     return places.erase(identifier) > 0;
 }
@@ -101,14 +125,6 @@ bool Interpreter::renamePlace(const string &oldId, const string &newId) {
     places.emplace(newId, std::move(it->second));
     places.erase(it);
     return true;
-}
-
-// Creates a place
-Place* Interpreter::createPlace(string identifier, uint32_t initial_tokens) {
-    auto p = make_unique<Place>(identifier, initial_tokens);
-    Place *ptr = p.get();
-    places.emplace(identifier, std::move(p));
-    return ptr;
 }
 
 // Returns a pointer to a place with the specified identifier

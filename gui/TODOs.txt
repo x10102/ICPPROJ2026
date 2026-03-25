@@ -1,0 +1,4 @@
+- Okomentovat neokomentovane
+- Pridat GUI logs na vsechny mista
+- Nastavit Interpreter terminal jako hlavni okno
+- Vypnout input pro terminal v gui okne NEBO pri zadani prepnout do Interpreter okna

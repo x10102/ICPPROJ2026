@@ -73,6 +73,7 @@ class Transition {
     bool isDelayed(void) const;
     bool firesOnEvent(const std::string s) const;
     bool checkGuard(void);
+    void setIdentifier(const std::string identifier);
 };
 
 #endif

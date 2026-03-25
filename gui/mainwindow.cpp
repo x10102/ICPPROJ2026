@@ -77,6 +77,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     });
 }
 
+
+// -------------------------
+//          TERMINAL
+// -------------------------
 void MainWindow::setupTerminal() {
     m_terminalDock = new QDockWidget("Terminál", this);
     m_terminalDock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -146,7 +150,15 @@ void MainWindow::appendInterpLog(const QString &msg) {
     m_interpLog->appendPlainText(msg);
     m_interpLog->verticalScrollBar()->setValue(m_interpLog->verticalScrollBar()->maximum());
 }
+// -------------------------
+//     end of TERMINAL
+// -------------------------
 
+
+
+// -------------------------
+//          TOOLBAR
+// -------------------------
 void MainWindow::setupToolbar(){
     QToolBar *tb = addToolBar("Nástroje");
     tb->setMovable(false);
@@ -187,7 +199,15 @@ void MainWindow::setupToolbar(){
     (void)placeAct;
     (void)transitionAct;
 }
+// -------------------------
+//     end of TOOLBAR
+// -------------------------
 
+
+
+// -------------------------
+//          SIDEBAR
+// -------------------------
 void MainWindow::setupSidebar(){
     m_dock = new QDockWidget("Vlastnosti", this);
     m_dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -245,6 +265,9 @@ void MainWindow::setupSidebar(){
     addDockWidget(Qt::RightDockWidgetArea, m_dock);
     m_dock->hide();
 }
+// -------------------------
+//     end of SIDEBAR
+// -------------------------
 
 void MainWindow::clearArcRows()
 {

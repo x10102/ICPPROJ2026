@@ -7,16 +7,27 @@ void QtInterpreter::outputEvent(const std::string output, const std::string valu
 }
 
 void QtInterpreter::printState() {
-    if (places.empty()) {
-        emit statePrinted("  (no places)");
-        return;
-    }
     QString result = "-- PLACES --\n";
-    for (const auto &[id, place] : places) {
-        result += QString("  %1  ITOK: %2  CTOK: %3\n")
-                      .arg(QString::fromStdString(id))
-                      .arg(place->getInitTokens())
-                      .arg(place->getTokenCount());
+    if (places.empty()) {
+        result += " (no places)\n";
+    }
+    else {
+        for (const auto &[id, place] : places) {
+            result += QString("  %1  ITOK: %2  CTOK: %3\n")
+                        .arg(QString::fromStdString(id))
+                        .arg(place->getInitTokens())
+                        .arg(place->getTokenCount());
+        }
+    }
+    result += "\n-- TRANSITIONS --\n";
+    if (transitions.empty()) {
+        result += " (no transitions)\n";
+    }
+    else {
+        for (const auto &[id, transition] : transitions) {
+            result += QString("  %1\n")
+                        .arg(QString::fromStdString(id));
+        }
     }
     emit statePrinted(result.trimmed());
 }

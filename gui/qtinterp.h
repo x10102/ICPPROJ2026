@@ -3,7 +3,7 @@
  * @author Dalibor Kalina, xkalin16
  * @brief Wrapper nad interpretem
  *
- * Odchytává outputEvent() interpretu a přesměruje ho na Qt signál.
+ * Odchytává eventy interpretu a přesměruje je na Qt signál.
  */
 #ifndef QTINTERP_H
 #define QTINTERP_H

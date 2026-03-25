@@ -36,6 +36,8 @@ class Interpreter {
         bool renamePlace(const string &oldId, const string &newId);
         bool removePlace(const string &identifier);
         Transition* createTransition(string identifier);
+        bool renameTransition(const string &oldId, const string &newId);
+        bool removeTransition(const string &identifier);
         void doTransitions();
         void inputEvent(const std::string input, const std::string value);
         virtual void outputEvent(const std::string output, const std::string value);

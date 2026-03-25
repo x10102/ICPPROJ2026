@@ -85,6 +85,7 @@ private:
     QGraphicsItem *m_arcSource = nullptr; ///< TODO
     QtInterpreter *m_interp    = nullptr; ///< Interpreter pro tvorbu míst a přechodů
     int m_placeCounter         = 0;       ///< Čítač pro generování jmen míst
+    int m_transitionCounter    = 0;       ///< Čítač pro generování jmen přechodů
 };
 
 #endif // PETRISCENE_H
