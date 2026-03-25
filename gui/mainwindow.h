@@ -18,8 +18,8 @@ class QSpinBox;
 class QLabel;
 class QVBoxLayout;
 class QPlainTextEdit;
-class QProcess;
 class QPushButton;
+class QtInterpreter;
 
 /**
  * @brief Hlavní okno aplikace.
@@ -41,8 +41,10 @@ private:
     void setupSidebar();
     /// @brief Vytvoří terminál v dolní části okna
     void setupTerminal();
-    /// @brief Přidá zprávu do terminálu
+    /// @brief Přidá zprávu do záložky GUI logu
     void appendLog(const QString &msg);
+    /// @brief Přidá zprávu do záložky interpreter logu
+    void appendInterpLog(const QString &msg);
     /// @brief Spustí interpreter jako subprocess
     void startInterpreter();
     /// @brief Odešle řádek na stdin interpreteru
@@ -74,10 +76,11 @@ private:
     QVBoxLayout    *m_arcLayout         = nullptr;
 
     QDockWidget    *m_terminalDock      = nullptr;
-    QPlainTextEdit *m_terminal          = nullptr;
+    QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
+    QPlainTextEdit *m_interpLog         = nullptr; ///< Interpreter output tab
     QLineEdit      *m_terminalInput     = nullptr;
 
-    QProcess       *m_process           = nullptr;
+    QtInterpreter  *m_interp            = nullptr;
 };
 
 #endif // MAINWINDOW_H

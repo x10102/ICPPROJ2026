@@ -15,6 +15,8 @@
 #include <QPainter>
 #include <cmath>
 
+class Place; // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
+
 /**
  * @brief Grafická reprezentace místa (place) v Petriho síti.
  *
@@ -66,6 +68,11 @@ public:
         update();
     }
 
+    /// @brief Links this item to its interpreter Place counterpart.
+    void setInterpPlace(Place *p) { m_interpPlace = p; }
+    /// @brief Returns the linked interpreter Place, or nullptr if not linked.
+    Place *interpPlace() const { return m_interpPlace; }
+
 protected:
     /// @brief Vykreslí místo a počet tokenů uprostřed.
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
@@ -80,8 +87,9 @@ protected:
     }
 
 private:
-    int m_tokens = 0; ///< Aktuální počet tokenů
-    QString m_name; ///< Název místa
+    int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
+    QString m_name;               ///< Název místa
+    Place *m_interpPlace = nullptr; ///< Pointer to the interpreter Place this item represents
 };
 
 /**

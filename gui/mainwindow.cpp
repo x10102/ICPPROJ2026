@@ -1,9 +1,11 @@
 #include "mainwindow.h"
+#include "../petri.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
 #include <QFont>
 #include <QDockWidget>
+#include <QTabWidget>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QSpinBox>
@@ -11,10 +13,10 @@
 #include <QLabel>
 #include <QScrollBar>
 #include <QPlainTextEdit>
-#include <QProcess>
-#include <QCoreApplication>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include "qtinterp.h"
+#include "scripting_helper.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
@@ -30,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupSidebar();
     setupTerminal();
     startInterpreter();
+    m_scene->setInterpreter(m_interp);
  
     connect(m_scene, &PetriScene::logMessage, this, &MainWindow::appendLog);
 
@@ -83,15 +86,26 @@ void MainWindow::setupTerminal() {
     vbox->setContentsMargins(4, 4, 4, 4);
     vbox->setSpacing(4);
 
-    m_terminal = new QPlainTextEdit;
-    m_terminal->setReadOnly(true);
-    m_terminal->setMaximumBlockCount(500);
     QFont f("Monospace");
     f.setStyleHint(QFont::TypeWriter);
     f.setPointSize(9);
-    m_terminal->setFont(f);
-    m_terminal->setMinimumHeight(100);
-    vbox->addWidget(m_terminal);
+
+    auto makeLog = [&]() {
+        auto *w = new QPlainTextEdit;
+        w->setReadOnly(true);
+        w->setMaximumBlockCount(500);
+        w->setFont(f);
+        w->setMinimumHeight(100);
+        return w;
+    };
+
+    m_terminal  = makeLog();
+    m_interpLog = makeLog();
+
+    QTabWidget *tabs = new QTabWidget;
+    tabs->addTab(m_terminal,  "GUI");
+    tabs->addTab(m_interpLog, "Interpreter");
+    vbox->addWidget(tabs);
 
     // Vstup pro příkazy uživatele
     QWidget *inputRow = new QWidget;
@@ -125,8 +139,12 @@ void MainWindow::setupTerminal() {
  
 void MainWindow::appendLog(const QString &msg) {
     m_terminal->appendPlainText(msg);
-    // Auto-scroll na konec terminálu
     m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
+}
+
+void MainWindow::appendInterpLog(const QString &msg) {
+    m_interpLog->appendPlainText(msg);
+    m_interpLog->verticalScrollBar()->setValue(m_interpLog->verticalScrollBar()->maximum());
 }
 
 void MainWindow::setupToolbar(){
@@ -160,6 +178,14 @@ void MainWindow::setupToolbar(){
         checked ? m_terminalDock->show() : m_terminalDock->hide();
     });
     connect(m_terminalDock, &QDockWidget::visibilityChanged, termAct, &QAction::setChecked);
+
+    QAction *stateAct = tb->addAction("State");
+    connect(stateAct, &QAction::triggered, this, [this]() {
+        appendInterpLog("--- interpreter state ---");
+        appendInterpLog(m_interp->stateString());
+        appendInterpLog("-------------------------");
+        m_terminalDock->show();
+    });
 
     (void)placeAct;
     (void)transitionAct;
@@ -201,11 +227,21 @@ void MainWindow::setupSidebar(){
     vbox->addStretch();
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
-        if (m_editedPlace) m_editedPlace->setName(text);
+        if (m_editedPlace) {
+            if (Place *ip = m_editedPlace->interpPlace())
+                m_interp->renamePlace(ip->identifier, text.toStdString());
+            m_editedPlace->setName(text);
+        }
         if (m_editedTransition) m_editedTransition->setName(text);
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
-        if (m_editedPlace) m_editedPlace->setTokens(val);
+        if (!m_editedPlace) return;
+        if (Place *ip = m_editedPlace->interpPlace()) {
+            int cur = (int)ip->getTokenCount();
+            if (val > cur) ip->addTokens(val - cur);
+            else if (val < cur) ip->removeTokens(cur - val);
+        }
+        m_editedPlace->setTokens(val);
     });
 
     m_dock->setWidget(panel);
@@ -309,45 +345,23 @@ void MainWindow::setActiveTool(Tool tool, QAction *action) {
 }
 
 void MainWindow::sendToInterpreter(const QString &text) {
-    if (!m_process || m_process->state() != QProcess::Running)
+    if (!m_interp)
         return;
-    m_process->write((text + "\n").toLocal8Bit());
     appendLog("> " + text);
+    m_interp->inputEvent(text.toStdString(), "");
 }
 
 void MainWindow::startInterpreter() {
-    QString path = QCoreApplication::applicationDirPath() + "/../../program.out";
+    m_interp = new QtInterpreter(this);
 
-    m_process = new QProcess(this);
+    // Let scripting helpers (valueof, tokens, output, etc.) find this instance
+    setHelperInterpreter(m_interp);
 
-    connect(m_process, &QProcess::readyReadStandardOutput, this, [this]() {
-        const QString output = QString::fromLocal8Bit(m_process->readAllStandardOutput());
-        for (const QString &line : output.split('\n')) {
-            if (!line.trimmed().isEmpty())
-                appendLog(line);
-        }
+    // Route output events to the interpreter tab
+    connect(m_interp, &QtInterpreter::outputReceived, this, [this](const QString &name, const QString &value) {
+        appendInterpLog(QString("OUTPUT: %1 = %2").arg(name, value));
     });
 
-    connect(m_process, &QProcess::readyReadStandardError, this, [this]() {
-        const QString output = QString::fromLocal8Bit(m_process->readAllStandardError());
-        for (const QString &line : output.split('\n')) {
-            if (!line.trimmed().isEmpty())
-                appendLog(line);
-        }
-    });
-
-    connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-            this, [this](int code, QProcess::ExitStatus) {
-        appendLog(QString("--- interpreter exited (code %1) ---").arg(code));
-    });
-
-    m_process->start(path, QStringList{});
-
-    if (m_process->waitForStarted(2000)) {
-        appendLog("--- interpreter started ---");
-        m_terminalDock->show();
-    } else {
-        appendLog("ERROR: Failed to start interpreter: " + path);
-        m_terminalDock->show();
-    }
+    appendInterpLog("--- interpreter ready ---");
+    m_terminalDock->show();
 }

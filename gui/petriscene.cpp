@@ -1,4 +1,5 @@
 #include "petriscene.h"
+#include "../petri.hpp"
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
@@ -13,6 +14,10 @@ void PetriScene::setTool(Tool tool) {
     m_tool = tool;
 }
 
+void PetriScene::setInterpreter(QtInterpreter *interp) {
+    m_interp = interp;
+}
+
 void PetriScene::log(const QString &msg) {
     QString time = QDateTime::currentDateTime().toString("hh:mm:ss");
     emit logMessage(QString("[%1] %2").arg(time, msg));
@@ -25,8 +30,14 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         switch (m_tool) {
         case Tool::AddPlace: {
             auto *place = new PlaceItem(pos);
+            QString name = QString("p%1").arg(++m_placeCounter);
+            place->setName(name);
             addItem(place);
-            log(QString("Místo %1 přidáno").arg(place->name()));
+            if (m_interp) {
+                Place *p = m_interp->createPlace(name.toStdString(), place->tokens());
+                place->setInterpPlace(p);
+            }
+            log(QString("Místo %1 přidáno").arg(name));
             break;
         }
         case Tool::AddTransition: {
@@ -97,7 +108,7 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     QAction *addOne = menu.addAction("Přidej token");
     QAction *removeOne = menu.addAction("Oddělej token");
     QAction *setZero = menu.addAction("Vynulovat tokeny");
-    QAction *reset = menu.addAction("TODO - resetovat tokeny");
+    QAction *reset = menu.addAction("Resetovat tokeny");
     menu.addSeparator();
     QAction *remove = menu.addAction("Smazat místo");
 
@@ -105,18 +116,29 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     setZero->setEnabled(place->tokens() > 0);
 
     QAction *chosen = menu.exec(screenPos);
+    Place *ip = place->interpPlace();
     if (chosen == addOne) {
-        place->addToken();
+        if (ip) ip->addTokens(1);
+        place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() + 1);
     }
     else if (chosen == removeOne) {
-        place->removeToken();
+        if (ip) ip->removeTokens(1);
+        place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() - 1);
     }
     else if (chosen == setZero) {
+        if (ip) ip->removeTokens(ip->getTokenCount());
         place->setTokens(0);
         log(QString("%1: tokeny vynulovány").arg(place->name()));
     }
     else if (chosen == reset) {
-        //TODO
+        if (ip) {
+            uint32_t cur = ip->getTokenCount();
+            uint32_t init = ip->getInitTokens();
+            if (init > cur) ip->addTokens(init - cur);
+            else if (cur > init) ip->removeTokens(cur - init);
+            place->setTokens((int)ip->getTokenCount());
+        }
+        log(QString("%1: tokeny resetovány").arg(place->name()));
     }
     else if (chosen == remove) {
         log(QString("Místo %1 smazáno").arg(place->name()));

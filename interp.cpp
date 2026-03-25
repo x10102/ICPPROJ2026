@@ -88,6 +88,17 @@ Transition* Interpreter::createTransition(string identifier) {
     return ptr;
 }
 
+// Renames place, ie. changes identifier of place
+bool Interpreter::renamePlace(const string &oldId, const string &newId) {
+    auto it = places.find(oldId);
+    if (it == places.end() || places.count(newId))
+        return false;
+    it->second->setIdentifier(newId);
+    places.emplace(newId, std::move(it->second));
+    places.erase(it);
+    return true;
+}
+
 // Creates a place
 Place* Interpreter::createPlace(string identifier, uint32_t initial_tokens) {
     auto p = make_unique<Place>(identifier, initial_tokens);

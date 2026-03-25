@@ -20,6 +20,15 @@ set(PROJECT_SOURCES
         items.h
         petriscene.h
         petriscene.cpp
+        qtinterp.h
+        qtinterp.cpp
+        ../interp.cpp
+        ../interp.hpp
+        ../petri.hpp
+        ../place.cpp
+        ../transition.cpp
+        ../scripting_helper.cpp
+        ../scripting_helper.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -46,6 +55,7 @@ else()
 endif()
 
 target_link_libraries(petri-editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(petri-editor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

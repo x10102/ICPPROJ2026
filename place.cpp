@@ -47,3 +47,7 @@ bool Place::removeTokens(const uint32_t token_count) {
         return false;
     }
 }
+
+void Place::setIdentifier(const std::string identifier) {
+    this->identifier = identifier;
+}

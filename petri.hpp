@@ -31,6 +31,7 @@ class Place {
     std::chrono::milliseconds getLastChangeTime(void) const;
     void addTokens(const uint32_t token_count);
     bool removeTokens(const uint32_t token_count);
+    void setIdentifier(const std::string identifier);
 };
 
 struct TransitionEdge {
