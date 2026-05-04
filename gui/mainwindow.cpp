@@ -4,6 +4,7 @@
 #include <QToolBar>
 #include <QAction>
 #include <QFont>
+#include <QFrame>
 #include <QDockWidget>
 #include <QTabWidget>
 #include <QFormLayout>
@@ -15,6 +16,7 @@
 #include <QPlainTextEdit>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QMouseEvent>
 #include "qtinterp.h"
 #include "scripting_helper.hpp"
 
@@ -25,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_scene = new PetriScene(this);
     m_view = new QGraphicsView(m_scene, this);
     m_view->setRenderHint(QPainter::Antialiasing);
-    m_view->setDragMode(QGraphicsView::ScrollHandDrag);
     setCentralWidget(m_view);
 
     setupToolbar();
@@ -33,7 +34,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupTerminal();
     startInterpreter();
     m_scene->setInterpreter(m_interp);
- 
+
+    setupFloatingPanels();
+    m_view->installEventFilter(this);
+    m_view->viewport()->installEventFilter(this);
+
     connect(m_scene, &PetriScene::logMessage, this, &MainWindow::appendLog);
 
     connect(m_scene, &PetriScene::placeSelected, this, [this](PlaceItem *place) {
@@ -163,27 +168,6 @@ void MainWindow::setupToolbar(){
     QToolBar *tb = addToolBar("Nástroje");
     tb->setMovable(false);
 
-    QFont f = tb->font();
-    f.setPointSize(10);
-    tb->setFont(f);
-
-    auto makeAction = [&](const QString &label, Tool tool) {
-        QAction *a = tb->addAction(label);
-        a->setCheckable(true);
-        connect(a, &QAction::triggered, this, [this, tool, a]() {
-            setActiveTool(tool, a);
-        });
-        return a;
-    };
-
-    QAction *selectAct = makeAction("Select", Tool::Select);
-    QAction *placeAct = makeAction("Place", Tool::AddPlace);
-    QAction *transitionAct = makeAction("Transition", Tool::AddTransition);
-    QAction *ArcAct = makeAction("Arc", Tool::AddArc);
-
-    setActiveTool(Tool::Select, selectAct);
-
-    tb->addSeparator();
     QAction *termAct = tb->addAction("Terminál");
     termAct->setCheckable(true);
     connect(termAct, &QAction::toggled, this, [this](bool checked) {
@@ -196,22 +180,138 @@ void MainWindow::setupToolbar(){
         m_interp->printState();
     });
 
-    tb->addSeparator();
-    m_stepAct = tb->addAction("Step");
-    connect(m_stepAct, &QAction::triggered, this, [this]() {
-        m_interp->doTransitionStep();
-        m_scene->syncTokensFromInterpreter();
-    });
-
-    m_runAct = tb->addAction("Run");
-    m_runAct->setCheckable(true);
-    m_runAct->setEnabled(false);
-
-    (void)placeAct;
-    (void)transitionAct;
+    (void)stateAct;
 }
 // -------------------------
 //     end of TOOLBAR
+// -------------------------
+
+
+
+// -------------------------
+//     PANEL WITH BUTTONS
+// -------------------------
+void MainWindow::setupFloatingPanels() {
+    // Panel nástrojů vlevo nahore
+    m_toolPanel = new QFrame(m_view);
+    m_toolPanel->setFrameShape(QFrame::StyledPanel);
+    m_toolPanel->setStyleSheet(
+        "QFrame { background: rgba(245,245,245,220); border-radius: 6px; }"
+        "QPushButton { min-width: 90px; padding: 4px 8px; }"
+        "QPushButton:checked { background: #4a90d9; color: white; border-radius: 3px; }"
+    );
+
+    QVBoxLayout *toolLayout = new QVBoxLayout(m_toolPanel);
+    toolLayout->setContentsMargins(6,6,6,6);
+    toolLayout->setSpacing(4);
+
+    auto makeToolBtn = [&](const QString &label, Tool tool) {
+        auto *btn = new QPushButton(label, m_toolPanel);
+        btn->setCheckable(true);
+        connect(btn, &QPushButton::clicked, this, [this, tool, btn]() {
+            setActiveTool(tool, btn);
+        });
+        toolLayout->addWidget(btn);
+        return btn;
+    };
+
+    QPushButton *panBtn    = makeToolBtn("Pan", Tool::Pan);
+    QPushButton *selectBtn = makeToolBtn("Select", Tool::Select);
+    makeToolBtn("Place", Tool::AddPlace);
+    makeToolBtn("Transition", Tool::AddTransition);
+    makeToolBtn("Arc", Tool::AddArc);
+    makeToolBtn("Remove", Tool::Remove);
+
+    m_toolPanel->adjustSize();
+    m_toolPanel->move(10, 10);
+    m_toolPanel->show();
+    m_toolPanel->raise();
+
+    (void)panBtn;
+    setActiveTool(Tool::Select, selectBtn);
+
+    // --- Panel simulace (vpravo dole) ---
+    m_simPanel = new QFrame(m_view);
+    m_simPanel->setFrameShape(QFrame::StyledPanel);
+    m_simPanel->setStyleSheet(
+        "QFrame { background: rgba(245,245,245,220); border-radius: 6px; }"
+        "QPushButton { min-width: 60px; padding: 4px 12px; }"
+        "QPushButton:checked { background: #4a90d9; color: white; border-radius: 3px; }"
+    );
+
+    QHBoxLayout *simLayout = new QHBoxLayout(m_simPanel);
+    simLayout->setContentsMargins(6,6,6,6);
+    simLayout->setSpacing(6);
+
+    QPushButton *stepBtn = new QPushButton("Step", m_simPanel);
+    connect(stepBtn, &QPushButton::clicked, this, [this]() {
+        m_interp->doTransitionStep();
+        m_scene->syncTokensFromInterpreter();
+    });
+    simLayout->addWidget(stepBtn);
+
+    m_runBtn = new QPushButton("Run", m_simPanel);
+    m_runBtn->setCheckable(true);
+    m_runBtn->setEnabled(false);
+    simLayout->addWidget(m_runBtn);
+
+    m_simPanel->adjustSize();
+    m_simPanel->show();
+    m_simPanel->raise();
+    repositionSimPanel();
+}
+// -------------------------
+//     end of PANEL WITH BUTTONS
+// -------------------------
+
+
+void MainWindow::repositionSimPanel() {
+    if (!m_simPanel || !m_view) return;
+    QRect vp = m_view->viewport()->geometry();
+    m_simPanel->move(vp.right()  - m_simPanel->width()  - 10,
+                     vp.bottom() - m_simPanel->height() - 10);
+    m_simPanel->raise();
+    m_toolPanel->raise();
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+    if (obj == m_view && event->type() == QEvent::Resize) {
+        repositionSimPanel();
+        return false;
+    }
+
+    if (obj == m_view->viewport()) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            auto *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::MiddleButton) {
+                m_panLastPos = me->pos();
+                m_isPanning  = true;
+                m_view->viewport()->setCursor(Qt::ClosedHandCursor);
+                return true;
+            }
+        } else if (event->type() == QEvent::MouseMove && m_isPanning) {
+            auto *me = static_cast<QMouseEvent *>(event);
+            QPoint delta = me->pos() - m_panLastPos;
+            m_panLastPos = me->pos();
+            m_view->horizontalScrollBar()->setValue(
+                m_view->horizontalScrollBar()->value() - delta.x());
+            m_view->verticalScrollBar()->setValue(
+                m_view->verticalScrollBar()->value() - delta.y());
+            return true;
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            auto *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::MiddleButton) {
+                m_isPanning = false;
+                m_view->viewport()->unsetCursor();
+                return true;
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(obj, event);
+}
+// -------------------------
+//     end of FLOATING PANELS
 // -------------------------
 
 
@@ -312,8 +412,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
     }
 
     if (!incoming.isEmpty()){
-        QLabel *header = new QLabel("<br>Příchozí<br>");
-        m_arcLayout->addWidget(header);
+        m_arcLayout->addWidget(new QLabel("<br>Příchozí<br>"));
 
         for (ArcItem *arc : incoming){
             auto *place = dynamic_cast<PlaceItem *>(arc->fromItem());
@@ -341,8 +440,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
         }
     }
     if (!outgoing.isEmpty()){
-        QLabel *header = new QLabel("<br>Odchozí<br>");
-        m_arcLayout->addWidget(header);
+        m_arcLayout->addWidget(new QLabel("<br>Odchozí<br>"));
 
         for (ArcItem *arc : outgoing){
             auto *place = dynamic_cast<PlaceItem *>(arc->toItem());
@@ -371,14 +469,24 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
     }
 }
 
-void MainWindow::setActiveTool(Tool tool, QAction *action) {
-    if (m_activeAction) m_activeAction->setChecked(false);
-    m_activeAction = action;
-    if (m_activeAction) m_activeAction->setChecked(true);
+void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
+    if (m_activeToolBtn) m_activeToolBtn->setChecked(false);
+    m_activeToolBtn = btn;
+    if (m_activeToolBtn) m_activeToolBtn->setChecked(true);
 
     m_scene->setTool(tool);
 
-    m_view->setDragMode(tool==Tool::Select ? QGraphicsView::ScrollHandDrag : QGraphicsView::NoDrag);
+    switch (tool) {
+    case Tool::Pan:
+        m_view->setDragMode(QGraphicsView::ScrollHandDrag);
+        break;
+    case Tool::Select:
+        m_view->setDragMode(QGraphicsView::RubberBandDrag);
+        break;
+    default:
+        m_view->setDragMode(QGraphicsView::NoDrag);
+        break;
+    }
 }
 
 void MainWindow::sendToInterpreter(const QString &text) {
@@ -391,7 +499,6 @@ void MainWindow::sendToInterpreter(const QString &text) {
 void MainWindow::startInterpreter() {
     m_interp = new QtInterpreter(this);
 
-    // Let scripting helpers (valueof, tokens, output, etc.) find this instance
     setHelperInterpreter(m_interp);
 
     connect(m_interp, &QtInterpreter::outputReceived, this, [this](const QString &name, const QString &value) {

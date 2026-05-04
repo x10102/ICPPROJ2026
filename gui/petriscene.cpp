@@ -39,6 +39,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         QPointF pos = event->scenePos();
 
         switch (m_tool) {
+
         case Tool::AddPlace: {
             auto *place = new PlaceItem(pos);
             QString name = QString("p%1").arg(++m_placeCounter);
@@ -51,6 +52,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             log(QString("Místo %1 přidáno").arg(name));
             break;
         }
+
         case Tool::AddTransition: {
             auto *transition = new TransitionItem(pos);
             QString name = QString("t%1").arg(++m_transitionCounter);
@@ -63,6 +65,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             log(QString("Přechod %1 přidán").arg(name));
             break;
         }
+
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
 
@@ -86,6 +89,34 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             }
             break;
         }
+
+        case Tool::Pan:
+            break;
+
+        case Tool::Remove: {
+            QGraphicsItem *clicked = itemAt(pos, QTransform());
+            if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
+                removeConnectedArcs(place);
+                if (m_interp && place->interpPlace())
+                    m_interp->removePlace(place->interpPlace()->identifier);
+                log(QString("Místo %1 smazáno").arg(place->name()));
+                removeItem(place);
+                delete place;
+                emit selectionCleared();
+            } else if (auto *transition = dynamic_cast<TransitionItem *>(clicked)) {
+                removeConnectedArcs(transition);
+                if (m_interp && transition->interpTransition())
+                    m_interp->removeTransition(transition->interpTransition()->identifier);
+                log(QString("Přechod %1 smazán").arg(transition->name()));
+                removeItem(transition);
+                delete transition;
+                emit selectionCleared();
+            } else if (auto *arc = dynamic_cast<ArcItem *>(clicked)) {
+                showArcContextMenu(arc, event->screenPos());
+            }
+            break;
+        }
+
         case Tool::Select:
         default:
             if (event->modifiers() & Qt::ControlModifier)
@@ -247,6 +278,7 @@ void PetriScene::removeConnectedArcs(QGraphicsItem *node)
                 return p->name();
             if (auto *t = dynamic_cast<TransitionItem *>(item))
                 return t->name();
+            return "?";
         };
         
         log(QString("Hrana %1 → %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
@@ -268,6 +300,7 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
             return p->name();
         if (auto *t = dynamic_cast<TransitionItem *>(item))
             return t->name();
+        return "?";
     };
 
     auto *srcPlace = dynamic_cast<PlaceItem *>(arc->fromItem());
@@ -307,8 +340,10 @@ void PetriScene::drawArc(QGraphicsItem *target)
     }
 
     auto nameOf = [](QGraphicsItem *item) -> QString {
-        if (auto *p = dynamic_cast<PlaceItem *>(item))      return p->name();
-        if (auto *t = dynamic_cast<TransitionItem *>(item)) return t->name();
+        if (auto *p = dynamic_cast<PlaceItem *>(item))
+            return p->name();
+        if (auto *t = dynamic_cast<TransitionItem *>(item))
+            return t->name();
         return "?";
     };
     log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));

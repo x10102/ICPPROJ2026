@@ -8,6 +8,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPoint>
 #include "petriscene.h"
 
 class QGraphicsView;
@@ -19,6 +20,7 @@ class QLabel;
 class QVBoxLayout;
 class QPlainTextEdit;
 class QPushButton;
+class QFrame;
 class QtInterpreter;
 
 /**
@@ -33,6 +35,9 @@ class MainWindow : public QMainWindow{
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     /// @brief Vytvoří toolbar s tlačítky pro výběr nástrojů.
@@ -49,20 +54,31 @@ private:
     void startInterpreter();
     /// @brief Odešle řádek na stdin interpreteru
     void sendToInterpreter(const QString &text);
+    /// @brief Vytvoří plovoucí panely nástrojů a simulace nad scénou.
+    void setupFloatingPanels();
+    /// @brief Přepočítá pozici panelu simulace do pravého dolního rohu.
+    void repositionSimPanel();
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.
-     * @param tool   Nástroj k aktivaci
-     * @param action Tlačítko toolbaru odpovídající nástroji
+     * @param tool Nástroj k aktivaci
+     * @param btn  Tlačítko panelu odpovídající nástroji
      */
-    void setActiveTool(Tool tool, QAction *action);
+    void setActiveTool(Tool tool, QPushButton *btn);
 
     void populateTransitionSidebar(TransitionItem *transition);
     void clearArcRows();
 
     PetriScene     *m_scene             = nullptr; ///< Scéna Petriho sítě
     QGraphicsView  *m_view              = nullptr; ///< Pohled na scénu
-    QAction        *m_activeAction      = nullptr; ///< Aktuálně aktivní tlačítko toolbaru
+    QPushButton    *m_activeToolBtn     = nullptr; ///< Aktuálně aktivní tlačítko panelu
+
+    QFrame         *m_toolPanel         = nullptr; ///< Plovoucí panel nástrojů (vlevo nahoře)
+    QFrame         *m_simPanel          = nullptr; ///< Plovoucí panel simulace (vpravo dole)
+    QPushButton    *m_runBtn            = nullptr;
+
+    bool            m_isPanning         = false;
+    QPoint          m_panLastPos;
 
     QDockWidget    *m_dock              = nullptr;
     QLineEdit      *m_nameEdit          = nullptr;
@@ -81,8 +97,6 @@ private:
     QLineEdit      *m_terminalInput     = nullptr;
 
     QtInterpreter  *m_interp            = nullptr;
-    QAction        *m_stepAct           = nullptr;
-    QAction        *m_runAct            = nullptr;
 };
 
 #endif // MAINWINDOW_H

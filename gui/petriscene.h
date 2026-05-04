@@ -15,10 +15,12 @@
  * @brief Aktivní nástroj editoru.
  */
 enum class Tool {
-    Select,        ///< Výběr a přesun uzlů
+    Pan,           ///< Pohyb po ploše
+    Select,        ///< Výběr jednoho a více uzlů tažením
     AddPlace,      ///< Přidání místa kliknutím do scény
     AddTransition, ///< Přidání přechodu kliknutím do scény
-    AddArc         ///< Kreslení hrany mezi dvěma uzly
+    AddArc,        ///< Kreslení hrany mezi dvěma uzly
+    Remove         ///< Smazání uzlu kliknutím
 };
 
 /**
