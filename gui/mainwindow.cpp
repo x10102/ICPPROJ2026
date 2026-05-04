@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "mainwindow.hpp"
 #include "../petri.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
@@ -17,12 +17,12 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMouseEvent>
-#include "qtinterp.h"
+#include "qtinterp.hpp"
 #include "scripting_helper.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
-    resize(1000,700);
+    resize(1000,700); 
 
     m_scene = new PetriScene(this);
     m_view = new QGraphicsView(m_scene, this);

@@ -1,4 +1,4 @@
-#include "petriscene.h"
+#include "petriscene.hpp"
 #include "../petri.hpp"
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneContextMenuEvent>

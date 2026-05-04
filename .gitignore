@@ -43,3 +43,13 @@
 # gui builds
 gui/build
 gui/.qtcreator
+
+# CMake cache and output
+**/CmakeFiles
+**/.cache
+**/petri-editor_autogen
+**/CMakeCache.txt
+**/compile_commands.json
+**/cmake_install.cmake
+
+**/petri-editor
