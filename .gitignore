@@ -51,5 +51,10 @@ gui/.qtcreator
 **/CMakeCache.txt
 **/compile_commands.json
 **/cmake_install.cmake
+**/.cmake
+gui/Testing/Temporary
+**/qtcsettings.cmake
+**/CMakeLists.txt.user
+**/CMakeCache.txt.prev
 
 **/petri-editor
