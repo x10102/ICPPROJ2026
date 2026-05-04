@@ -187,6 +187,150 @@ petri-editor_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor_autogen.dir/build.make CMakeFiles/petri-editor_autogen.dir/build
 .PHONY : petri-editor_autogen/fast
 
+main.o: main.cpp.o
+.PHONY : main.o
+
+# target to build an object file
+main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/main.cpp.o
+.PHONY : main.cpp.o
+
+main.i: main.cpp.i
+.PHONY : main.i
+
+# target to preprocess a source file
+main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/main.cpp.i
+.PHONY : main.cpp.i
+
+main.s: main.cpp.s
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/main.cpp.s
+.PHONY : main.cpp.s
+
+mainwindow.o: mainwindow.cpp.o
+.PHONY : mainwindow.o
+
+# target to build an object file
+mainwindow.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mainwindow.cpp.o
+.PHONY : mainwindow.cpp.o
+
+mainwindow.i: mainwindow.cpp.i
+.PHONY : mainwindow.i
+
+# target to preprocess a source file
+mainwindow.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mainwindow.cpp.i
+.PHONY : mainwindow.cpp.i
+
+mainwindow.s: mainwindow.cpp.s
+.PHONY : mainwindow.s
+
+# target to generate assembly for a file
+mainwindow.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mainwindow.cpp.s
+.PHONY : mainwindow.cpp.s
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.o: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.o
+
+# target to build an object file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.o
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.i: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.i
+
+# target to preprocess a source file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.i
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.s: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.s
+
+# target to generate assembly for a file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.cpp.s
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.o: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.o
+
+# target to build an object file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.o
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.i: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.i
+
+# target to preprocess a source file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.i
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.s: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.s
+
+# target to generate assembly for a file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.cpp.s
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.o: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.o
+
+# target to build an object file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.o
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.i: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.i
+
+# target to preprocess a source file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.i
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.s: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.s
+
+# target to generate assembly for a file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.cpp.s
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.o: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.o
+
+# target to build an object file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.o
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.o
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.i: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.i
+
+# target to preprocess a source file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.i
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.i
+
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.s: mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.s
+
+# target to generate assembly for a file
+mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s
+.PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s
+
 petri-editor_autogen/mocs_compilation.o: petri-editor_autogen/mocs_compilation.cpp.o
 .PHONY : petri-editor_autogen/mocs_compilation.o
 
@@ -211,6 +355,54 @@ petri-editor_autogen/mocs_compilation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/petri-editor_autogen/mocs_compilation.cpp.s
 .PHONY : petri-editor_autogen/mocs_compilation.cpp.s
 
+petriscene.o: petriscene.cpp.o
+.PHONY : petriscene.o
+
+# target to build an object file
+petriscene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/petriscene.cpp.o
+.PHONY : petriscene.cpp.o
+
+petriscene.i: petriscene.cpp.i
+.PHONY : petriscene.i
+
+# target to preprocess a source file
+petriscene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/petriscene.cpp.i
+.PHONY : petriscene.cpp.i
+
+petriscene.s: petriscene.cpp.s
+.PHONY : petriscene.s
+
+# target to generate assembly for a file
+petriscene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/petriscene.cpp.s
+.PHONY : petriscene.cpp.s
+
+qtinterp.o: qtinterp.cpp.o
+.PHONY : qtinterp.o
+
+# target to build an object file
+qtinterp.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.o
+.PHONY : qtinterp.cpp.o
+
+qtinterp.i: qtinterp.cpp.i
+.PHONY : qtinterp.i
+
+# target to preprocess a source file
+qtinterp.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.i
+.PHONY : qtinterp.cpp.i
+
+qtinterp.s: qtinterp.cpp.s
+.PHONY : qtinterp.s
+
+# target to generate assembly for a file
+qtinterp.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.s
+.PHONY : qtinterp.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -225,9 +417,33 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... petri-editor_autogen"
 	@echo "... petri-editor"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
+	@echo "... mainwindow.o"
+	@echo "... mainwindow.i"
+	@echo "... mainwindow.s"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.o"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.i"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/interp.s"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.o"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.i"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/place.s"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.o"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.i"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/scripting_helper.s"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.o"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.i"
+	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.s"
 	@echo "... petri-editor_autogen/mocs_compilation.o"
 	@echo "... petri-editor_autogen/mocs_compilation.i"
 	@echo "... petri-editor_autogen/mocs_compilation.s"
+	@echo "... petriscene.o"
+	@echo "... petriscene.i"
+	@echo "... petriscene.s"
+	@echo "... qtinterp.o"
+	@echo "... qtinterp.i"
+	@echo "... qtinterp.s"
 .PHONY : help
 
 

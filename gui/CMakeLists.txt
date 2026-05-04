@@ -16,12 +16,12 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets)
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
-        mainwindow.h
+        mainwindow.hpp
         mainwindow.ui
-        items.h
-        petriscene.h
+        items.hpp
+        petriscene.hpp
         petriscene.cpp
-        qtinterp.h
+        qtinterp.hpp
         qtinterp.cpp
         ../interp.cpp
         ../interp.hpp
