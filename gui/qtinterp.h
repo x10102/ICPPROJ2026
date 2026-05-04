@@ -20,10 +20,12 @@ public:
     /// @brief Přesměruje Interpreter::outputEvent na outputReceived signál.
     void outputEvent(const std::string output, const std::string value) override;
     void printState() override;
+    void doTransitionStep();
 
 signals:
     void outputReceived(const QString &name, const QString &value);
     void statePrinted(const QString &state);
+    void stepLogged(const QString &msg);
 };
 
 #endif // QTINTERP_H

@@ -81,6 +81,8 @@ private:
     QLineEdit      *m_terminalInput     = nullptr;
 
     QtInterpreter  *m_interp            = nullptr;
+    QAction        *m_stepAct           = nullptr;
+    QAction        *m_runAct            = nullptr;
 };
 
 #endif // MAINWINDOW_H

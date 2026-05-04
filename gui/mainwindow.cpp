@@ -196,6 +196,17 @@ void MainWindow::setupToolbar(){
         m_interp->printState();
     });
 
+    tb->addSeparator();
+    m_stepAct = tb->addAction("Step");
+    connect(m_stepAct, &QAction::triggered, this, [this]() {
+        m_interp->doTransitionStep();
+        m_scene->syncTokensFromInterpreter();
+    });
+
+    m_runAct = tb->addAction("Run");
+    m_runAct->setCheckable(true);
+    m_runAct->setEnabled(false);
+
     (void)placeAct;
     (void)transitionAct;
 }
@@ -249,7 +260,11 @@ void MainWindow::setupSidebar(){
                 m_interp->renamePlace(ip->identifier, text.toStdString());
             m_editedPlace->setName(text);
         }
-        if (m_editedTransition) m_editedTransition->setName(text);
+        if (m_editedTransition) {
+            if (Transition *it = m_editedTransition->interpTransition())
+                m_interp->renameTransition(it->identifier, text.toStdString());
+            m_editedTransition->setName(text);
+        }
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
         if (!m_editedPlace) return;
@@ -382,6 +397,8 @@ void MainWindow::startInterpreter() {
     connect(m_interp, &QtInterpreter::outputReceived, this, [this](const QString &name, const QString &value) {
         appendInterpLog(QString("OUTPUT: %1 = %2").arg(name, value));
     });
+    connect(m_interp, &QtInterpreter::stepLogged, this, &MainWindow::appendInterpLog);
+
     connect(m_interp, &QtInterpreter::statePrinted, this, [this](const QString &state) {
         appendInterpLog("--- state ---");
         appendInterpLog(state);

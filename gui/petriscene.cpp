@@ -244,3 +244,12 @@ void PetriScene::cancelArc()
 {
     m_arcSource = nullptr;
 }
+
+void PetriScene::syncTokensFromInterpreter()
+{
+    for (QGraphicsItem *item : items()) {
+        if (auto *place = dynamic_cast<PlaceItem *>(item))
+            if (place->interpPlace())
+                place->setTokens((int)place->interpPlace()->getTokenCount());
+    }
+}

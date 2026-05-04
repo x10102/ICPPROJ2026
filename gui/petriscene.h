@@ -42,6 +42,9 @@ public:
      */
     void setInterpreter(QtInterpreter *interp);
 
+    /// @brief Synchronizuje počty tokenů všech míst ze stavu interpretu.
+    void syncTokensFromInterpreter();
+
     /**
      * @brief Nastaví aktivní nástroj editoru.
      * @param tool Nový aktivní nástroj
