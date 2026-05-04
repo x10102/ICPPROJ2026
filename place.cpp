@@ -1,6 +1,8 @@
 // place.cpp - Place class implementation
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+// - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
+
 
 #include <cstdint>
 #include <string>
@@ -24,6 +26,10 @@ uint32_t Place::getTokenCount(void) const {
 
 milliseconds Place::getLastChangeTime(void) const {
     return lastChange;
+}
+
+std::function<void(void)> Place::getAction(void) const {
+    return placeEventAction;
 }
 
 uint32_t Place::getInitTokens(void) const {
@@ -50,4 +56,8 @@ bool Place::removeTokens(const uint32_t token_count) {
 
 void Place::setIdentifier(const std::string identifier) {
     this->identifier = identifier;
+}
+
+void Place::setAction(std::function<void(void)> action) {
+    this->placeEventAction = action;
 }

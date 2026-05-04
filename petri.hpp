@@ -1,6 +1,8 @@
 // petri.hpp - Petri net objects interface
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+// - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
+
 
 #ifndef _PETRI_H
 #define _PETRI_H
@@ -18,7 +20,8 @@ class Place {
         uint32_t initialTokens;
         uint32_t currentTokens;
         std::chrono::milliseconds lastChange;
-        // TODO: Place action??
+        std::function<void(void)> placeEventAction; // Maybe not lambda??
+
 
     public:
         std::string identifier;
@@ -28,10 +31,12 @@ class Place {
 
     uint32_t getTokenCount(void) const;
     uint32_t getInitTokens(void) const;
+    std::function<void(void)> getAction(void) const;
     std::chrono::milliseconds getLastChangeTime(void) const;
     void addTokens(const uint32_t token_count);
     bool removeTokens(const uint32_t token_count);
     void setIdentifier(const std::string identifier);
+    void setAction(std::function<void(void)> action);
 };
 
 struct TransitionEdge {
