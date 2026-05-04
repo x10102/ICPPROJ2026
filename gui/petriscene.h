@@ -77,12 +77,16 @@ private:
     void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
     /// @brief Zobrazí kontextové menu pro daný přechod.
     void showTransitionContextMenu(TransitionItem *transition, QPoint screenPos);
+    /// @brief Zobrazí kontextové menu pro danou hranu.
+    void showArcContextMenu(ArcItem *arc, QPoint screenPos);
     /// @brief Kreslí hranu mezi zdrojovým uzlem a cílem.
     void drawArc(QGraphicsItem *target);
     /// @brief Zruší kreslení hrany.
     void cancelArc();
     /// @brief Emituje logMessage se časovým razítkem.
     void log(const QString &msg);
+    /// @brief Odstraní všechny arcy napojené na uzel a vyčistí hrany v interpretu.
+    void removeConnectedArcs(QGraphicsItem *node);
 
     Tool m_tool = Tool::Select;           ///< Aktuálně aktivní nástroj
     QGraphicsItem *m_arcSource = nullptr; ///< TODO

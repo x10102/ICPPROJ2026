@@ -69,6 +69,15 @@ public:
         update();
     }
 
+    void setHighlighted(bool on) {
+        if (on) {
+            setPen(QPen(QColor(255, 140, 0), 3));
+        }
+        else {
+            setPen(QPen(QColor(0,0,0), 2));
+        }
+    }
+
     /// @brief Links this item to its interpreter Place counterpart.
     void setInterpPlace(Place *p) { m_interpPlace = p; }
     /// @brief Returns the linked interpreter Place, or nullptr if not linked.
@@ -123,6 +132,15 @@ public:
     void setName(const QString &name) {
         m_name = name;
         update();
+    }
+
+    void setHighlighted(bool on) {
+        if (on) {
+            setPen(QPen(QColor(255, 140, 0), 3));
+        }
+        else {
+            setPen(QPen(QColor(0,0,0), 2));
+        }
     }
 
     void setInterpTransition(Transition *t) { m_interpTransition = t; }

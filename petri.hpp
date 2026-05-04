@@ -78,6 +78,8 @@ class Transition {
     const std::vector<TransitionEdge>& getExitEdges()  const;
     void setEntryEdgeWeight(Place *from, uint32_t weight);
     void setExitEdgeWeight(Place *to,   uint32_t weight);
+    bool removeEntryEdge(Place *from);
+    bool removeExitEdge(Place *to);
 };
 
 #endif

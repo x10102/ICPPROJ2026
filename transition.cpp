@@ -113,3 +113,33 @@ void Transition::setExitEdgeWeight(Place *to, uint32_t weight) {
     for (auto &edge : exitEdges)
         if (edge.place == to) { edge.weight = weight; return; }
 }
+
+bool Transition::removeEntryEdge(Place *from) {
+    int found = -1;
+    for (int i = 0; i < (int)enterEdges.size(); i++) {
+        if (enterEdges[i].place == from) {
+            found = i;
+            break;
+        }
+    }
+    if (found == -1) {
+        return false;
+    }
+    enterEdges.erase(enterEdges.begin() + found);
+    return true;
+}
+
+bool Transition::removeExitEdge(Place *to) {
+    int found = -1;
+    for (int i = 0; i < (int)exitEdges.size(); i++) {
+        if (exitEdges[i].place == to) {
+            found = i;
+            break;
+        }
+    }
+    if (found == -1) {
+        return false;
+    }
+    exitEdges.erase(exitEdges.begin() + found);
+    return true;
+}
