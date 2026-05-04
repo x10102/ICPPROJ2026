@@ -29,9 +29,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_view->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(m_view);
 
+    setupTerminal();
     setupToolbar();
     setupSidebar();
-    setupTerminal();
     startInterpreter();
     m_scene->setInterpreter(m_interp);
 
