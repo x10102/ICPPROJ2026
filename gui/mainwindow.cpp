@@ -1,3 +1,9 @@
+/**
+ * @file mainwindow.h
+ * @author Dalibor Kalina, xkalin16
+ * @brief Hlavní okno aplikace editoru Petriho sítí.
+ */
+
 #include "mainwindow.hpp"
 #include "../petri.hpp"
 #include <QGraphicsView>
