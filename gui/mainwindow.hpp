@@ -10,6 +10,7 @@
 #include <QMainWindow>
 #include <QPoint>
 #include "petriscene.hpp"
+#include "theme.hpp"
 
 class QGraphicsView;
 class QAction;
@@ -50,14 +51,12 @@ private:
     void appendLog(const QString &msg);
     /// @brief Přidá zprávu do záložky interpreter logu
     void appendInterpLog(const QString &msg);
-    /// @brief Spustí interpreter jako subprocess
-    void startInterpreter();
-    /// @brief Odešle řádek na stdin interpreteru
-    void sendToInterpreter(const QString &text);
     /// @brief Vytvoří plovoucí panely nástrojů a simulace nad scénou.
     void setupFloatingPanels();
     /// @brief Přepočítá pozici panelu simulace do pravého dolního rohu.
     void repositionSimPanel();
+
+    void applyTheme(const Theme &theme);
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.
@@ -88,15 +87,16 @@ private:
 
     PlaceItem      *m_editedPlace       = nullptr;
     TransitionItem *m_editedTransition  = nullptr;
+    ArcItem        *m_editedArc         = nullptr;
+
     QWidget        *m_arcPanel          = nullptr;
     QVBoxLayout    *m_arcLayout         = nullptr;
+    QWidget        *m_arcWeightPanel    = nullptr;
+    QSpinBox       *m_arcWeightSpin     = nullptr;
+    QLabel         *m_arcWeightLabel    = nullptr;
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
-    QPlainTextEdit *m_interpLog         = nullptr; ///< Interpreter output tab
-    QLineEdit      *m_terminalInput     = nullptr;
-
-    QtInterpreter  *m_interp            = nullptr;
 };
 
 #endif // MAINWINDOW_H

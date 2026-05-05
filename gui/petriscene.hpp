@@ -9,7 +9,6 @@
 
 #include <QGraphicsScene>
 #include "items.hpp"
-#include "qtinterp.hpp"
 
 /**
  * @brief Aktivní nástroj editoru.
@@ -39,15 +38,6 @@ public:
     explicit PetriScene(QObject *parent = nullptr);
 
     /**
-     * @brief Nastaví interpreter, ke kterému scéna přidává místa a přechody.
-     * @param interp Ukazatel na aktivní interpreter
-     */
-    void setInterpreter(QtInterpreter *interp);
-
-    /// @brief Synchronizuje počty tokenů všech míst ze stavu interpretu.
-    void syncTokensFromInterpreter();
-
-    /**
      * @brief Nastaví aktivní nástroj editoru.
      * @param tool Nový aktivní nástroj
      */
@@ -56,11 +46,16 @@ public:
     /// @brief Vrátí aktuálně vybraný nástroj.
     Tool currentTool() const {return m_tool;}
 
+    /// @brief Nastaví novou barevnou paletu objektům 
+    void applyTheme(const Theme &theme);
+
 signals:
     /// @brief Signál emitován při výběru místa v režimu Select.
     void placeSelected(PlaceItem *place);
     /// @brief Signál emitován při výběru přechodu v režimu Select.
     void transitionSelected(TransitionItem *transition);
+    /// @brief Signál emitován při výběru hrany v režimu Select.
+    void arcSelected(ArcItem *arc);
     /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
     void selectionCleared();
     /// @brief Signál emitován při logovatelné akci uživatele.
@@ -92,7 +87,6 @@ private:
 
     Tool m_tool = Tool::Select;           ///< Aktuálně aktivní nástroj
     QGraphicsItem *m_arcSource = nullptr; ///< TODO
-    QtInterpreter *m_interp    = nullptr; ///< Interpreter pro tvorbu míst a přechodů
     int m_placeCounter         = 0;       ///< Čítač pro generování jmen míst
     int m_transitionCounter    = 0;       ///< Čítač pro generování jmen přechodů
 };

@@ -14,6 +14,7 @@
 #include <QGraphicsLineItem>
 #include <QPainter>
 #include <cmath>
+#include "theme.hpp"
 
 class Place;      // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
 class Transition; // forward declaration — TransitionItem holds a pointer to its interpreter counterpart
@@ -36,6 +37,8 @@ public:
         setPen(QPen(Qt::black, 2));
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
         setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+
+        applyTheme(Theme::current());
     }
 
     /// @brief Vrátí střed místa v souřadnicích scény.
@@ -71,17 +74,19 @@ public:
 
     void setHighlighted(bool on) {
         if (on) {
-            setPen(QPen(QColor(255, 140, 0), 3));
+            setPen(QPen(Theme::current().highlightColor, 3));
         }
         else {
-            setPen(QPen(QColor(0,0,0), 2));
+            applyTheme(Theme::current());
         }
     }
 
-    /// @brief Links this item to its interpreter Place counterpart.
-    void setInterpPlace(Place *p) { m_interpPlace = p; }
-    /// @brief Returns the linked interpreter Place, or nullptr if not linked.
-    Place *interpPlace() const { return m_interpPlace; }
+    void applyTheme(const Theme &theme){
+        setBrush(theme.placeBackground);
+        setPen(QPen(theme.placeBorder, 2));
+        update();
+    }
+
 
 protected:
     /// @brief Vykreslí místo a počet tokenů uprostřed.
@@ -92,14 +97,13 @@ protected:
         f.setBold(true);
         f.setPointSize(11);
         painter->setFont(f);
-        painter->setPen(Qt::black);
+        painter->setPen(Theme::current().placeText);
         painter->drawText(rect().toRect(), Qt::AlignCenter, QString::number(m_tokens));
     }
 
 private:
     int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
     QString m_name;               ///< Název místa
-    Place *m_interpPlace = nullptr; ///< Pointer na interpreter Place, kterou tato place reprezentuje
 };
 
 /**
@@ -119,6 +123,8 @@ public:
         setBrush(Qt::black);
         setPen(QPen(Qt::black, 2));
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
+
+        applyTheme(Theme::current());
     }
 
     /// @brief Vrátí střed přechodu v souřadnicích scény.
@@ -136,19 +142,21 @@ public:
 
     void setHighlighted(bool on) {
         if (on) {
-            setPen(QPen(QColor(255, 140, 0), 3));
+            setPen(QPen(Theme::current().highlightColor, 3));
         }
         else {
-            setPen(QPen(QColor(0,0,0), 2));
+            applyTheme(Theme::current());
         }
     }
 
-    void setInterpTransition(Transition *t) { m_interpTransition = t; }
-    Transition *interpTransition() const { return m_interpTransition; }
+    void applyTheme(const Theme &theme){
+        setBrush(theme.transitionColor);
+        setPen(QPen(theme.transitionColor, 2));
+        update();
+    }
 
 private:
-    QString m_name;                       ///< Název přechodu
-    Transition *m_interpTransition = nullptr; ///< Pointer na interpreter Transition, kterou tato transition reprezentuje
+    QString m_name;    ///< Název přechodu
 };
 
 /**
@@ -170,7 +178,40 @@ public:
         QGraphicsLineItem(parent), m_from(from), m_to(to){
         setPen(QPen(Qt::lightGray, 2));
         setZValue(-1);
+        setFlag(ItemIsSelectable);
         updatePosition();
+
+        applyTheme(Theme::current());
+    }
+
+    /// @brief Rozšiřuje bounding rectangle, aby Qt neořezával šipku na hraně
+    /// Ořezávání se dělo v případech, kdy hrana měla příliš vodorovný nebo vertikální sklon
+    QRectF boundingRect() const override {
+        const qreal extra = 50.0;
+        return QGraphicsLineItem::boundingRect().adjusted(-extra, -extra, extra, extra);
+    }
+
+    /// @brief Rozšiřuje clickable tvar hrany o šipku na hraně
+    /// Bez tohoto by se dalo kliknout jen na samotnou ~2px širokou čáru
+    QPainterPath shape() const override {
+        QPainterPath path = QGraphicsLineItem::shape();
+
+        QLineF l = line();
+        if (l.length() < 1.0)
+            return path;
+
+        const qreal h = 28.0;
+        const qreal v = 2.0*0.577*h;
+
+        QPointF mid = (l.p1() + l.p2()) / 2.0;
+        QPointF dir = (l.p2() - l.p1()) / l.length();
+        QPointF n(-dir.y(), dir.x());
+
+        QPointF base1 = mid - dir*h + n*v/2.0;
+        QPointF base2 = mid - dir*h - n*v/2.0;
+
+        path.addPolygon(QPolygonF({mid, base1, base2}));
+        return path;
     }
 
     /// @brief Přepočítá pozici hrany podle aktuálních středů uzlů.
@@ -187,7 +228,15 @@ public:
     /// @brief TODO
     int weight() {return m_weight;}
     /// @brief TODO
-    void setWeight(int w) {m_weight = qMax(0, w);}
+    void setWeight(int w) {
+        m_weight = qMax(0, w);
+        update();
+    }
+
+    void applyTheme(const Theme &theme){
+        setPen(QPen(theme.arcLine, 2));
+        update();
+    }
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
@@ -197,19 +246,28 @@ protected:
         if (l.length() < 1.0)
             return;
 
-        const qreal arrowSize = 12.0;
-        QPointF tip = l.p2();
-        double angle = std::atan2(-l.dy(), l.dx());
+        const qreal h = 28.0;
+        const qreal v = 2.0*0.577*h;
 
-        QPointF p1 = tip + QPointF(
-                        std::sin(angle + M_PI / 3 - M_PI) * arrowSize,
-                        std::cos(angle + M_PI / 3 - M_PI) * arrowSize);
-        QPointF p2 = tip + QPointF(
-                        std::sin(angle - M_PI / 3 + M_PI) * arrowSize,
-                        std::cos(angle - M_PI / 3 + M_PI) * arrowSize);
+        QPointF mid = (l.p1() + l.p2()) / 2.0;
+        QPointF dir = (l.p2() - l.p1()) / l.length();
+        QPointF n(-dir.y(), dir.x());
 
-        painter->setBrush(Qt::lightGray);
-        painter->drawPolygon(QPolygonF({tip, p1, p2}));
+        QPointF base1 = mid - dir*h + n*v/2.0;
+        QPointF base2 = mid - dir*h - n*v/2.0;
+        
+        painter->setBrush(Theme::current().arcArrow);
+        painter->drawPolygon(QPolygonF({mid, base1, base2}));
+
+        painter->setPen(Theme::current().arcText);
+        QFont f = painter->font();
+        f.setPointSize(8);
+        f.setBold(true);
+        painter->setFont(f);
+
+        QPointF centre = mid - dir * (2.0 * h / 3.0);
+
+        painter->drawText( QRectF(centre.x() - 12, centre.y() - 12, 24, 24), Qt::AlignCenter, QString::number(m_weight));
     }
 
 private:
@@ -224,7 +282,7 @@ private:
 
     QGraphicsItem *m_from; ///< Zdrojový uzel
     QGraphicsItem *m_to;   ///< Cílový uzel
-    int m_weight = 1; ///< TODO
+    int m_weight = 1; ///< Váha hrany
 };
 
 #endif // ITEMS_H

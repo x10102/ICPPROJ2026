@@ -1,7 +1,5 @@
 #include "petriscene.hpp"
-#include "../petri.hpp"
 #include <QGraphicsSceneMouseEvent>
-#include <QGraphicsSceneContextMenuEvent>
 #include <QMenu>
 #include <QKeyEvent>
 #include <QDateTime>
@@ -25,10 +23,6 @@ void PetriScene::setTool(Tool tool) {
     m_tool = tool;
 }
 
-void PetriScene::setInterpreter(QtInterpreter *interp) {
-    m_interp = interp;
-}
-
 void PetriScene::log(const QString &msg) {
     QString time = QDateTime::currentDateTime().toString("hh:mm:ss");
     emit logMessage(QString("[%1] %2").arg(time, msg));
@@ -45,10 +39,6 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("p%1").arg(++m_placeCounter);
             place->setName(name);
             addItem(place);
-            if (m_interp) {
-                Place *p = m_interp->createPlace(name.toStdString(), place->tokens());
-                place->setInterpPlace(p);
-            }
             log(QString("Místo %1 přidáno").arg(name));
             break;
         }
@@ -58,10 +48,6 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("t%1").arg(++m_transitionCounter);
             transition->setName(name);
             addItem(transition);
-            if (m_interp) {
-                Transition *t = m_interp->createTransition(name.toStdString());
-                transition->setInterpTransition(t);
-            }
             log(QString("Přechod %1 přidán").arg(name));
             break;
         }
@@ -81,7 +67,15 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             }
             else {
                 if (clicked != m_arcSource){
-                    drawArc(clicked);
+
+                    if ((dynamic_cast<PlaceItem *>(m_arcSource) == nullptr) && (dynamic_cast<PlaceItem *>(clicked) == nullptr)){
+                        cancelArc();
+                    } else if ((dynamic_cast<TransitionItem *>(m_arcSource) == nullptr) && (dynamic_cast<TransitionItem *>(clicked) == nullptr)){
+                        cancelArc();
+                    }
+                    else {
+                        drawArc(clicked);
+                    }
                 }
                 else {
                     cancelArc();
@@ -97,20 +91,22 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QGraphicsItem *clicked = itemAt(pos, QTransform());
             if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
                 removeConnectedArcs(place);
-                if (m_interp && place->interpPlace())
-                    m_interp->removePlace(place->interpPlace()->identifier);
                 log(QString("Místo %1 smazáno").arg(place->name()));
+
                 removeItem(place);
                 delete place;
+
                 emit selectionCleared();
+
             } else if (auto *transition = dynamic_cast<TransitionItem *>(clicked)) {
                 removeConnectedArcs(transition);
-                if (m_interp && transition->interpTransition())
-                    m_interp->removeTransition(transition->interpTransition()->identifier);
                 log(QString("Přechod %1 smazán").arg(transition->name()));
+
                 removeItem(transition);
                 delete transition;
+
                 emit selectionCleared();
+
             } else if (auto *arc = dynamic_cast<ArcItem *>(clicked)) {
                 showArcContextMenu(arc, event->screenPos());
             }
@@ -132,6 +128,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 emit placeSelected(place);
             else if (auto *transition = dynamic_cast<TransitionItem *>(selectedItems().first()))
                 emit transitionSelected(transition);
+            else if (auto *arc = dynamic_cast<ArcItem *>(selectedItems().first()))
+                emit arcSelected(arc);
             else
                 emit selectionCleared();
             break;
@@ -160,7 +158,6 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     QAction *addOne = menu.addAction("Přidej token");
     QAction *removeOne = menu.addAction("Oddělej token");
     QAction *setZero = menu.addAction("Vynulovat tokeny");
-    QAction *reset = menu.addAction("Resetovat tokeny");
     menu.addSeparator();
     QAction *remove = menu.addAction("Smazat místo");
 
@@ -168,36 +165,20 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     setZero->setEnabled(place->tokens() > 0);
 
     QAction *chosen = menu.exec(screenPos);
-    Place *ip = place->interpPlace();
     if (chosen == addOne) {
-        if (ip) ip->addTokens(1);
-        place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() + 1);
+        place->addToken();
         log(QString("%1: přidán jeden token").arg(place->name()));
     }
     else if (chosen == removeOne) {
-        if (ip) ip->removeTokens(1);
-        place->setTokens(ip ? (int)ip->getTokenCount() : place->tokens() - 1);
+        place->removeToken();
         log(QString("%1: odebrán jeden token").arg(place->name()));
     }
     else if (chosen == setZero) {
-        if (ip) ip->removeTokens(ip->getTokenCount());
         place->setTokens(0);
         log(QString("%1: tokeny vynulovány").arg(place->name()));
     }
-    else if (chosen == reset) {
-        if (ip) {
-            uint32_t cur = ip->getTokenCount();
-            uint32_t init = ip->getInitTokens();
-            if (init > cur) ip->addTokens(init - cur);
-            else if (cur > init) ip->removeTokens(cur - init);
-            place->setTokens((int)ip->getTokenCount());
-        }
-        log(QString("%1: tokeny resetovány").arg(place->name()));
-    }
     else if (chosen == remove) {
         removeConnectedArcs(place);
-        if (m_interp && place->interpPlace())
-            m_interp->removePlace(place->interpPlace()->identifier);
         log(QString("Místo %1 smazáno").arg(place->name()));
         removeItem(place);
         delete place;
@@ -214,8 +195,6 @@ void PetriScene::showTransitionContextMenu(TransitionItem *transition, QPoint sc
     QAction *chosen = menu.exec(screenPos);
     if (chosen == remove) {
         removeConnectedArcs(transition);
-        if (m_interp && transition->interpTransition())
-            m_interp->removeTransition(transition->interpTransition()->identifier);
         log(QString("Přechod %1 smazán").arg(transition->name()));
         removeItem(transition);
         delete transition;
@@ -230,14 +209,6 @@ void PetriScene::keyPressEvent(QKeyEvent *event){
             return;
         for (QGraphicsItem *item : selected){
             removeConnectedArcs(item);
-            if (m_interp) {
-                if (auto *place = dynamic_cast<PlaceItem *>(item))
-                    if (place->interpPlace())
-                        m_interp->removePlace(place->interpPlace()->identifier);
-                if (auto *transition = dynamic_cast<TransitionItem *>(item))
-                    if (transition->interpTransition())
-                        m_interp->removeTransition(transition->interpTransition()->identifier);
-            }
             removeItem(item);
             delete item;
         }
@@ -262,16 +233,6 @@ void PetriScene::removeConnectedArcs(QGraphicsItem *node)
         auto *arc = dynamic_cast<ArcItem *>(item);
         if (!arc || (arc->fromItem() != node && arc->toItem() != node))
             continue;
-
-        auto *srcPlace = dynamic_cast<PlaceItem *>(arc->fromItem());
-        auto *srcTrans = dynamic_cast<TransitionItem *>(arc->fromItem());
-        auto *dstPlace = dynamic_cast<PlaceItem *>(arc->toItem());
-        auto *dstTrans = dynamic_cast<TransitionItem *>(arc->toItem());
-
-        if (srcPlace && dstTrans && srcPlace->interpPlace() && dstTrans->interpTransition())
-            dstTrans->interpTransition()->removeEntryEdge(srcPlace->interpPlace());
-        else if (srcTrans && dstPlace && srcTrans->interpTransition() && dstPlace->interpPlace())
-            srcTrans->interpTransition()->removeExitEdge(dstPlace->interpPlace());
 
         auto nameOf = [](QGraphicsItem *item) -> QString {
             if (auto *p = dynamic_cast<PlaceItem *>(item)) 
@@ -303,17 +264,6 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
         return "?";
     };
 
-    auto *srcPlace = dynamic_cast<PlaceItem *>(arc->fromItem());
-    auto *srcTrans = dynamic_cast<TransitionItem *>(arc->fromItem());
-    auto *dstPlace = dynamic_cast<PlaceItem *>(arc->toItem());
-    auto *dstTrans = dynamic_cast<TransitionItem *>(arc->toItem());
-
-    if (srcPlace && dstTrans && srcPlace->interpPlace() && dstTrans->interpTransition())
-        dstTrans->interpTransition()->removeEntryEdge(srcPlace->interpPlace());
-
-    else if (srcTrans && dstPlace && srcTrans->interpTransition() && dstPlace->interpPlace())
-        srcTrans->interpTransition()->removeExitEdge(dstPlace->interpPlace());
-
     log(QString("Hrana %1 → %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
     removeItem(arc);
     delete arc;
@@ -321,23 +271,25 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
 
 void PetriScene::drawArc(QGraphicsItem *target)
 {
+    for (QGraphicsItem *item : items()) {
+        if (auto *a = dynamic_cast<ArcItem *>(item)) {
+            
+            if (a->fromItem() == m_arcSource && a->toItem() == target){
+                cancelArc();
+                return;
+            }
+
+            if (a->fromItem() == target && a->toItem() == m_arcSource){
+                cancelArc();
+                return;
+            }
+
+        }
+    }
+
     setNodeHighlight(m_arcSource, false);
     ArcItem *arc = new ArcItem(m_arcSource, target);
     addItem(arc);
-
-    if (m_interp) {
-        auto *srcPlace = dynamic_cast<PlaceItem *>(m_arcSource);
-        auto *srcTrans = dynamic_cast<TransitionItem *>(m_arcSource);
-        auto *dstPlace = dynamic_cast<PlaceItem *>(target);
-        auto *dstTrans = dynamic_cast<TransitionItem *>(target);
-
-        if (srcPlace && dstTrans && srcPlace->interpPlace() && dstTrans->interpTransition())
-            // Place → Transition: entry edge
-            dstTrans->interpTransition()->addEntryEdge(srcPlace->interpPlace(), arc->weight());
-        else if (srcTrans && dstPlace && srcTrans->interpTransition() && dstPlace->interpPlace())
-            // Transition → Place: exit edge
-            srcTrans->interpTransition()->addExitEdge(dstPlace->interpPlace(), arc->weight());
-    }
 
     auto nameOf = [](QGraphicsItem *item) -> QString {
         if (auto *p = dynamic_cast<PlaceItem *>(item))
@@ -362,11 +314,16 @@ void PetriScene::cancelArc()
     m_arcSource = nullptr;
 }
 
-void PetriScene::syncTokensFromInterpreter()
-{
-    for (QGraphicsItem *item : items()) {
-        if (auto *place = dynamic_cast<PlaceItem *>(item))
-            if (place->interpPlace())
-                place->setTokens((int)place->interpPlace()->getTokenCount());
+void PetriScene::applyTheme(const Theme &theme) {
+    const QList<QGraphicsItem *> allItems = items();
+    for (QGraphicsItem *item : allItems){
+        if (auto *p = dynamic_cast<PlaceItem *>(item))
+            p->applyTheme(theme);
+        else if (auto *t = dynamic_cast<TransitionItem *>(item))
+            t->applyTheme(theme);
+        else if (auto *a = dynamic_cast<ArcItem *>(item))
+            a->applyTheme(theme);
     }
+
+    setBackgroundBrush(theme.sceneBackground);
 }
