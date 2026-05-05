@@ -9,6 +9,7 @@
 
 #include <QGraphicsScene>
 #include "items.hpp"
+#include "editorstate.hpp"
 
 /**
  * @brief Aktivní nástroj editoru.
@@ -49,6 +50,8 @@ public:
     /// @brief Nastaví novou barevnou paletu objektům 
     void applyTheme(const Theme &theme);
 
+    void setNetworkSpec(PetriNetworkSpec *spec);
+
 signals:
     /// @brief Signál emitován při výběru místa v režimu Select.
     void placeSelected(PlaceItem *place);
@@ -60,6 +63,7 @@ signals:
     void selectionCleared();
     /// @brief Signál emitován při logovatelné akci uživatele.
     void logMessage(const QString &message);
+    
 
 protected:
     /// @brief Zpracuje stisknutí tlačítka myši.
@@ -89,6 +93,8 @@ private:
     QGraphicsItem *m_arcSource = nullptr; ///< TODO
     int m_placeCounter         = 0;       ///< Čítač pro generování jmen míst
     int m_transitionCounter    = 0;       ///< Čítač pro generování jmen přechodů
+
+    PetriNetworkSpec *spec;
 };
 
 #endif // PETRISCENE_H

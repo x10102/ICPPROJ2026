@@ -1,4 +1,5 @@
 #include "petriscene.hpp"
+#include "editorstate.hpp"
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
 #include <QKeyEvent>
@@ -13,6 +14,10 @@ static void setNodeHighlight(QGraphicsItem *item, bool on) {
         p->setHighlighted(on);
     if (auto *t = dynamic_cast<TransitionItem *>(item))
         t->setHighlighted(on);
+}
+
+void PetriScene::setNetworkSpec(PetriNetworkSpec *spec) {
+    this->spec = spec;
 }
 
 void PetriScene::setTool(Tool tool) {
@@ -48,6 +53,9 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("t%1").arg(++m_transitionCounter);
             transition->setName(name);
             addItem(transition);
+            PetriTransition storeT;
+            storeT.name = name.toStdString();
+            this->spec->addTransition(storeT);
             log(QString("Přechod %1 přidán").arg(name));
             break;
         }
@@ -85,6 +93,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         }
 
         case Tool::Pan:
+            // TODO
             break;
 
         case Tool::Remove: {
