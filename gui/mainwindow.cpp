@@ -6,6 +6,7 @@
 
 #include "mainwindow.hpp"
 #include "../petri.hpp"
+#include "editorstate.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
@@ -23,15 +24,20 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMouseEvent>
+#include <QToolButton>
 #include <QTimer>
 #include <QApplication>
-#include "scripting_helper.hpp"
+#include <qaction.h>
+#include <qmenu.h>
+#include <qtoolbutton.h>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
     resize(1000,700); 
 
     m_scene = new PetriScene(this);
+    m_scene->setNetworkSpec(&this->spec);
+
     m_view = new QGraphicsView(m_scene, this);
     m_view->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(m_view);
@@ -195,17 +201,43 @@ void MainWindow::setupToolbar(){
     QToolBar *tb = addToolBar("Nástroje");
     tb->setMovable(false);
 
-    QAction *termAct = tb->addAction("Terminál");
+    // Create menus and menu open buttons    
+
+    auto fileMenu = new QMenu(this);
+    auto fileMenuButton = new QToolButton(this);
+    fileMenuButton->setText("Soubor");
+    fileMenuButton->setMenu(fileMenu);
+    fileMenuButton->setPopupMode(QToolButton::InstantPopup);
+
+    auto viewMenu = new QMenu(this);
+    auto viewMenuButton = new QToolButton(this);
+    viewMenuButton->setText("Zobrazit");
+    viewMenuButton->setMenu(viewMenu);
+    viewMenuButton->setPopupMode(QToolButton::InstantPopup);
+
+    // Populate the submenus with buttons
+    auto btnSave = fileMenu->addAction("Uložit síť");
+
+    auto *termAct = viewMenu->addAction("Terminál");
     termAct->setCheckable(true);
+
+    auto *darkAct = viewMenu->addAction("Dark Theme");
+    darkAct->setCheckable(true);
+
+    // Add the menus to the toolbar
+    tb->addWidget(fileMenuButton);
+    tb->addWidget(viewMenuButton);
+
+    // Wire up the menu items to their actions
+    connect(btnSave, &QAction::triggered, this, [this](){
+        this->spec.exportJSON();
+    });
+    
     connect(termAct, &QAction::toggled, this, [this](bool checked) {
         checked ? m_terminalDock->show() : m_terminalDock->hide();
     });
     connect(m_terminalDock, &QDockWidget::visibilityChanged, termAct, &QAction::setChecked);
-
-    tb->addSeparator();
-
-    QAction *darkAct = tb->addAction("Dark Theme");
-    darkAct->setCheckable(true);
+ 
     connect(darkAct, &QAction::toggled, this, [this](bool checked) {
         if (checked)
             Theme::apply(Theme::dark());

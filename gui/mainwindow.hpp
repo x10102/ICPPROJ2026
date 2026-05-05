@@ -11,6 +11,7 @@
 #include <QPoint>
 #include "petriscene.hpp"
 #include "theme.hpp"
+#include "editorstate.hpp"
 
 class QGraphicsView;
 class QAction;
@@ -97,6 +98,8 @@ private:
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
+
+    PetriNetworkSpec spec;
 };
 
 #endif // MAINWINDOW_H
