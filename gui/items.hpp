@@ -188,19 +188,18 @@ protected:
         if (l.length() < 1.0)
             return;
 
-        const qreal arrowSize = 12.0;
-        QPointF tip = l.p2();
-        double angle = std::atan2(-l.dy(), l.dx());
+        const qreal h = 14.0;
+        const qreal v = 16.0;
 
-        QPointF p1 = tip + QPointF(
-                        std::sin(angle + M_PI / 3 - M_PI) * arrowSize,
-                        std::cos(angle + M_PI / 3 - M_PI) * arrowSize);
-        QPointF p2 = tip + QPointF(
-                        std::sin(angle - M_PI / 3 + M_PI) * arrowSize,
-                        std::cos(angle - M_PI / 3 + M_PI) * arrowSize);
+        QPointF mid = (l.p1() + l.p2()) / 2.0;
+        QPointF dir = (l.p2() - l.p1()) / l.length();
+        QPointF n(-dir.y(), dir.x());
 
+        QPointF base1 = mid - dir*h + n*v/2.0;
+        QPointF base2 = mid - dir*h - n*v/2.0;
+        
         painter->setBrush(Qt::lightGray);
-        painter->drawPolygon(QPolygonF({tip, p1, p2}));
+        painter->drawPolygon(QPolygonF({mid, base1, base2}));
     }
 
 private:
