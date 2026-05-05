@@ -16,9 +16,9 @@
 #include <mutex>
 
 struct Variable {
-    string type;
-    string name;
-    string value;
+    std::string type;
+    std::string name;
+    std::string value;
 };
 
 using namespace std;
@@ -46,9 +46,11 @@ class Interpreter {
 
         void parseLoadFileLine(const string &section, const string &line);
     public:
+        /*
         bool save(const string &filename);
         bool load(const string &filename);
         void clearNet();
+        */
 
         Place* createPlace(string identifier, uint32_t initial_tokens);
         Place* getPlace(string identifier);

@@ -226,6 +226,8 @@ void Interpreter::doTransitions() {
     } while(fire_count > 0);
 }
 
+// TODO: Reuse somewhere or remove
+/*
 bool Interpreter::save(const std::string &filename) {
     ofstream file(filename);
     if (!file.is_open()) {
@@ -345,32 +347,27 @@ void Interpreter::clear() {
 }
 
 void Interpreter::parseLoadFileLine(const string &section, const string &line) {
-    switch(section) {
-        case "inputs":
-            inputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up inputs
-            break;
-        case "outputs":
-            outputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up outputs
-            break;
-        case "variables":
-            // Very ugly variable parsing - big no no
-            string trimmed = trim(line);
-            size_t space = trimmed.find_first_of(" \t");
-            size_t eqSign = trimmed.find("=");
-            string varType = trimmed.substr(0, space);
-            string varName = trimmed.substr(space, eqSign - space);
-            string varValue = trimmed.substr(eqSign);
-            Variable var = {trim(varType), trim(varName), trim(varValue)};
-            variables.push_back(var);
-            break;
-        case "places":
-            // TODO: Parse place line
-            break;
-        case "transitions":
-            // TODO: Parse transition line
-            break;
-        default:
-            break;
+    if(section == "inputs") {
+        inputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up inputs
+    } else if(section == "outputs") {
+        outputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up outputs
+    } else if(section == "variables") {
+        // Very ugly variable parsing - big no no
+        string trimmed = trim(line);
+        size_t space = trimmed.find_first_of(" \t");
+        size_t eqSign = trimmed.find("=");
+        string varType = trimmed.substr(0, space);
+        string varName = trimmed.substr(space, eqSign - space);
+        string varValue = trimmed.substr(eqSign);
+        Variable var = {trim(varType), trim(varName), trim(varValue)};
+        variables.push_back(var);
+    } else if(section == "places") {
+        // TODO: Parse places
+    } else if(section == "transitions") {
+        // TODO: Parse transitions
+    } else {
+        // TODO: print an error
     }
 }
 
+*/
