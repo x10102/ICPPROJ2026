@@ -78,10 +78,6 @@ public:
         }
     }
 
-    /// @brief Links this item to its interpreter Place counterpart.
-    void setInterpPlace(Place *p) { m_interpPlace = p; }
-    /// @brief Returns the linked interpreter Place, or nullptr if not linked.
-    Place *interpPlace() const { return m_interpPlace; }
 
 protected:
     /// @brief Vykreslí místo a počet tokenů uprostřed.
@@ -99,7 +95,6 @@ protected:
 private:
     int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
     QString m_name;               ///< Název místa
-    Place *m_interpPlace = nullptr; ///< Pointer na interpreter Place, kterou tato place reprezentuje
 };
 
 /**
@@ -143,12 +138,8 @@ public:
         }
     }
 
-    void setInterpTransition(Transition *t) { m_interpTransition = t; }
-    Transition *interpTransition() const { return m_interpTransition; }
-
 private:
-    QString m_name;                       ///< Název přechodu
-    Transition *m_interpTransition = nullptr; ///< Pointer na interpreter Transition, kterou tato transition reprezentuje
+    QString m_name;    ///< Název přechodu
 };
 
 /**

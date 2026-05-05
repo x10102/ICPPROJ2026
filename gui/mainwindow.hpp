@@ -50,10 +50,6 @@ private:
     void appendLog(const QString &msg);
     /// @brief Přidá zprávu do záložky interpreter logu
     void appendInterpLog(const QString &msg);
-    /// @brief Spustí interpreter jako subprocess
-    void startInterpreter();
-    /// @brief Odešle řádek na stdin interpreteru
-    void sendToInterpreter(const QString &text);
     /// @brief Vytvoří plovoucí panely nástrojů a simulace nad scénou.
     void setupFloatingPanels();
     /// @brief Přepočítá pozici panelu simulace do pravého dolního rohu.
@@ -93,10 +89,6 @@ private:
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
-    QPlainTextEdit *m_interpLog         = nullptr; ///< Interpreter output tab
-    QLineEdit      *m_terminalInput     = nullptr;
-
-    QtInterpreter  *m_interp            = nullptr;
 };
 
 #endif // MAINWINDOW_H

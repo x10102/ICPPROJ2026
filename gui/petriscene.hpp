@@ -9,7 +9,6 @@
 
 #include <QGraphicsScene>
 #include "items.hpp"
-#include "qtinterp.hpp"
 
 /**
  * @brief Aktivní nástroj editoru.
@@ -37,15 +36,6 @@ public:
     static constexpr qreal SCENE_H = 2000.0; ///< Výška scény v pixelech
 
     explicit PetriScene(QObject *parent = nullptr);
-
-    /**
-     * @brief Nastaví interpreter, ke kterému scéna přidává místa a přechody.
-     * @param interp Ukazatel na aktivní interpreter
-     */
-    void setInterpreter(QtInterpreter *interp);
-
-    /// @brief Synchronizuje počty tokenů všech míst ze stavu interpretu.
-    void syncTokensFromInterpreter();
 
     /**
      * @brief Nastaví aktivní nástroj editoru.
@@ -92,7 +82,6 @@ private:
 
     Tool m_tool = Tool::Select;           ///< Aktuálně aktivní nástroj
     QGraphicsItem *m_arcSource = nullptr; ///< TODO
-    QtInterpreter *m_interp    = nullptr; ///< Interpreter pro tvorbu míst a přechodů
     int m_placeCounter         = 0;       ///< Čítač pro generování jmen míst
     int m_transitionCounter    = 0;       ///< Čítač pro generování jmen přechodů
 };

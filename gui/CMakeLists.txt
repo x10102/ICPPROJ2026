@@ -21,8 +21,6 @@ set(PROJECT_SOURCES
         items.hpp
         petriscene.hpp
         petriscene.cpp
-        qtinterp.hpp
-        qtinterp.cpp
         ../interp.cpp
         ../interp.hpp
         ../petri.hpp

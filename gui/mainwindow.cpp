@@ -17,7 +17,7 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QMouseEvent>
-#include "qtinterp.hpp"
+#include <QTimer>
 #include "scripting_helper.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -32,10 +32,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupTerminal();
     setupToolbar();
     setupSidebar();
-    startInterpreter();
-    m_scene->setInterpreter(m_interp);
-
     setupFloatingPanels();
+
     m_view->installEventFilter(this);
     m_view->viewport()->installEventFilter(this);
 
@@ -109,11 +107,9 @@ void MainWindow::setupTerminal() {
     };
 
     m_terminal  = makeLog();
-    m_interpLog = makeLog();
 
     QTabWidget *tabs = new QTabWidget;
     tabs->addTab(m_terminal,  "GUI");
-    tabs->addTab(m_interpLog, "Interpreter");
     vbox->addWidget(tabs);
 
     // Vstup pro příkazy uživatele
@@ -122,24 +118,10 @@ void MainWindow::setupTerminal() {
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(4);
 
-    m_terminalInput = new QLineEdit;
-    m_terminalInput->setFont(f);
-    m_terminalInput->setPlaceholderText("event value  (nebo neco takoveho idk - stiskni enter)");
-    hbox->addWidget(m_terminalInput);
-
     QPushButton *sendBtn = new QPushButton("Send");
     hbox->addWidget(sendBtn);
 
     vbox->addWidget(inputRow);
-
-    connect(m_terminalInput, &QLineEdit::returnPressed, this, [this]() {
-        sendToInterpreter(m_terminalInput->text());
-        m_terminalInput->clear();
-    });
-    connect(sendBtn, &QPushButton::clicked, this, [this]() {
-        sendToInterpreter(m_terminalInput->text());
-        m_terminalInput->clear();
-    });
 
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
@@ -149,11 +131,6 @@ void MainWindow::setupTerminal() {
 void MainWindow::appendLog(const QString &msg) {
     m_terminal->appendPlainText(msg);
     m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
-}
-
-void MainWindow::appendInterpLog(const QString &msg) {
-    m_interpLog->appendPlainText(msg);
-    m_interpLog->verticalScrollBar()->setValue(m_interpLog->verticalScrollBar()->maximum());
 }
 // -------------------------
 //     end of TERMINAL
@@ -174,13 +151,6 @@ void MainWindow::setupToolbar(){
         checked ? m_terminalDock->show() : m_terminalDock->hide();
     });
     connect(m_terminalDock, &QDockWidget::visibilityChanged, termAct, &QAction::setChecked);
-
-    QAction *stateAct = tb->addAction("State");
-    connect(stateAct, &QAction::triggered, this, [this]() {
-        m_interp->printState();
-    });
-
-    (void)stateAct;
 }
 // -------------------------
 //     end of TOOLBAR
@@ -244,10 +214,7 @@ void MainWindow::setupFloatingPanels() {
     simLayout->setSpacing(6);
 
     QPushButton *stepBtn = new QPushButton("Step", m_simPanel);
-    connect(stepBtn, &QPushButton::clicked, this, [this]() {
-        m_interp->doTransitionStep();
-        m_scene->syncTokensFromInterpreter();
-    });
+    stepBtn->setEnabled(false);
     simLayout->addWidget(stepBtn);
 
     m_runBtn = new QPushButton("Run", m_simPanel);
@@ -258,7 +225,7 @@ void MainWindow::setupFloatingPanels() {
     m_simPanel->adjustSize();
     m_simPanel->show();
     m_simPanel->raise();
-    repositionSimPanel();
+    QTimer::singleShot(0, this, [this]() { repositionSimPanel(); });
 }
 // -------------------------
 //     end of PANEL WITH BUTTONS
@@ -276,7 +243,7 @@ void MainWindow::repositionSimPanel() {
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     if (obj == m_view && event->type() == QEvent::Resize) {
-        repositionSimPanel();
+        QTimer::singleShot(0, this, [this]() { repositionSimPanel(); });
         return false;
     }
 
@@ -356,24 +323,16 @@ void MainWindow::setupSidebar(){
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
-            if (Place *ip = m_editedPlace->interpPlace())
-                m_interp->renamePlace(ip->identifier, text.toStdString());
             m_editedPlace->setName(text);
         }
         if (m_editedTransition) {
-            if (Transition *it = m_editedTransition->interpTransition())
-                m_interp->renameTransition(it->identifier, text.toStdString());
             m_editedTransition->setName(text);
         }
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
-        if (!m_editedPlace) return;
-        if (Place *ip = m_editedPlace->interpPlace()) {
-            int cur = (int)ip->getTokenCount();
-            if (val > cur) ip->addTokens(val - cur);
-            else if (val < cur) ip->removeTokens(cur - val);
+        if (m_editedPlace) {
+            m_editedPlace->setTokens(val);
         }
-        m_editedPlace->setTokens(val);
     });
 
     m_dock->setWidget(panel);
@@ -432,8 +391,6 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
 
             connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
                 arc->setWeight(val);
-                if (transition->interpTransition() && place && place->interpPlace())
-                    transition->interpTransition()->setEntryEdgeWeight(place->interpPlace(), val);
             });
 
             m_arcLayout->addWidget(row);
@@ -460,8 +417,6 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
 
             connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
                 arc->setWeight(val);
-                if (transition->interpTransition() && place && place->interpPlace())
-                    transition->interpTransition()->setExitEdgeWeight(place->interpPlace(), val);
             });
 
             m_arcLayout->addWidget(row);
@@ -470,9 +425,13 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
 }
 
 void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
-    if (m_activeToolBtn) m_activeToolBtn->setChecked(false);
+    if (m_activeToolBtn)
+        m_activeToolBtn->setChecked(false);
+
     m_activeToolBtn = btn;
-    if (m_activeToolBtn) m_activeToolBtn->setChecked(true);
+
+    if (m_activeToolBtn)
+        m_activeToolBtn->setChecked(true);
 
     m_scene->setTool(tool);
 
@@ -487,32 +446,4 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
         m_view->setDragMode(QGraphicsView::NoDrag);
         break;
     }
-}
-
-void MainWindow::sendToInterpreter(const QString &text) {
-    if (!m_interp)
-        return;
-    appendLog("> " + text);
-    m_interp->inputEvent(text.toStdString(), "");
-}
-
-void MainWindow::startInterpreter() {
-    m_interp = new QtInterpreter(this);
-
-    setHelperInterpreter(m_interp);
-
-    connect(m_interp, &QtInterpreter::outputReceived, this, [this](const QString &name, const QString &value) {
-        appendInterpLog(QString("OUTPUT: %1 = %2").arg(name, value));
-    });
-    connect(m_interp, &QtInterpreter::stepLogged, this, &MainWindow::appendInterpLog);
-
-    connect(m_interp, &QtInterpreter::statePrinted, this, [this](const QString &state) {
-        appendInterpLog("--- state ---");
-        appendInterpLog(state);
-        appendInterpLog("-------------");
-        m_terminalDock->show();
-    });
-
-    appendInterpLog("--- interpreter ready ---");
-    m_terminalDock->show();
 }
