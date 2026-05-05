@@ -17,6 +17,9 @@ set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
         mainwindow.hpp
+        editorstate.cpp
+        editorstate.hpp
+        picojson.h
         mainwindow.ui
         items.hpp
         petriscene.hpp
