@@ -164,6 +164,12 @@ public:
         updatePosition();
     }
 
+    
+    QRectF boundingRect() const override {
+        const qreal extra = 50.0;
+        return QGraphicsLineItem::boundingRect().adjusted(-extra, -extra, extra, extra);
+    }
+
     /// @brief Přepočítá pozici hrany podle aktuálních středů uzlů.
     void updatePosition() {
         QPointF a = nodeCenter(m_from);
@@ -188,8 +194,8 @@ protected:
         if (l.length() < 1.0)
             return;
 
-        const qreal h = 14.0;
-        const qreal v = 16.0;
+        const qreal h = 28.0;
+        const qreal v = 2.0*0.577*h;
 
         QPointF mid = (l.p1() + l.p2()) / 2.0;
         QPointF dir = (l.p2() - l.p1()) / l.length();
@@ -200,6 +206,16 @@ protected:
         
         painter->setBrush(Qt::lightGray);
         painter->drawPolygon(QPolygonF({mid, base1, base2}));
+
+        painter->setPen(Qt::black);
+        QFont f = painter->font();
+        f.setPointSize(8);
+        f.setBold(true);
+        painter->setFont(f);
+
+        QPointF centre = mid - dir * (2.0 * h / 3.0);
+
+        painter->drawText( QRectF(centre.x() - 12, centre.y() - 12, 24, 24), Qt::AlignCenter, QString::number(m_weight));
     }
 
 private:
