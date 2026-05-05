@@ -5,6 +5,8 @@
 #ifndef _MISC_H
 #define _MISC_H
 
+#include <string>
+
 std::string trim(const std::string& str);
 
 #endif
