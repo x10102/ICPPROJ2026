@@ -271,6 +271,22 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
 
 void PetriScene::drawArc(QGraphicsItem *target)
 {
+    for (QGraphicsItem *item : items()) {
+        if (auto *a = dynamic_cast<ArcItem *>(item)) {
+            
+            if (a->fromItem() == m_arcSource && a->toItem() == target){
+                cancelArc();
+                return;
+            }
+
+            if (a->fromItem() == target && a->toItem() == m_arcSource){
+                cancelArc();
+                return;
+            }
+
+        }
+    }
+
     setNodeHighlight(m_arcSource, false);
     ArcItem *arc = new ArcItem(m_arcSource, target);
     addItem(arc);
@@ -283,6 +299,11 @@ void PetriScene::drawArc(QGraphicsItem *target)
         return "?";
     };
     log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));
+
+    if (auto *t = dynamic_cast<TransitionItem *>(m_arcSource))
+        emit transitionSelected(t);
+    else if (auto *t = dynamic_cast<TransitionItem *>(target))
+        emit transitionSelected(t);
 
     m_arcSource = nullptr;
 }
