@@ -128,6 +128,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 emit placeSelected(place);
             else if (auto *transition = dynamic_cast<TransitionItem *>(selectedItems().first()))
                 emit transitionSelected(transition);
+            else if (auto *arc = dynamic_cast<ArcItem *>(selectedItems().first()))
+                emit arcSelected(arc);
             else
                 emit selectionCleared();
             break;

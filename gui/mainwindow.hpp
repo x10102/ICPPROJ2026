@@ -84,8 +84,13 @@ private:
 
     PlaceItem      *m_editedPlace       = nullptr;
     TransitionItem *m_editedTransition  = nullptr;
+    ArcItem        *m_editedArc         = nullptr;
+
     QWidget        *m_arcPanel          = nullptr;
     QVBoxLayout    *m_arcLayout         = nullptr;
+    QWidget        *m_arcWeightPanel    = nullptr;
+    QSpinBox       *m_arcWeightSpin     = nullptr;
+    QLabel         *m_arcWeightLabel    = nullptr;
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab

@@ -45,6 +45,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenSpin->setVisible(true);
         m_tokenLabel->setVisible(true);
         m_arcPanel->setVisible(false);
+        m_nameEdit->setReadOnly(false);
+
+        m_editedArc = nullptr;
+        m_arcWeightPanel->setVisible(false);
+        m_nameEdit->setReadOnly(false);
 
         m_editedPlace = place;
         m_nameEdit->blockSignals(true);
@@ -62,6 +67,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenSpin->setVisible(false);
         m_tokenLabel->setVisible(false);
         m_arcPanel->setVisible(true);
+        m_nameEdit->setReadOnly(false);
+
+        m_editedArc = nullptr;
+        m_arcWeightPanel->setVisible(false);
+        m_nameEdit->setReadOnly(false);
 
         m_editedTransition = transition;
         m_nameEdit->blockSignals(true);
@@ -73,9 +83,42 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_dock->show();
     });
 
+    connect(m_scene, &PetriScene::arcSelected, this, [this](ArcItem *arc) {        
+        m_editedPlace = nullptr;
+        m_editedTransition = nullptr;
+        m_tokenSpin->setVisible(false);
+        m_tokenLabel->setVisible(false);
+        m_arcPanel->setVisible(false);
+
+        m_arcWeightPanel->setVisible(true);
+        
+        m_editedArc = arc;
+        m_nameEdit->blockSignals(true);
+
+        auto nameOf = [](QGraphicsItem *item) -> QString {
+            if (auto *p = dynamic_cast<PlaceItem *>(item)) {
+                return p->name();
+            }
+            if (auto *t = dynamic_cast<TransitionItem *>(item)){
+                return t->name();
+            }
+            return "?";
+        };
+
+        m_nameEdit->setText(QString("hrana z %1 -> %2").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
+        m_nameEdit->setReadOnly(true);
+        m_nameEdit->blockSignals(false);
+        m_arcWeightSpin->blockSignals(true);
+        m_arcWeightSpin->setValue(arc->weight());
+        m_arcWeightSpin->blockSignals(false);
+        m_dock->show();
+
+    });
+
     connect(m_scene, &PetriScene::selectionCleared, this, [this](){
         m_editedPlace = nullptr;
         m_editedTransition = nullptr;
+        m_editedArc = nullptr;
         m_dock->hide();
     });
 }
@@ -227,9 +270,6 @@ void MainWindow::setupFloatingPanels() {
     m_simPanel->raise();
     QTimer::singleShot(0, this, [this]() { repositionSimPanel(); });
 }
-// -------------------------
-//     end of PANEL WITH BUTTONS
-// -------------------------
 
 
 void MainWindow::repositionSimPanel() {
@@ -278,7 +318,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     return QMainWindow::eventFilter(obj, event);
 }
 // -------------------------
-//     end of FLOATING PANELS
+//     end of PANEL WITH BUTTONS
 // -------------------------
 
 
@@ -319,6 +359,16 @@ void MainWindow::setupSidebar(){
     vbox->addWidget(m_arcPanel);
     m_arcPanel->setVisible(false);
 
+    m_arcWeightPanel = new QWidget;
+    QFormLayout *wf = new QFormLayout(m_arcWeightPanel);
+    m_arcWeightLabel = new QLabel("Váha:");
+    m_arcWeightSpin  = new QSpinBox;
+    m_arcWeightSpin->setMinimum(1);
+    m_arcWeightSpin->setMaximum(9999);
+    wf->addRow(m_arcWeightLabel, m_arcWeightSpin);
+    vbox->addWidget(m_arcWeightPanel);
+    m_arcWeightPanel->setVisible(false);
+
     vbox->addStretch();
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
@@ -333,6 +383,9 @@ void MainWindow::setupSidebar(){
         if (m_editedPlace) {
             m_editedPlace->setTokens(val);
         }
+    });
+    connect(m_arcWeightSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val) {
+        if (m_editedArc) m_editedArc->setWeight(val);
     });
 
     m_dock->setWidget(panel);

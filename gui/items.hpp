@@ -161,13 +161,38 @@ public:
         QGraphicsLineItem(parent), m_from(from), m_to(to){
         setPen(QPen(Qt::lightGray, 2));
         setZValue(-1);
+        setFlag(ItemIsSelectable);
         updatePosition();
     }
 
-    
+    /// @brief Rozšiřuje bounding rectangle, aby Qt neořezával šipku na hraně
+    /// Ořezávání se dělo v případech, kdy hrana měla příliš vodorovný nebo vertikální sklon
     QRectF boundingRect() const override {
         const qreal extra = 50.0;
         return QGraphicsLineItem::boundingRect().adjusted(-extra, -extra, extra, extra);
+    }
+
+    /// @brief Rozšiřuje clickable tvar hrany o šipku na hraně
+    /// Bez tohoto by se dalo kliknout jen na samotnou ~2px širokou čáru
+    QPainterPath shape() const override {
+        QPainterPath path = QGraphicsLineItem::shape();
+
+        QLineF l = line();
+        if (l.length() < 1.0)
+            return path;
+
+        const qreal h = 28.0;
+        const qreal v = 2.0*0.577*h;
+
+        QPointF mid = (l.p1() + l.p2()) / 2.0;
+        QPointF dir = (l.p2() - l.p1()) / l.length();
+        QPointF n(-dir.y(), dir.x());
+
+        QPointF base1 = mid - dir*h + n*v/2.0;
+        QPointF base2 = mid - dir*h - n*v/2.0;
+
+        path.addPolygon(QPolygonF({mid, base1, base2}));
+        return path;
     }
 
     /// @brief Přepočítá pozici hrany podle aktuálních středů uzlů.
@@ -230,7 +255,7 @@ private:
 
     QGraphicsItem *m_from; ///< Zdrojový uzel
     QGraphicsItem *m_to;   ///< Cílový uzel
-    int m_weight = 1; ///< TODO
+    int m_weight = 1; ///< Váha hrany
 };
 
 #endif // ITEMS_H

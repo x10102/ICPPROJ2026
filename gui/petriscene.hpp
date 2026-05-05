@@ -51,6 +51,8 @@ signals:
     void placeSelected(PlaceItem *place);
     /// @brief Signál emitován při výběru přechodu v režimu Select.
     void transitionSelected(TransitionItem *transition);
+    /// @brief Signál emitován při výběru hrany v režimu Select.
+    void arcSelected(ArcItem *arc);
     /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
     void selectionCleared();
     /// @brief Signál emitován při logovatelné akci uživatele.
