@@ -67,7 +67,15 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             }
             else {
                 if (clicked != m_arcSource){
-                    drawArc(clicked);
+
+                    if ((dynamic_cast<PlaceItem *>(m_arcSource) == nullptr) && (dynamic_cast<PlaceItem *>(clicked) == nullptr)){
+                        cancelArc();
+                    } else if ((dynamic_cast<TransitionItem *>(m_arcSource) == nullptr) && (dynamic_cast<TransitionItem *>(clicked) == nullptr)){
+                        cancelArc();
+                    }
+                    else {
+                        drawArc(clicked);
+                    }
                 }
                 else {
                     cancelArc();
