@@ -46,6 +46,9 @@ public:
     /// @brief Vrátí aktuálně vybraný nástroj.
     Tool currentTool() const {return m_tool;}
 
+    /// @brief Nastaví novou barevnou paletu objektům 
+    void applyTheme(const Theme &theme);
+
 signals:
     /// @brief Signál emitován při výběru místa v režimu Select.
     void placeSelected(PlaceItem *place);

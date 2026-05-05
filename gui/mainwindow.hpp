@@ -10,6 +10,7 @@
 #include <QMainWindow>
 #include <QPoint>
 #include "petriscene.hpp"
+#include "theme.hpp"
 
 class QGraphicsView;
 class QAction;
@@ -54,6 +55,8 @@ private:
     void setupFloatingPanels();
     /// @brief Přepočítá pozici panelu simulace do pravého dolního rohu.
     void repositionSimPanel();
+
+    void applyTheme(const Theme &theme);
 
     /**
      * @brief Přepne aktivní nástroj a vizuálně označí příslušné tlačítko.

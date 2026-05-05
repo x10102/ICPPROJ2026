@@ -14,6 +14,7 @@
 #include <QGraphicsLineItem>
 #include <QPainter>
 #include <cmath>
+#include "theme.hpp"
 
 class Place;      // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
 class Transition; // forward declaration — TransitionItem holds a pointer to its interpreter counterpart
@@ -36,6 +37,8 @@ public:
         setPen(QPen(Qt::black, 2));
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
         setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton);
+
+        applyTheme(Theme::current());
     }
 
     /// @brief Vrátí střed místa v souřadnicích scény.
@@ -71,11 +74,17 @@ public:
 
     void setHighlighted(bool on) {
         if (on) {
-            setPen(QPen(QColor(255, 140, 0), 3));
+            setPen(QPen(Theme::current().highlightColor, 3));
         }
         else {
-            setPen(QPen(QColor(0,0,0), 2));
+            applyTheme(Theme::current());
         }
+    }
+
+    void applyTheme(const Theme &theme){
+        setBrush(theme.placeBackground);
+        setPen(QPen(theme.placeBorder, 2));
+        update();
     }
 
 
@@ -88,7 +97,7 @@ protected:
         f.setBold(true);
         f.setPointSize(11);
         painter->setFont(f);
-        painter->setPen(Qt::black);
+        painter->setPen(Theme::current().placeText);
         painter->drawText(rect().toRect(), Qt::AlignCenter, QString::number(m_tokens));
     }
 
@@ -114,6 +123,8 @@ public:
         setBrush(Qt::black);
         setPen(QPen(Qt::black, 2));
         setFlags(ItemIsMovable | ItemIsSelectable | ItemSendsGeometryChanges);
+
+        applyTheme(Theme::current());
     }
 
     /// @brief Vrátí střed přechodu v souřadnicích scény.
@@ -131,11 +142,17 @@ public:
 
     void setHighlighted(bool on) {
         if (on) {
-            setPen(QPen(QColor(255, 140, 0), 3));
+            setPen(QPen(Theme::current().highlightColor, 3));
         }
         else {
-            setPen(QPen(QColor(0,0,0), 2));
+            applyTheme(Theme::current());
         }
+    }
+
+    void applyTheme(const Theme &theme){
+        setBrush(theme.transitionColor);
+        setPen(QPen(theme.transitionColor, 2));
+        update();
     }
 
 private:
@@ -163,6 +180,8 @@ public:
         setZValue(-1);
         setFlag(ItemIsSelectable);
         updatePosition();
+
+        applyTheme(Theme::current());
     }
 
     /// @brief Rozšiřuje bounding rectangle, aby Qt neořezával šipku na hraně
@@ -209,7 +228,15 @@ public:
     /// @brief TODO
     int weight() {return m_weight;}
     /// @brief TODO
-    void setWeight(int w) {m_weight = qMax(0, w);}
+    void setWeight(int w) {
+        m_weight = qMax(0, w);
+        update();
+    }
+
+    void applyTheme(const Theme &theme){
+        setPen(QPen(theme.arcLine, 2));
+        update();
+    }
 
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
@@ -229,10 +256,10 @@ protected:
         QPointF base1 = mid - dir*h + n*v/2.0;
         QPointF base2 = mid - dir*h - n*v/2.0;
         
-        painter->setBrush(Qt::lightGray);
+        painter->setBrush(Theme::current().arcArrow);
         painter->drawPolygon(QPolygonF({mid, base1, base2}));
 
-        painter->setPen(Qt::black);
+        painter->setPen(Theme::current().arcText);
         QFont f = painter->font();
         f.setPointSize(8);
         f.setBold(true);

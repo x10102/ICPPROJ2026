@@ -292,3 +292,17 @@ void PetriScene::cancelArc()
     setNodeHighlight(m_arcSource, false);
     m_arcSource = nullptr;
 }
+
+void PetriScene::applyTheme(const Theme &theme) {
+    const QList<QGraphicsItem *> allItems = items();
+    for (QGraphicsItem *item : allItems){
+        if (auto *p = dynamic_cast<PlaceItem *>(item))
+            p->applyTheme(theme);
+        else if (auto *t = dynamic_cast<TransitionItem *>(item))
+            t->applyTheme(theme);
+        else if (auto *a = dynamic_cast<ArcItem *>(item))
+            a->applyTheme(theme);
+    }
+
+    setBackgroundBrush(theme.sceneBackground);
+}

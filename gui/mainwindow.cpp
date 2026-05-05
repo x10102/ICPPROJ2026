@@ -18,6 +18,7 @@
 #include <QPushButton>
 #include <QMouseEvent>
 #include <QTimer>
+#include <QApplication>
 #include "scripting_helper.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -194,6 +195,18 @@ void MainWindow::setupToolbar(){
         checked ? m_terminalDock->show() : m_terminalDock->hide();
     });
     connect(m_terminalDock, &QDockWidget::visibilityChanged, termAct, &QAction::setChecked);
+
+    tb->addSeparator();
+
+    QAction *darkAct = tb->addAction("Dark Theme");
+    darkAct->setCheckable(true);
+    connect(darkAct, &QAction::toggled, this, [this](bool checked) {
+        if (checked)
+            Theme::apply(Theme::dark());
+        else 
+            Theme::apply(Theme::light());
+        this->applyTheme(Theme::current());
+    });
 }
 // -------------------------
 //     end of TOOLBAR
@@ -499,4 +512,34 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
         m_view->setDragMode(QGraphicsView::NoDrag);
         break;
     }
+}
+
+void MainWindow::applyTheme(const Theme &theme){
+    QPalette p;
+    p.setColor(QPalette::Window, theme.windowBackground);
+    p.setColor(QPalette::WindowText, theme.windowText);
+    p.setColor(QPalette::Base, theme.windowBackground);
+    p.setColor(QPalette::Text, theme.windowText);
+    p.setColor(QPalette::Button, theme.windowBackground);
+    p.setColor(QPalette::ButtonText, theme.windowText);
+    
+    qApp->setPalette(p);
+
+    m_scene->applyTheme(theme);
+    
+
+    QString background = theme.windowBackground.name();
+    QString text = theme.windowText.name();
+
+    m_toolPanel->setStyleSheet(QString(
+        "QFrame { background: %1; border-radius: 6px; }"
+        "QPushButton { color: %2; min-width: 90px; padding: 4px 8px; }"
+        "QPushButton:checked { background: #4a90d9; color: white; border-radius: 3px; }"
+    ).arg(background, text));
+
+    m_simPanel->setStyleSheet(QString(
+        "QFrame { background: %1; border-radius: 6px; }"
+        "QPushButton { color: %2; min-width: 60px; padding: 4px 12px; }"
+        "QPushButton:checked { background: #4a90d9; color: white; border-radius: 3px; }"
+    ).arg(background, text));
 }
