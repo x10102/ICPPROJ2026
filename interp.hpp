@@ -44,7 +44,7 @@ class Interpreter {
 
         void delayedFire(Transition *tr, uint32_t delay_ms);
 
-        void parseLoadFileLine(const string &section, const string &line);
+        //void parseLoadFileLine(const string &section, const string &line);
     public:
         /*
         bool save(const string &filename);
