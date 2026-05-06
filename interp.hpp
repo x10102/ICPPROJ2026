@@ -7,6 +7,7 @@
 #define _INTERP_H
 
 #include "petri.hpp"
+#include "gui/picojson.h"
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
@@ -67,6 +68,8 @@ class Interpreter {
         virtual void printState();
         bool inputDefined(const std::string input);
         std::string *lastInputValue(const std::string input);
+        picojson::object json();
+
         Interpreter();
 
 };

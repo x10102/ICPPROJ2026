@@ -18,12 +18,18 @@
 #include "interp.hpp"
 #include "debug.hpp"
 #include "misc.hpp"
+#include "gui/picojson.h"
 
 using namespace std;
 
 Interpreter::Interpreter() {
     this->max_order = 0;
     this->exiting = false;
+}
+
+picojson::object Interpreter::json() {
+    picojson::object value;
+    
 }
 
 // Triggers an input event -

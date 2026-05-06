@@ -9,10 +9,15 @@
 #include <string>
 
 #include "debug.hpp"
+#include "gui/picojson.h"
 
 Transition::Transition(std::string identifier) {
     this->identifier = identifier;
     this->fireCondition = {0, ""};
+}
+
+picojson::object Transition::json() {
+    
 }
 
 void Transition::addEntryEdge(TransitionEdge e) {

@@ -2,7 +2,7 @@
 #include "editorstate.hpp"
 #include <ostream>
 
-void InterpreterGenerator::emitPlace(PetriPlace *p) {
+void InterpreterGenerator::emitPlace(const PetriPlace *p) {
     this->generatedBuffer << "PLACE(";
     this->generatedBuffer << p->name << ", " << p->name << ", ";
     this->generatedBuffer << p->initial_tokens;
@@ -13,7 +13,7 @@ void InterpreterGenerator::emitPlace(PetriPlace *p) {
     this->generatedBuffer << ")" << std::endl;
 }
 
-void InterpreterGenerator::emitTransition(PetriTransition *t) {
+void InterpreterGenerator::emitTransition(const PetriTransition *t) {
     this->generatedBuffer << "TRANSITION(";
     this->generatedBuffer << t->name << ", " << t->name << ");" << std::endl;
     this->generatedBuffer << "CONDITION_EXPR(" << t->name;
@@ -22,7 +22,7 @@ void InterpreterGenerator::emitTransition(PetriTransition *t) {
     this->generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
 }
 
-void InterpreterGenerator::emitArc(PetriArc *a) {
+void InterpreterGenerator::emitArc(const PetriArc *a) {
     if(a->type == PLACE_TO_TRANSITION) {
         this->generatedBuffer << "ENTRY_EDGE(" << a->place->name << ", ";
         this->generatedBuffer << a->transition->name << ", ";
@@ -32,4 +32,13 @@ void InterpreterGenerator::emitArc(PetriArc *a) {
         this->generatedBuffer << a->place->name << ", ";
         this->generatedBuffer << a->tokenCount << ");" << std::endl;
     }
+}
+
+bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
+    for(const auto &arc : spec->arcs)
+        this->emitArc(&arc.second);
+    for(const auto &tr : spec->transitions)
+        this->emitTransition(&tr.second);
+    for(const auto &p : spec->places)
+        this->emitPlace(&p.second);
 }

@@ -43,9 +43,11 @@ struct PetriArc {
     PetriArc();
 };
 
-class PetriNetworkSpec {
+// No encapsulation here :(
+// Making the internal attributes private would make our life really difficult
+// when writing the interpreter generator
+struct PetriNetworkSpec {
 
-    public:
     void addPlace(PetriPlace p);
     void addTransition(PetriTransition t);
     void addArcFromPlace(PetriPlace p, PetriTransition t);
@@ -67,7 +69,6 @@ class PetriNetworkSpec {
 
     PetriPlace* getPlace(std::string name);
 
-    private:
     std::string name;
     std::string description;
     std::vector<std::string> variables;
@@ -75,6 +76,6 @@ class PetriNetworkSpec {
     std::vector<std::string> outputs;
     std::map<std::string, PetriPlace> places;
     std::map<std::string, PetriTransition> transitions;
-    std::map<std::string, PetriArc*> arcs;
+    std::map<std::string, PetriArc> arcs;
 };
 #endif

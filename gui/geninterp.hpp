@@ -7,16 +7,17 @@
 #include <string>
 class InterpreterGenerator {
     public:
-        void setPath(std::filesystem::path path);
-        void setEntrypoint(std::string filename);
-        void setMarker(std::string);
-        bool compile(PetriNetworkSpec spec);
+        void setPath(const std::filesystem::path path);
+        void setEntrypoint(const std::string filename);
+        void setMarker(const std::string);
+        bool generateMain(const PetriNetworkSpec *spec);
+        bool compile();
         bool run();
     
     private:
-        void emitPlace(PetriPlace *p);
-        void emitTransition(PetriTransition *t);
-        void emitArc(PetriArc *a);
+        void emitPlace(const PetriPlace *p);
+        void emitTransition(const PetriTransition *t);
+        void emitArc(const PetriArc *a);
 
         std::filesystem::path interpSourcePath;
         std::string interpEntryFilename;

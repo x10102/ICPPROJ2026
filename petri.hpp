@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include "gui/picojson.h"
 
 class Transition;
 class Place {
@@ -37,6 +38,7 @@ class Place {
     bool removeTokens(const uint32_t token_count);
     void setIdentifier(const std::string identifier);
     void setAction(std::function<void(void)> action);
+    picojson::object json();
 };
 
 struct TransitionEdge {
@@ -45,6 +47,8 @@ struct TransitionEdge {
     Transition *transition;
     // Number of tokens consumed in the transition
     uint32_t weight;
+
+    picojson::object json();
 };
 
 struct TransitionFireCondition {
@@ -85,6 +89,8 @@ class Transition {
     void setExitEdgeWeight(Place *to,   uint32_t weight);
     bool removeEntryEdge(Place *from);
     bool removeExitEdge(Place *to);
+
+    picojson::object json();
 };
 
 #endif

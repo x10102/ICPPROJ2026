@@ -2,12 +2,17 @@
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 #include <cstddef>
+#include <cstdio>
 #include <iostream>
 #include <string>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <memory.h>
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
 #include "scripting_helper.hpp"
+#include "gui/picojson.h"
 
 #define PLACE(var, id, tok) Place *var = interp.createPlace(id, tok)
 #define TRANSITION(var, id) Transition *var = interp.createTransition(id)
@@ -60,6 +65,52 @@ void interactive_test() {
 
 int main(int argc, char *argv[]) {
     
-    interactive_test();
+    Interpreter interp;
+    unsigned int port;
+    port = 6767;
+    
+    // #### MARKER ####
+
+    struct sockaddr_in editor_addr;
+    struct sockaddr_in self_addr;
+    char netbuffer[4096];
+    memset(&editor_addr, 0, sizeof(struct sockaddr_in));
+    memset(&self_addr, 0, sizeof(struct sockaddr_in));
+    self_addr.sin_addr.s_addr = INADDR_ANY;
+    self_addr.sin_family = AF_INET;
+    self_addr.sin_port = htons(port);
+    int sock_recv = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock_recv < 0) {
+        LOG_I("Application error: failed to create socket");
+        exit(2);
+    }
+    socklen_t saddr = sizeof(struct sockaddr_in);
+    if(bind(sock_recv, (struct sockaddr*)&self_addr, saddr) < 0) {
+        LOG_I("Application error: failed to bind socket");
+        exit(2);
+    }
+
+    int recv_len;
+    
+    while(true) {
+        picojson::value data;
+        recv_len = recvfrom(sock_recv, netbuffer, 4096, MSG_WAITALL, (struct sockaddr*)&self_addr, &saddr);
+        std::string decode_error = picojson::parse(data, netbuffer);
+        if(!decode_error.empty()) {
+            LOG_I("Application error: received malformed command, ignoring it.");
+            continue;
+        }
+        auto payload = data.get<picojson::object>();
+        std::string command = payload["command"].to_str();
+        if(command.compare("step") == 0) {
+            interp.doTransitions();
+        } else if(command.compare("event") == 0) {
+            interp.inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
+        }
+        
+   
+    }
+
+    //interactive_test();
     return 0;
 }
