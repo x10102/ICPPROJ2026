@@ -174,11 +174,6 @@ void MainWindow::setupTerminal() {
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(4);
 
-    QPushButton *sendBtn = new QPushButton("Send");
-    hbox->addWidget(sendBtn);
-
-    vbox->addWidget(inputRow);
-
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
     m_terminalDock->hide();

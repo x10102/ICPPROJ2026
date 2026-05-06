@@ -110,7 +110,7 @@ void PetriNetworkSpec::exportJSON() const {
         outputs.push_back(V(out));
 
     for(const auto &arc : this->arcs)
-        arcs.push_back(V(arc.second->json()));
+        arcs.push_back(V(arc.second.json()));
 
     root["places"] = V(places);
     root["transitions"] = V(transitions);
