@@ -3,6 +3,7 @@
 
 #include "editorstate.hpp"
 #include <filesystem>
+#include <sstream>
 #include <string>
 class InterpreterGenerator {
     public:
@@ -13,9 +14,14 @@ class InterpreterGenerator {
         bool run();
     
     private:
+        void emitPlace(PetriPlace *p);
+        void emitTransition(PetriTransition *t);
+        void emitArc(PetriArc *a);
+
         std::filesystem::path interpSourcePath;
         std::string interpEntryFilename;
         std::string interpDefMarker;
+        std::ostringstream generatedBuffer;
 };
 
 #endif

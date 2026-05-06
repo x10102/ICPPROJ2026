@@ -13,7 +13,7 @@
 #define TRANSITION(var, id) Transition *var = interp.createTransition(id)
 #define CONDITION(tr, name, delay) tr->setFireCondition({delay, name})
 #define CONDITION_EXPR(tr, name, delay, expr) tr->setFireCondition({delay, name, LAMBDA_FROM_EXPR(expr)})
-#define TRANSITION_ACTION(tr, expr) tr->setAction(LAMBDA_FROM_EXPR(expr));
+#define ACTION(tr, expr) tr->setAction(LAMBDA_FROM_EXPR(expr));
 #define ENTRY_EDGE(from, tr, weight) tr->addEntryEdge(from, weight)
 #define EXIT_EDGE(tr, to, weight) tr->addExitEdge(to, weight)
 
@@ -24,11 +24,12 @@ void interactive_test() {
 
     PLACE(a1, "prvni" ,1);
     PLACE(a2, "druhy", 0);
+    
     TRANSITION(t2, "start_time_cond");
     ENTRY_EDGE(a1, t2, 1);
     EXIT_EDGE(t2, a2, 67);
     CONDITION_EXPR(t2, "", 0, now() >= 5000);
-    TRANSITION_ACTION(t2, output("amongusovni_vystup", to_string(now())))
+    ACTION(t2, output("amongusovni_vystup", to_string(now())))
 
     LOG_I("Enter interactive test");
     LOG_I("Trigger events with: <event> <value>")
