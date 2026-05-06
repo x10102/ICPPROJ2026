@@ -44,6 +44,9 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("p%1").arg(++m_placeCounter);
             place->setName(name);
             addItem(place);
+            PetriPlace storeT;
+            storeT.name = name.toStdString();
+            this->spec->addPlace(storeT);
             log(QString("Místo %1 přidáno").arg(name));
             break;
         }
@@ -165,7 +168,7 @@ void PetriScene::showPlaceContextMenu(PlaceItem *place, QPoint screenPos){
     QMenu menu;
 
     QAction *addOne = menu.addAction("Přidej token");
-    QAction *removeOne = menu.addAction("Oddělej token");
+    QAction *removeOne = menu.addAction("Odstraň token");
     QAction *setZero = menu.addAction("Vynulovat tokeny");
     menu.addSeparator();
     QAction *remove = menu.addAction("Smazat místo");
