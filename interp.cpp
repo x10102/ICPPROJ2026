@@ -27,22 +27,29 @@ Interpreter::Interpreter() {
 }
 
 picojson::object Interpreter::json() {
+    // TODO: Maybe reformat this using the value macro
     picojson::object json;
     picojson::array aPlaces;
     // We don't really need to send the transitions, they don't hold any state
     // and the editor already knows about them
     //picojson::array aTransitions;
     picojson::array firedLast;
+    picojson::object eventList;
 
     // TODO: timers
     for(auto &p : this->places)
         aPlaces.push_back(picojson::value(p.second->json()));
-    /*for(auto &t : this->transitions)
-        aTransitions.push_back(picojson::value(t.second->json()));*/
     for(auto &f : this->firedLastStep)
         firedLast.push_back(picojson::value(f));
+
+    for(auto &e : this->events) {
+        picojson::object evt;
+        evt["value"] = picojson::value(e.outputVal);
+        evt["timestamp"] = picojson::value(static_cast<double>(e.timestamp));
+        eventList[e.outputId] = picojson::value(evt);
+    }
     json["places"] = picojson::value(aPlaces);
-    //json["transitions"] = picojson::value(aTransitions);
+    json["outputEvents"] = picojson::value(eventList);
     json["fired"] = picojson::value(firedLast);
     return json;
 }
@@ -66,6 +73,9 @@ void Interpreter::outputEvent(string output, string value) {
     // TODO: This should at least send the output event to the editor
     // For now we just log it
     LOG_I("OUTPUT_EVENT: %s=%s", output.c_str(), value.c_str());
+    auto unixTimestampMs = chrono::duration_cast<std::chrono::milliseconds>\
+        (chrono::steady_clock::now().time_since_epoch()).count();
+    this->events.push_back(OutputEvent{output, value, unixTimestampMs});
 }
 
 bool Interpreter::inputDefined(const std::string input) {
@@ -249,11 +259,8 @@ void Interpreter::doTransitions() {
     } while(fire_count > 0);
 }
 
-OutputEvent Interpreter::getLastOutputEvent() {
-    // TODO: Undefined b. on empty vector
-    auto last = this->events.back();
-    this->events.pop_back();
-    return last;
+void Interpreter::clearEvents() {
+    this->events.clear();
 }
 
 void Interpreter::clearFired() {

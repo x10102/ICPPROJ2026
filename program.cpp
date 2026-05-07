@@ -76,6 +76,8 @@ int main(int argc, char *argv[]) {
 
     PLACE(a1, "prvni" ,1);
     PLACE(a2, "druhy", 0);
+    PLACE(a3, "treti", 100);
+    PLACE(a4, "ctvrty", 0);
     
     TRANSITION(t2, "start_time_cond");
     ENTRY_EDGE(a1, t2, 1);
@@ -83,8 +85,15 @@ int main(int argc, char *argv[]) {
     CONDITION_EXPR(t2, "", 0, now() >= 5000);
     ACTION(t2, output("amongusovni_vystup", to_string(now())))
 
+    TRANSITION(t3, "input_event_cond");
+    ENTRY_EDGE(a3, t3, 100);
+    EXIT_EDGE(t3, a4, 5);
+    CONDITION(t3, "sestsedm", 0);
+    ACTION(t3, output("sixsevenovni vystup", "ahojahojahoj"));
+
     // #### MARKER ####
 
+    // TODO: Move allll of this shit to the interpreter class, maybe make a separate network handler class to not clutter the petri logic too much
     struct sockaddr_in editor_addr;
     struct sockaddr_in self_addr;
     char netbuffer[NETWORK_BUFFER_SIZE];
@@ -117,11 +126,14 @@ int main(int argc, char *argv[]) {
         auto payload = data.get<picojson::object>();
         std::string command = payload["command"].to_str();
         if(command.compare("step") == 0) {
+            // With the way the interpreter is programmed, we can really only do one step at a time
+            // We could add a parameter for N steps
+            // And also a parameter for "half-steps" - the doTransitions() loop will only run for one cycle and then report back state
+            // Would make it easier to follow convoluted networks where lots of transitions will fire each cycle
             interp.doTransitions();
         } else if(command.compare("event") == 0) {
             interp.inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {
-            LOG_I("Received command to terminate, exiting...");
             interp.terminate();
             break;
         }
@@ -131,8 +143,8 @@ int main(int argc, char *argv[]) {
         netbuffer[json.length()] = '\0';
         sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
         // Clear the events that fired
-        // TODO: also clear output events here later
         interp.clearFired();
+        interp.clearEvents();
     }
 
     //interactive_test();

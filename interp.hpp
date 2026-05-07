@@ -69,11 +69,11 @@ class Interpreter {
         virtual void printState();
         bool inputDefined(const std::string input);
         string *lastInputValue(const std::string input);
-        void clearFired();
-        
 
-        void pushOutputEvent(OutputEvent o);
-        OutputEvent getLastOutputEvent();
+        // Functions for clearing the internal "queues" of events and fired transitions
+        void clearFired();
+        void clearEvents();
+        
         picojson::object json();
 
         Interpreter();

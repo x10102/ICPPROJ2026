@@ -96,7 +96,7 @@ class Transition {
 struct OutputEvent {
     std::string outputId;
     std::string outputVal;
-    std::chrono::system_clock::duration timestamp;
+    long timestamp;
 
     picojson::object json();
 };
