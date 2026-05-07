@@ -58,7 +58,7 @@ private:
     void repositionSimPanel();
 
     /// @brief Lets the user choose a file using the system file picker dialog and saves the net
-    void saveNet();
+    bool saveNet();
 
     void applyTheme(const Theme &theme);
 

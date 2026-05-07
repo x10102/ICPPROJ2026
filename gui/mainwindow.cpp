@@ -281,8 +281,9 @@ void MainWindow::setupToolbar(){
 
     // Wire up the menu items to their actions
     connect(btnSave, &QAction::triggered, this, [this](){
-        this->saveNet();
-        this->spec.exportJSON();
+        if (this->saveNet()) {
+            this->spec.exportJSON();
+        }
     });
     
     connect(termAct, &QAction::toggled, this, [this](bool checked) {
@@ -657,9 +658,17 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
     }
 }
 
-void MainWindow::saveNet() {
-    std::string filename = QFileDialog::getSaveFileName(this, "Uložit síť", "", "Petri Net specification (*.pnet)").toStdString();
-    std::cout << "Save to: " << filename << std::endl;
+bool MainWindow::saveNet() {
+    QString filename = QFileDialog::getSaveFileName(this, "Uložit síť", QString::fromStdString(spec.name), "Petri Net specification (*.pnet)");
+    if (filename.isEmpty())
+        return false;
+    std::cout << "Save to: " << filename.toStdString() << std::endl;
+
+    QString givenName = QFileInfo(filename).baseName();
+    if (!givenName.isEmpty()) {
+        spec.setNetworkName(givenName.toStdString());
+    }
+    return true;
 }
 
 void MainWindow::applyTheme(const Theme &theme){
