@@ -1,12 +1,6 @@
 == TODO
 - Okomentovat neokomentovane
-- Nastavit Interpreter terminal jako hlavni terminal (prvni)
-- Vizualni reprezentace presunu tokenu
-- Vizualni reprezentace vahy hrany
-
-
-== BUGS
-- Smer Arcu nejde videt (sipka je za uzlem)
-- Step a Run se neukazuje spravne (na spatnem miste a ve spatny cas)
-- Chybi moznost zavrit sidebard
-- Mazani Arcu pomoci praveho tlacitka je slozite (nejde kliknout na Arc jednodusse)
+- Moznost smazat vse pravym
+- Chybi moznost zavrit sidebar
+- SaveDialog
+- Seznam právě povolených přechodů (enabled) a seznam naplánovaných (čekajících) timeoutů (pending timers), nejlépe přímo v diagramu (např. barevně zvýraznit).
