@@ -82,12 +82,13 @@ private:
 
     QDockWidget    *m_dock              = nullptr;
     QLineEdit      *m_nameEdit          = nullptr;
+    QLineEdit      *m_actionEdit        = nullptr;
 
     QSpinBox       *m_tokenSpin         = nullptr;
     QLabel         *m_tokenLabel        = nullptr;
 
-    QLineEdit      *m_placeActionEdit   = nullptr;
-    QLabel         *m_placeActionLabel  = nullptr;
+    QLineEdit      *m_fireCondEdit      = nullptr;
+    QLabel         *m_fireCondLabel     = nullptr;
 
     PlaceItem      *m_editedPlace       = nullptr;
     TransitionItem *m_editedTransition  = nullptr;

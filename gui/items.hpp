@@ -1,6 +1,6 @@
 /**
  * @file items.h
- * @author Dalibor Kalina, xkalin16
+ * @author Dalibor Kalina, xkalin16, Adam Šrámek, xsramea00
  * @brief Grafické prvky Petriho sítě pro QGraphicsScene.
  *
  * Obsahuje třídy PlaceItem, TransitionItem a ArcItem
@@ -72,13 +72,13 @@ public:
         update();
     }
     /// @brief Vráti akci místa
-    QString placeAction() const { return m_placeAction; }
+    QString action() const { return m_action; }
     /**
      * @brief Nastaví akci místa
-     * @param name Nová akce
+     * @param action Nová akce
      */
-    void setPlaceAction(const QString &name) {
-        m_name = name;
+    void setAction(const QString &action) {
+        m_action = action;
         update();
     }
 
@@ -114,7 +114,7 @@ protected:
 private:
     int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
     QString m_name;               ///< Název místa
-    QString m_placeAction;
+    QString m_action;
 };
 
 /**
@@ -150,7 +150,26 @@ public:
         m_name = name;
         update();
     }
-
+    /// @brief Vráti akci místa
+    QString action() const { return m_action; }
+    /**
+     * @brief Nastaví akci přechodu
+     * @param action Nová akce
+     */
+    void setAction(const QString &action) {
+        m_action = action;
+        update();
+    }
+    /// @brief Vrátí podmínku odpálení
+    QString fireCond() const {return m_fireCond;}
+    /**
+     * @brief Nastaví podmínku odpálení přechodu
+     * @param fireCond Nová podmínka odpálení
+     */
+    void setFireCond(const QString &fireCond) {
+        m_fireCond = fireCond;
+        update();
+    }
     void setHighlighted(bool on) {
         if (on) {
             setPen(QPen(Theme::current().highlightColor, 3));
@@ -167,7 +186,9 @@ public:
     }
 
 private:
-    QString m_name;    ///< Název přechodu
+    QString m_name;   ///< Název přechodu
+    QString m_action;
+    QString m_fireCond;
 };
 
 /**
