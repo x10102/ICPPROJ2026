@@ -16,8 +16,10 @@
 #include <QTabWidget>
 #include <QFormLayout>
 #include <QLineEdit>
+#include <QSaveFile>
 #include <QSpinBox>
 #include <QWidget>
+#include <QFileDialog>
 #include <QLabel>
 #include <QScrollBar>
 #include <QPlainTextEdit>
@@ -253,11 +255,11 @@ void MainWindow::setupToolbar(){
     viewMenuButton->setMenu(viewMenu);
     viewMenuButton->setPopupMode(QToolButton::InstantPopup);
 
-    auto settMenu = new QMenu(this);
-    auto settMenuButton = new QToolButton(this);
-    settMenuButton->setText("Nastavit");
-    settMenuButton->setMenu(settMenu);
-    settMenuButton->setPopupMode(QToolButton::InstantPopup);
+    auto netMenu = new QMenu(this);
+    auto netMenuButton = new QToolButton(this);
+    netMenuButton->setText("Síť");
+    netMenuButton->setMenu(netMenu);
+    netMenuButton->setPopupMode(QToolButton::InstantPopup);
 
     // Populate the submenus with buttons
     auto btnSave = fileMenu->addAction("Uložit síť");
@@ -268,15 +270,18 @@ void MainWindow::setupToolbar(){
     auto darkAct = viewMenu->addAction("Dark Theme");
     darkAct->setCheckable(true);
 
-    auto nameAct = settMenu->addAction("Název a popis sítě");
+    auto nameAct = netMenu->addAction("Vlastnosti");
+    auto compileAct = netMenu->addAction("Sestavit interpret");
+    auto runAct = netMenu->addAction("Spustit interpret");
 
     // Add the menus to the toolbar
     tb->addWidget(fileMenuButton);
+    tb->addWidget(netMenuButton);
     tb->addWidget(viewMenuButton);
-    tb->addWidget(settMenuButton);
 
     // Wire up the menu items to their actions
     connect(btnSave, &QAction::triggered, this, [this](){
+        this->saveNet();
         this->spec.exportJSON();
     });
     
@@ -650,6 +655,11 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
         m_view->setDragMode(QGraphicsView::NoDrag);
         break;
     }
+}
+
+void MainWindow::saveNet() {
+    std::string filename = QFileDialog::getSaveFileName(this, "Uložit síť", "", "Petri Net specification (*.pnet)").toStdString();
+    std::cout << "Save to: " << filename << std::endl;
 }
 
 void MainWindow::applyTheme(const Theme &theme){
