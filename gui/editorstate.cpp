@@ -1,3 +1,8 @@
+/**
+ * @file editorstate.cpp
+ * @author Onřej Turek, xtureko00, Adam Šrámek, xsramea00
+ * @brief Stav editoru pro ukládání
+ */
 #include "editorstate.hpp"
 #include "picojson.h"
 
@@ -30,6 +35,7 @@ picojson::object PetriTransition::json() const {
     json["name"] = V(this->name);
     json["inputEventName"] = V(this->inputEventName);
     json["booleanGuard"] = V(this->booleanGuardMacro);
+    json["transitionAction"] = V(this->transitionActionMacro);
     json["delayMs"] = V(static_cast<double>(this->delayMs));
     return json;
 }
@@ -55,6 +61,20 @@ void PetriNetworkSpec::addArcFromPlace(PetriPlace p, PetriTransition t) {
 }
 void PetriNetworkSpec::addArcToPlace(PetriPlace p, PetriTransition t) {}
 
+void PetriNetworkSpec::updatePlace(const std::string& oldName, PetriPlace place) {
+    if (oldName != place.name) {
+        places.erase(oldName);
+    }
+    places[place.name] = place;
+}
+
+void PetriNetworkSpec::updateTransition(const std::string& oldName, PetriTransition transition) {
+    if (oldName != transition.name) {
+        transitions.erase(oldName);
+    }
+    transitions[transition.name] = transition;
+}
+
 void PetriNetworkSpec::removePlace(std::string name) {}
 void PetriNetworkSpec::removeTransition(std::string name) {}
 void PetriNetworkSpec::removeArc(PetriPlace *p, PetriTransition *t) {}
@@ -79,6 +99,14 @@ PetriPlace* PetriNetworkSpec::getPlace(std::string name) {
     const auto item = this->places.find(name);
     if(item == this->places.end())
         return nullptr;
+    return &item->second;
+}
+
+PetriTransition* PetriNetworkSpec::getTransition(std::string name) {
+    const auto item = this->transitions.find(name);
+    if (item == this->transitions.end()) {
+        return nullptr;
+    }
     return &item->second;
 }
 

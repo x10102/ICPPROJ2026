@@ -1,3 +1,8 @@
+/**
+ * @file getinterp.hpp
+ * @author Onřej Turek, xtureko00
+ * @brief Generováni interpreteru pro editor
+ */
 #ifndef _GENINTERP_H
 #define _GENINTERP_H
 

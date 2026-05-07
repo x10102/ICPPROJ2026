@@ -1,3 +1,9 @@
+/**
+ * @file editorstate.hpp
+ * @author Onřej Turek, xtureko00, Adam Šrámek, xsramea00
+ * @brief Stav editoru pro ukládání
+ */
+
 #ifndef _EDITORSTATE_HPP
 #define _EDITORSTATE_HPP
 
@@ -26,6 +32,7 @@ struct PetriTransition {
     std::string name;
     std::string inputEventName;
     std::string booleanGuardMacro;
+    std::string transitionActionMacro;
     uint32_t delayMs;
 
     picojson::object json() const;
@@ -58,6 +65,9 @@ struct PetriNetworkSpec {
     void setNetworkName(std::string name);
     void setDescription(std::string description);
 
+    void updatePlace(const std::string& oldName, PetriPlace place);
+    void updateTransition(const std::string& oldName, PetriTransition transition);
+
     void removePlace(std::string name);
     void removeTransition(std::string name);
     void removeArc(PetriPlace *p, PetriTransition *t);
@@ -68,7 +78,7 @@ struct PetriNetworkSpec {
     void exportJSON() const;
 
     PetriPlace* getPlace(std::string name);
-
+    PetriTransition* getTransition(std::string name);
     std::string name;
     std::string description;
     std::vector<std::string> variables;

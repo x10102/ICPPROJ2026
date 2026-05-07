@@ -1,3 +1,9 @@
+/**
+ * @file petriscene.cpp
+ * @author Dalibor Kalina, xkalin16, Adam Šrámek, xsramea00
+ * @brief Scéna editoru Petriho sítě a výčet nástrojů.
+ */
+
 #include "petriscene.hpp"
 #include "editorstate.hpp"
 #include <QGraphicsSceneMouseEvent>

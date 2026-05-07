@@ -1,6 +1,6 @@
 /**
- * @file mainwindow.h
- * @author Dalibor Kalina, xkalin16
+ * @file mainwindow.hpp
+ * @author Dalibor Kalina, xkalin16, Adam Šrámek, xsramea00
  * @brief Hlavní okno aplikace editoru Petriho sítí.
  */
 
@@ -516,31 +516,66 @@ void MainWindow::setupSidebar(){
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
+            std::string oldName = m_editedPlace->name().toStdString();
             m_editedPlace->setName(text);
+        
+            PetriPlace* place = spec.getPlace(oldName);
+            if (place) {
+                place->name = text.toStdString();
+                spec.updatePlace(oldName, *place);
+            }
         }
         if (m_editedTransition) {
+            std::string oldName = m_editedTransition->name().toStdString();
             m_editedTransition->setName(text);
+
+            PetriTransition* transition = spec.getTransition(oldName);
+            if (transition) {
+                transition->name = text.toStdString();
+                spec.updateTransition(oldName, *transition);
+            }
         }
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
         if (m_editedPlace) {
             m_editedPlace->setTokens(val);
+
+            PetriPlace* place = spec.getPlace(m_editedPlace->name().toStdString());
+            if (place) {
+                place->initial_tokens = val;
+            }
         }
     });
     connect(m_arcWeightSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val) {
         if (m_editedArc) m_editedArc->setWeight(val);
+        //TODO: ADD udpate for the arc
     });
     connect(m_actionEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
             m_editedPlace->setAction(text);
+
+            PetriPlace* place = spec.getPlace(m_editedPlace->name().toStdString());
+            if (place) {
+                place->placeActionMacro = text.toStdString();
+            }
         }
         if (m_editedTransition) {
             m_editedTransition->setAction(text);
+
+            PetriTransition* transition = spec.getTransition(m_editedTransition->name().toStdString());
+            if (transition) {
+                transition->transitionActionMacro = text.toStdString();
+            } 
         }
     });
     connect(m_fireCondEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedTransition) {
             m_editedTransition->setFireCond(text);
+
+            PetriTransition* transition = spec.getTransition(m_editedTransition->name().toStdString());
+            if (transition) {
+                transition->booleanGuardMacro = text.toStdString();
+            }  
         }
     });
 
