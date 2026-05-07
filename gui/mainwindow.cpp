@@ -174,6 +174,28 @@ void MainWindow::setupTerminal() {
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(4);
 
+    m_terminalInput = new QLineEdit;
+    m_terminalInput->setFont(f);
+    m_terminalInput->setPlaceholderText("Prikazy sem...");
+    hbox->addWidget(m_terminalInput);
+
+    QPushButton *sendBtn = new QPushButton("Send");
+    hbox->addWidget(sendBtn);
+
+    vbox->addWidget(inputRow);
+
+    connect(sendBtn, &QPushButton::clicked, this, [this](){
+        QString cmd = m_terminalInput->text().trimmed();
+        if (cmd.isEmpty())
+            return;
+        m_terminalInput->clear();
+        
+        // Tohle nahradit. Aktualne printuju jen do GUI terminalu
+        appendLog(QString("> %1").arg(cmd));      
+    });
+
+    connect(m_terminalInput, &QLineEdit::returnPressed, sendBtn, &QPushButton::click);
+
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
     m_terminalDock->hide();

@@ -98,6 +98,7 @@ private:
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
+    QLineEdit      *m_terminalInput     = nullptr;
 
     PetriNetworkSpec spec;
 };
