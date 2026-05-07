@@ -1,7 +1,7 @@
 /**
- * @file mainwindow.h
- * @author Dalibor Kalina, xkalin16
- * @brief Hlavní okno aplikace editoru Petriho sítí.
+ * @file mainwindow.hpp
+ * @author Dalibor Kalina, xkalin16, Ondřej Turek, xtureko00
+ * @brief Main application window of the Petri network editor
  */
 
 #ifndef MAINWINDOW_H
@@ -9,9 +9,13 @@
 
 #include <QMainWindow>
 #include <QPoint>
+#include <qglobal.h>
+#include <qobject.h>
+#include "gui/picojson.h"
 #include "petriscene.hpp"
 #include "theme.hpp"
 #include "editorstate.hpp"
+#include "udpreceiver.hpp"
 
 class QGraphicsView;
 class QAction;
@@ -26,9 +30,9 @@ class QFrame;
 class QtInterpreter;
 
 /**
- * @brief Hlavní okno aplikace.
+ * @brief Main application window
  *
- * Obsahuje toolbar s nástroji editoru a scénu.
+ * Contains the editor scene and toolbars
  *
  * @todo Okomentovat neokomentovane
  */
@@ -37,28 +41,38 @@ class MainWindow : public QMainWindow{
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
+private slots:
+    void onDataReceived(picojson::object &data);
+
 private:
-    /// @brief Vytvoří toolbar s tlačítky pro výběr nástrojů.
+    /// @brief Creates a toolbar with tool-picker buttons
     void setupToolbar();
-    /// @brief Vytvoří sidebar s popisem uzlů
+    /// @brief Creates a sidebar with node attributes
     void setupSidebar();
-    /// @brief Vytvoří terminál v dolní části okna
+    /// @brief Creates a terminal in the lower part of the window
     void setupTerminal();
-    /// @brief Přidá zprávu do záložky GUI logu
+    /// @brief Appends a message to the GUI terminal log
     void appendLog(const QString &msg);
-    /// @brief Přidá zprávu do záložky interpreter logu
+    /// @brief Appends a message to the Interpreter terminal tab
     void appendInterpLog(const QString &msg);
-    /// @brief Vytvoří plovoucí panely nástrojů a simulace nad scénou.
+    /// @brief Creates floating tool and simulation panels over the scene
     void setupFloatingPanels();
-    /// @brief Přepočítá pozici panelu simulace do pravého dolního rohu.
+    /// @brief Recalculates the simulation panel position to the lower right corner
     void repositionSimPanel();
 
     /// @brief Lets the user choose a file using the system file picker dialog and saves the net
     bool saveNet();
+
+    /// @brief A message handler to append Qt logger messages to the terminal
+    void terminalMessageHandler(QtMsgType msgType, QMessageLogContext &ctx, const QString &message);
+
+    /// @brief Sets up the UDP receiver thread for communication with the client
+    void setupUDPThread();
 
     void applyTheme(const Theme &theme);
 
@@ -106,6 +120,9 @@ private:
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
     QLineEdit      *m_terminalInput     = nullptr;
+
+    UdpReceiver    *m_receiver          = nullptr;
+    QThread        *m_receiverThread    = nullptr; 
 
     PetriNetworkSpec spec;
 };

@@ -1,12 +1,14 @@
 /**
  * @file mainwindow.h
- * @author Dalibor Kalina, xkalin16
+ * @author Dalibor Kalina, xkalin16, Ondřej Turek, xtureko00
  * @brief Hlavní okno aplikace editoru Petriho sítí.
  */
 
 #include "mainwindow.hpp"
 #include "../petri.hpp"
 #include "editorstate.hpp"
+#include "gui/picojson.h"
+#include "gui/udpreceiver.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
@@ -30,12 +32,20 @@
 #include <QTimer>
 #include <QApplication>
 #include <qaction.h>
+#include <qchar.h>
+#include <qglobal.h>
 #include <qline.h>
 #include <qlineedit.h>
 #include <qmenu.h>
+#include <qobject.h>
+#include <qthread.h>
 #include <qtoolbutton.h>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QThread>
+#include <sstream>
+
+// TODO: This is SO LONG, should be split into multiple files if we have the time
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
@@ -52,6 +62,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupToolbar();
     setupSidebar();
     setupFloatingPanels();
+
+    // TODO: Doesn't work, fix or delete
+    //qInstallMessageHandler(&MainWindow::terminalMessageHandler);
 
     m_view->installEventFilter(this);
     m_view->viewport()->installEventFilter(this);
@@ -157,6 +170,27 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_editedArc = nullptr;
         m_dock->hide();
     });
+
+    setupUDPThread();
+}
+
+MainWindow::~MainWindow() {
+    if(m_receiverThread) {
+        m_receiverThread->quit();
+        m_receiverThread->wait();
+    }
+}
+
+void MainWindow::setupUDPThread() {
+    m_receiver = new UdpReceiver(this, 6768);
+    m_receiverThread = new QThread();
+    m_receiverThread->moveToThread(m_receiverThread);
+
+    connect(m_receiverThread, &QThread::started, m_receiver, &UdpReceiver::start);
+    connect(m_receiverThread, &QThread::finished, m_receiver, &QObject::deleteLater);
+    connect(m_receiver, &UdpReceiver::dataReceived, this, &MainWindow::onDataReceived);
+
+    m_receiverThread->start();
 }
 
 
@@ -699,4 +733,22 @@ void MainWindow::applyTheme(const Theme &theme){
         "QPushButton { color: %2; min-width: 60px; padding: 4px 12px; }"
         "QPushButton:checked { background: #4a90d9; color: white; border-radius: 3px; }"
     ).arg(background, text));
+}
+
+void MainWindow::terminalMessageHandler(QtMsgType msgType, QMessageLogContext &ctx, const QString &message) {
+    static std::map<QtMsgType, std::string> msgTypeStrings = {
+        {QtDebugMsg, "[DEBUG]"},
+        {QtInfoMsg, "[INFO]"},
+        {QtWarningMsg, "[WARN]"},
+        {QtCriticalMsg, "[CRITICAL]"},
+        {QtSystemMsg, "[SYSTEM]"},
+        {QtFatalMsg, "[FATAL]"}};
+    std::ostringstream messageOutput;
+
+    messageOutput << msgTypeStrings[msgType] << ": " << message.toStdString() << std::endl;
+    appendLog(QString::fromStdString(messageOutput.str()));
+}
+
+void MainWindow::onDataReceived(picojson::object &data) {
+    std::cout << picojson::value(data) << std::endl;
 }
