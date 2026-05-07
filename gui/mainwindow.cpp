@@ -28,6 +28,8 @@
 #include <QTimer>
 #include <QApplication>
 #include <qaction.h>
+#include <qline.h>
+#include <qlineedit.h>
 #include <qmenu.h>
 #include <qtoolbutton.h>
 #include <QDialog>
@@ -61,6 +63,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenLabel->setVisible(true);
         m_arcPanel->setVisible(false);
         m_nameEdit->setReadOnly(false);
+        m_fireCondEdit->setVisible(false);
+        m_fireCondLabel->setVisible(false);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -73,6 +77,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenSpin->setValue(place->tokens());
         m_nameEdit->blockSignals(false);
         m_tokenSpin->blockSignals(false);
+        
+        m_actionEdit->blockSignals(true);
+        m_actionEdit->setText(place->action());
+        m_actionEdit->blockSignals(false);
+
         m_dock->show();
     });
 
@@ -83,6 +92,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenLabel->setVisible(false);
         m_arcPanel->setVisible(true);
         m_nameEdit->setReadOnly(false);
+        m_fireCondEdit->setVisible(true);
+        m_fireCondLabel->setVisible(true);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -92,6 +103,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_nameEdit->blockSignals(true);
         m_nameEdit->setText(transition->name());
         m_nameEdit->blockSignals(false);
+
+        m_actionEdit->blockSignals(true);
+        m_actionEdit->setText(transition->action());
+        m_actionEdit->blockSignals(false);
+
+        m_fireCondEdit->blockSignals(true);
+        m_fireCondEdit->setText(transition->fireCond());
+        m_fireCondEdit->blockSignals(false);
 
         populateTransitionSidebar(transition);
 
@@ -445,6 +464,12 @@ void MainWindow::setupSidebar(){
     form->addRow("Jméno: ", m_nameEdit);
     vbox->addLayout(form);
 
+    QFormLayout *actionForm = new QFormLayout;
+    m_actionEdit = new QLineEdit;
+    actionForm->addRow(new QLabel("Akce (volitelné):"));
+    actionForm->addRow(m_actionEdit);
+    vbox->addLayout(actionForm);
+    
     // Vlastnosti místa
     QFormLayout *tokenForm = new QFormLayout;
     m_tokenSpin = new QSpinBox;
@@ -454,7 +479,16 @@ void MainWindow::setupSidebar(){
     tokenForm->addRow(m_tokenLabel, m_tokenSpin);
     vbox->addLayout(tokenForm);
 
+
     // Vlastnosti přechodu
+    QFormLayout *fireCondForm = new QFormLayout;
+    m_fireCondEdit = new QLineEdit;
+    m_fireCondLabel = new QLabel("Podmínka odpálení:");
+    fireCondForm->addRow(m_fireCondLabel);
+    fireCondForm->addRow(m_fireCondEdit);
+    vbox->addLayout(fireCondForm);
+
+
     m_arcPanel = new QWidget;
     m_arcLayout = new QVBoxLayout(m_arcPanel);
     m_arcLayout->setContentsMargins(0,0,0,0);
@@ -490,6 +524,20 @@ void MainWindow::setupSidebar(){
     connect(m_arcWeightSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val) {
         if (m_editedArc) m_editedArc->setWeight(val);
     });
+    connect(m_actionEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
+        if (m_editedPlace) {
+            m_editedPlace->setAction(text);
+        }
+        if (m_editedTransition) {
+            m_editedTransition->setAction(text);
+        }
+    });
+    connect(m_fireCondEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
+        if (m_editedTransition) {
+            m_editedTransition->setFireCond(text);
+        }
+    });
+
 
     m_dock->setWidget(panel);
     addDockWidget(Qt::RightDockWidgetArea, m_dock);
