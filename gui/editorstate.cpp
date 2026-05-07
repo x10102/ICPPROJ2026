@@ -55,6 +55,20 @@ void PetriNetworkSpec::addArcFromPlace(PetriPlace p, PetriTransition t) {
 }
 void PetriNetworkSpec::addArcToPlace(PetriPlace p, PetriTransition t) {}
 
+void PetriNetworkSpec::updatePlace(const std::string& oldName, PetriPlace place) {
+    if (oldName != place.name) {
+        places.erase(oldName);
+    }
+    places[place.name] = place;
+}
+
+void PetriNetworkSpec::updateTransition(const std::string& oldName, PetriTransition transition) {
+    if (oldName != transition.name) {
+        transitions.erase(oldName);
+    }
+    transitions[transition.name] = transition;
+}
+
 void PetriNetworkSpec::removePlace(std::string name) {}
 void PetriNetworkSpec::removeTransition(std::string name) {}
 void PetriNetworkSpec::removeArc(PetriPlace *p, PetriTransition *t) {}
@@ -79,6 +93,14 @@ PetriPlace* PetriNetworkSpec::getPlace(std::string name) {
     const auto item = this->places.find(name);
     if(item == this->places.end())
         return nullptr;
+    return &item->second;
+}
+
+PetriTransition* PetriNetworkSpec::getTransition(std::string name) {
+    const auto item = this->transitions.find(name);
+    if (item == this->transitions.end()) {
+        return nullptr;
+    }
     return &item->second;
 }
 
