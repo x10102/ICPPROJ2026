@@ -30,6 +30,8 @@
 #include <qaction.h>
 #include <qmenu.h>
 #include <qtoolbutton.h>
+#include <QDialog>
+#include <QDialogButtonBox>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setWindowTitle("Fajný editorek");
@@ -232,18 +234,27 @@ void MainWindow::setupToolbar(){
     viewMenuButton->setMenu(viewMenu);
     viewMenuButton->setPopupMode(QToolButton::InstantPopup);
 
+    auto settMenu = new QMenu(this);
+    auto settMenuButton = new QToolButton(this);
+    settMenuButton->setText("Nastavit");
+    settMenuButton->setMenu(settMenu);
+    settMenuButton->setPopupMode(QToolButton::InstantPopup);
+
     // Populate the submenus with buttons
     auto btnSave = fileMenu->addAction("Uložit síť");
 
-    auto *termAct = viewMenu->addAction("Terminál");
+    auto termAct = viewMenu->addAction("Terminál");
     termAct->setCheckable(true);
 
-    auto *darkAct = viewMenu->addAction("Dark Theme");
+    auto darkAct = viewMenu->addAction("Dark Theme");
     darkAct->setCheckable(true);
+
+    auto nameAct = settMenu->addAction("Název a popis sítě");
 
     // Add the menus to the toolbar
     tb->addWidget(fileMenuButton);
     tb->addWidget(viewMenuButton);
+    tb->addWidget(settMenuButton);
 
     // Wire up the menu items to their actions
     connect(btnSave, &QAction::triggered, this, [this](){
@@ -261,6 +272,30 @@ void MainWindow::setupToolbar(){
         else 
             Theme::apply(Theme::light());
         this->applyTheme(Theme::current());
+    });
+
+    connect(nameAct, &QAction::triggered, this, [this](){
+        QDialog dialog(this);
+        dialog.setWindowTitle("Změnit název a popis sítě");
+        dialog.setFixedSize(400, 300);
+
+        QFormLayout form(&dialog);
+        auto nameEdit = new QLineEdit(QString::fromStdString(this->spec.name), &dialog);
+        form.addRow("Název:", nameEdit);
+        auto descEdit = new QPlainTextEdit(QString::fromStdString(this->spec.description), &dialog);
+        descEdit->setMinimumHeight(100);
+        form.addRow("Popis:", descEdit);
+
+        auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, Qt::Horizontal, &dialog);
+        form.addRow(buttons);
+
+        connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+        connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        if (dialog.exec() == QDialog::Accepted){
+            spec.setNetworkName(nameEdit->text().toStdString());
+            spec.setDescription(descEdit->toPlainText().toStdString());
+        }
     });
 }
 // -------------------------
