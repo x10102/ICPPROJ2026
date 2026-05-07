@@ -30,6 +30,7 @@ picojson::object PetriTransition::json() const {
     json["name"] = V(this->name);
     json["inputEventName"] = V(this->inputEventName);
     json["booleanGuard"] = V(this->booleanGuardMacro);
+    json["transitionAction"] = V(this->transitionActionMacro);
     json["delayMs"] = V(static_cast<double>(this->delayMs));
     return json;
 }

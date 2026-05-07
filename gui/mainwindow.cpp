@@ -526,7 +526,7 @@ void MainWindow::setupSidebar(){
             }
         }
         if (m_editedTransition) {
-            std::string oldName = m_editedPlace->name().toStdString();
+            std::string oldName = m_editedTransition->name().toStdString();
             m_editedTransition->setName(text);
 
             PetriTransition* transition = spec.getTransition(oldName);
