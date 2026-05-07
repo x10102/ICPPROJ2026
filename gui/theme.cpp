@@ -1,3 +1,9 @@
+/**
+ * @file theme.cpp
+ * @author Dalibor Kalina, xkalin16
+ * @brief Vizuální téma editoru
+ */
+
 #include "theme.hpp"
 
 Theme Theme::current_theme = Theme::light();

@@ -1,3 +1,8 @@
+/**
+ * @file editorstate.cpp
+ * @author Onřej Turek, xtureko00, Adam Šrámek, xsramea00
+ * @brief Stav editoru pro ukládání
+ */
 #include "editorstate.hpp"
 #include "picojson.h"
 

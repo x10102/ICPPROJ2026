@@ -1,3 +1,9 @@
+/**
+ * @file getinterp.cpp
+ * @author Onřej Turek, xtureko00
+ * @brief Generováni interpreteru pro editor
+ */
+
 #include "geninterp.hpp"
 #include "editorstate.hpp"
 #include <ostream>

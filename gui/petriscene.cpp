@@ -1,6 +1,6 @@
 /**
  * @file petriscene.cpp
- * @author Dalibor Kalina, xkalin16 TR
+ * @author Dalibor Kalina, xkalin16, Adam Šrámek, xsramea00
  * @brief Scéna editoru Petriho sítě a výčet nástrojů.
  */
 

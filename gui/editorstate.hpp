@@ -1,3 +1,9 @@
+/**
+ * @file editorstate.hpp
+ * @author Onřej Turek, xtureko00, Adam Šrámek, xsramea00
+ * @brief Stav editoru pro ukládání
+ */
+
 #ifndef _EDITORSTATE_HPP
 #define _EDITORSTATE_HPP
 

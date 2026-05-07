@@ -1,3 +1,9 @@
+/**
+ * @file theme.cpp
+ * @author Dalibor Kalina, xkalin16
+ * @brief Vizuální téma editoru
+ */
+
 #ifndef THEME_HPP
 #define THEME_HPP
 #include <QColor>

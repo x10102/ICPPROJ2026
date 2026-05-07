@@ -1,5 +1,5 @@
 /**
- * @file petriscene.h
+ * @file petriscene.hpp
  * @author Dalibor Kalina, xkalin16
  * @brief Scéna editoru Petriho sítě a výčet nástrojů.
  */

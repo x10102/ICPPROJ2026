@@ -1,6 +1,6 @@
 /**
- * @file mainwindow.h
- * @author Dalibor Kalina, xkalin16
+ * @file mainwindow.hpp
+ * @author Dalibor Kalina, xkalin16, Adam Šrámek, xsramea00
  * @brief Hlavní okno aplikace editoru Petriho sítí.
  */
 
