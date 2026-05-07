@@ -86,6 +86,9 @@ private:
     QSpinBox       *m_tokenSpin         = nullptr;
     QLabel         *m_tokenLabel        = nullptr;
 
+    QLineEdit      *m_placeActionEdit   = nullptr;
+    QLabel         *m_placeActionLabel  = nullptr;
+
     PlaceItem      *m_editedPlace       = nullptr;
     TransitionItem *m_editedTransition  = nullptr;
     ArcItem        *m_editedArc         = nullptr;

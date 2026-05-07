@@ -71,6 +71,16 @@ public:
         m_name = name;
         update();
     }
+    /// @brief Vráti akci místa
+    QString placeAction() const { return m_placeAction; }
+    /**
+     * @brief Nastaví akci místa
+     * @param name Nová akce
+     */
+    void setPlaceAction(const QString &name) {
+        m_name = name;
+        update();
+    }
 
     void setHighlighted(bool on) {
         if (on) {
@@ -104,6 +114,7 @@ protected:
 private:
     int m_tokens = 1;             ///< Aktuální (a počáteční) počet tokenů
     QString m_name;               ///< Název místa
+    QString m_placeAction;
 };
 
 /**

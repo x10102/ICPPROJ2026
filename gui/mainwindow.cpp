@@ -57,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_editedTransition = nullptr;
         m_tokenSpin->setVisible(true);
         m_tokenLabel->setVisible(true);
+        m_placeActionEdit->setVisible(true);
+        m_placeActionLabel->setVisible(true);
         m_arcPanel->setVisible(false);
         m_nameEdit->setReadOnly(false);
 
@@ -67,10 +69,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_editedPlace = place;
         m_nameEdit->blockSignals(true);
         m_tokenSpin->blockSignals(true);
+        m_placeActionEdit->blockSignals(true);
         m_nameEdit->setText(place->name());
         m_tokenSpin->setValue(place->tokens());
+        m_placeActionEdit->setText(place->placeAction());
         m_nameEdit->blockSignals(false);
         m_tokenSpin->blockSignals(false);
+        m_placeActionEdit->blockSignals(false);
+
+
         m_dock->show();
     });
 
@@ -79,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_editedPlace = nullptr;
         m_tokenSpin->setVisible(false);
         m_tokenLabel->setVisible(false);
+        m_placeActionEdit->setVisible(false);
+        m_placeActionLabel->setVisible(false);
         m_arcPanel->setVisible(true);
         m_nameEdit->setReadOnly(false);
 
@@ -397,6 +406,13 @@ void MainWindow::setupSidebar(){
     tokenForm->addRow(m_tokenLabel, m_tokenSpin);
     vbox->addLayout(tokenForm);
 
+    QFormLayout *actionForm = new QFormLayout;
+    m_placeActionEdit = new QLineEdit;
+    m_placeActionLabel = new QLabel("Akce (volitelné):");
+    actionForm->addRow(m_placeActionLabel);
+    actionForm->addRow(m_placeActionEdit);
+    vbox->addLayout(actionForm);
+
     // Vlastnosti přechodu
     m_arcPanel = new QWidget;
     m_arcLayout = new QVBoxLayout(m_arcPanel);
@@ -432,6 +448,11 @@ void MainWindow::setupSidebar(){
     });
     connect(m_arcWeightSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val) {
         if (m_editedArc) m_editedArc->setWeight(val);
+    });
+    connect(m_placeActionEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
+        if (m_editedPlace) {
+            m_editedPlace->setPlaceAction(text);
+        }
     });
 
     m_dock->setWidget(panel);
