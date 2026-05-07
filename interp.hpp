@@ -9,12 +9,12 @@
 #include "petri.hpp"
 #include "gui/picojson.h"
 #include <cstdint>
-#include <initializer_list>
 #include <memory>
 #include <string>
 #include <thread>
 #include <unordered_map>
 #include <mutex>
+#include <vector>
 
 struct Variable {
     std::string type;
@@ -34,7 +34,8 @@ class Interpreter {
         vector<Variable> variables;
         unordered_map<string, unique_ptr<Place>> places;
         unordered_map<string, unique_ptr<Transition>> transitions;
-
+        vector<OutputEvent> events;
+        vector<string> firedLastStep;
 
         unordered_map<string, uint32_t> transitionOrder;
         vector<thread> timerThreads;
@@ -67,7 +68,12 @@ class Interpreter {
         void terminate();
         virtual void printState();
         bool inputDefined(const std::string input);
-        std::string *lastInputValue(const std::string input);
+        string *lastInputValue(const std::string input);
+        void clearFired();
+        
+
+        void pushOutputEvent(OutputEvent o);
+        OutputEvent getLastOutputEvent();
         picojson::object json();
 
         Interpreter();

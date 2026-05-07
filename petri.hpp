@@ -93,4 +93,12 @@ class Transition {
     picojson::object json();
 };
 
+struct OutputEvent {
+    std::string outputId;
+    std::string outputVal;
+    std::chrono::system_clock::duration timestamp;
+
+    picojson::object json();
+};
+
 #endif

@@ -11,13 +11,33 @@
 #include "debug.hpp"
 #include "gui/picojson.h"
 
+using std::string;
+
+picojson::object TransitionEdge::json() {
+    picojson::object json;
+    json["transition"] = picojson::value(this->transition->identifier);
+    json["place"] = picojson::value(this->place->identifier);
+    json["weight"] = picojson::value(static_cast<double>(this->weight));
+    return json;
+}
+
 Transition::Transition(std::string identifier) {
     this->identifier = identifier;
     this->fireCondition = {0, ""};
 }
 
 picojson::object Transition::json() {
-    
+    picojson::object json;
+    picojson::array enterEdges;
+    picojson::array exitEdges;
+    json["name"] = picojson::value(this->identifier);
+    for(auto &e : this->enterEdges)
+        enterEdges.push_back(picojson::value(e.json()));
+    for(auto &e : this->exitEdges)
+        enterEdges.push_back(picojson::value(e.json()));
+    json["enterEdges"] = picojson::value(enterEdges);
+    json["exitEdges"] = picojson::value(exitEdges);
+    return json;
 }
 
 void Transition::addEntryEdge(TransitionEdge e) {

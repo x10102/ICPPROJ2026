@@ -3,6 +3,7 @@
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
 #include <cstddef>
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <string>
 #include <netinet/in.h>
@@ -13,6 +14,8 @@
 #include "debug.hpp"
 #include "scripting_helper.hpp"
 #include "gui/picojson.h"
+
+#define NETWORK_BUFFER_SIZE 8192
 
 #define PLACE(var, id, tok) Place *var = interp.createPlace(id, tok)
 #define TRANSITION(var, id) Transition *var = interp.createTransition(id)
@@ -69,11 +72,22 @@ int main(int argc, char *argv[]) {
     unsigned int port;
     port = 6767;
     
+    setHelperInterpreter(&interp);
+
+    PLACE(a1, "prvni" ,1);
+    PLACE(a2, "druhy", 0);
+    
+    TRANSITION(t2, "start_time_cond");
+    ENTRY_EDGE(a1, t2, 1);
+    EXIT_EDGE(t2, a2, 67);
+    CONDITION_EXPR(t2, "", 0, now() >= 5000);
+    ACTION(t2, output("amongusovni_vystup", to_string(now())))
+
     // #### MARKER ####
 
     struct sockaddr_in editor_addr;
     struct sockaddr_in self_addr;
-    char netbuffer[4096];
+    char netbuffer[NETWORK_BUFFER_SIZE];
     memset(&editor_addr, 0, sizeof(struct sockaddr_in));
     memset(&self_addr, 0, sizeof(struct sockaddr_in));
     self_addr.sin_addr.s_addr = INADDR_ANY;
@@ -94,9 +108,9 @@ int main(int argc, char *argv[]) {
     
     while(true) {
         picojson::value data;
-        recv_len = recvfrom(sock_recv, netbuffer, 4096, MSG_WAITALL, (struct sockaddr*)&self_addr, &saddr);
+        recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
         std::string decode_error = picojson::parse(data, netbuffer);
-        if(!decode_error.empty()) {
+        if(!decode_error.empty() || !data.is<picojson::object>()) {
             LOG_I("Application error: received malformed command, ignoring it.");
             continue;
         }
@@ -106,9 +120,19 @@ int main(int argc, char *argv[]) {
             interp.doTransitions();
         } else if(command.compare("event") == 0) {
             interp.inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
+        } else if(command.compare("exit") == 0) {
+            LOG_I("Received command to terminate, exiting...");
+            interp.terminate();
+            break;
         }
-        
-   
+        std::string json = picojson::value(interp.json()).serialize(false);
+        json.copy(netbuffer, NETWORK_BUFFER_SIZE);
+        // Terminate the buffer manually because string.copy() doesn't do that apparently???
+        netbuffer[json.length()] = '\0';
+        sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
+        // Clear the events that fired
+        // TODO: also clear output events here later
+        interp.clearFired();
     }
 
     //interactive_test();

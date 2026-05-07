@@ -8,7 +8,10 @@
 #include <string>
 #include <chrono>
 
+#include "gui/picojson.h"
 #include "petri.hpp"
+
+#define V(x) picojson::value(x)
 
 // We have to do this otherwise we will have 200 character long lines
 // I LOVE the C++ standard library!
@@ -60,4 +63,12 @@ void Place::setIdentifier(const std::string identifier) {
 
 void Place::setAction(std::function<void(void)> action) {
     this->placeEventAction = action;
+}
+
+picojson::object Place::json() {
+    picojson::object json;
+    json["name"] = V(this->identifier);
+    json["currentTokens"] = V(static_cast<double>(this->currentTokens));
+    json["initialTokens"] = V(static_cast<double>(this->initialTokens));
+    return json;
 }

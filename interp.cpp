@@ -17,7 +17,6 @@
 #include <vector>
 #include "interp.hpp"
 #include "debug.hpp"
-#include "misc.hpp"
 #include "gui/picojson.h"
 
 using namespace std;
@@ -28,8 +27,24 @@ Interpreter::Interpreter() {
 }
 
 picojson::object Interpreter::json() {
-    picojson::object value;
-    
+    picojson::object json;
+    picojson::array aPlaces;
+    // We don't really need to send the transitions, they don't hold any state
+    // and the editor already knows about them
+    //picojson::array aTransitions;
+    picojson::array firedLast;
+
+    // TODO: timers
+    for(auto &p : this->places)
+        aPlaces.push_back(picojson::value(p.second->json()));
+    /*for(auto &t : this->transitions)
+        aTransitions.push_back(picojson::value(t.second->json()));*/
+    for(auto &f : this->firedLastStep)
+        firedLast.push_back(picojson::value(f));
+    json["places"] = picojson::value(aPlaces);
+    //json["transitions"] = picojson::value(aTransitions);
+    json["fired"] = picojson::value(firedLast);
+    return json;
 }
 
 // Triggers an input event -
@@ -156,6 +171,7 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
     }
     std::lock_guard guard(this->transition_lock);
     if(tr->canFire() && tr->checkGuard()) {
+        this->firedLastStep.push_back(tr->identifier);
         tr->fire();
         LOG_D("Fired transition %s after %u ms delay", tr->identifier.c_str(), delay_ms);
     } else {
@@ -196,7 +212,7 @@ void Interpreter::doTransitions() {
                 Transition *t = transition.second.get();
                 const uint32_t order = transitionOrder[t->identifier];
                 to_fire.push_back({order, t});
-            }  
+            }
         }
         
         // Pair comparison is defined as comparing the first item, then the second.
@@ -213,6 +229,7 @@ void Interpreter::doTransitions() {
                 continue;
 
             if(!transition->isDelayed()) {
+                this->firedLastStep.push_back(transition->identifier);
                 transition->fire();
                 fire_count++;
             } else {
@@ -232,148 +249,13 @@ void Interpreter::doTransitions() {
     } while(fire_count > 0);
 }
 
-// TODO: Reuse somewhere or remove
-/*
-bool Interpreter::save(const std::string &filename) {
-    ofstream file(filename);
-    if (!file.is_open()) {
-        LOG_E("Failed to open file %s for writing", filename.c_str());
-        return false;
-    }
-
-    file << "Jméno síťě:" << std::endl << this->netName << std::endl;
-    file << "Komentář:" << std::endl << this->netComment << std::endl;
-
-
-    //TODO: Figure out what exactly are inputs and outputs
-    file << "Vstupy:" << std::endl;
-    for (auto &input : this->inputs) {
-        file << "\t" << input.first << std::endl;
-    }
-
-    file << "Výstupy:" << std::endl;
-    for (auto &output : this->outputs) {
-        file << "\t" << output.first << std::endl;
-    }
-    
-    file << "Proměnné:" << std::endl;
-    for (auto &variable : this->variables) {
-        file << "\t" << variable.type << " " << variable.name << " = " << variable.value << std::endl;
-    }
-    return true;
-
-    //TODO: Figure out how to save the actions
-    file << "Místa (počáteční tokeny, volitelné akce):" << std::endl;
-    for (auto &place : this->places) {
-        file << "\t" << place.identifier << " (" << place.second.tokens << ")"
-             << " : " << "{ PLACEHOLDER ACTION }"<< std::endl;
-    }
-
-    file << "Přechody a jejich podmínky:" << std::endl;
-    for (auto &transition : this->transitions) {
-        file << transition.identifier << " :" << std::endl;
-        file << "\t" << "in:";
-        for (auto &edge : transition.enterEdges) {
-            file << " " << edge.place->identifier << "(" << edge.weight << ")";
-        }
-        file << "\t" << "out:";
-        for (auto &edge : transition.exitEdges) {
-            file << " " << edge.place->identifier << "(" << edge.weight << ")";
-        }
-        //TODO: Figure out how to save the fire condition and the action
-        file << "\t" << "when:" << transition.fireCondition.inputEventName << std::endl;
-        file << "\t" << "do:" << " PLACEHOLDER " << std::endl;
-    }
-    return true;
+OutputEvent Interpreter::getLastOutputEvent() {
+    // TODO: Undefined b. on empty vector
+    auto last = this->events.back();
+    this->events.pop_back();
+    return last;
 }
 
-bool Interpreter::load(const std::string &filename) {
-    ifstream file(filename);
-    if (!file.is_open()) return false;
-    
-    string line;
-    string currentSection;
-
-    clearNet();
-
-    while (std::getline(file, line)) {
-        line = trim(line);  
-        
-        if (line.empty()) continue;
-            
-        if (line.find("Jméno sítě:") != string::npos) {
-            getline(file, netName);
-            netName = trim(netName);
-            continue;
-        }
-
-        if (line.find("Komentář:") != string::npos) {
-            getline(file, comment);
-            comment = trim(comment);
-            continue;
-        }
-
-        if (line.find("Vstupy:") != string::npos) {
-            currentSection = "inputs";
-            continue;
-        }
-
-        if (line.find("Výstupy:") != string::npos) {
-            currentSection = "outputs";
-            continue;
-        }
-
-        if (line.find("Proměnné:") != string::npos) {
-            currentSection = "variables";
-            continue;
-        }
-
-        if (line.find("Místa (počáteční tokeny, volitelné akce):") != string::npos) {
-            currentSection = "places";
-            continue;
-        }
-
-        if (line.find("Přechody a jejich podmínky:") != string::npos) {
-            currentSection = "transitions";
-            continue;
-        }
-
-        parseLoadFileLine(currentSection, line);
-    }
-    
-    return true;
+void Interpreter::clearFired() {
+    this->firedLastStep.clear();
 }
-
-void Interpreter::clear() {
-    places.clear();
-    transitions.clear();
-    inputValues.clear();
-    outputValues.clear();
-    variables.clear();
-}
-
-void Interpreter::parseLoadFileLine(const string &section, const string &line) {
-    if(section == "inputs") {
-        inputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up inputs
-    } else if(section == "outputs") {
-        outputValues[trim(line)] = "PLACEHOLDER"; //TODO: Finish up outputs
-    } else if(section == "variables") {
-        // Very ugly variable parsing - big no no
-        string trimmed = trim(line);
-        size_t space = trimmed.find_first_of(" \t");
-        size_t eqSign = trimmed.find("=");
-        string varType = trimmed.substr(0, space);
-        string varName = trimmed.substr(space, eqSign - space);
-        string varValue = trimmed.substr(eqSign);
-        Variable var = {trim(varType), trim(varName), trim(varValue)};
-        variables.push_back(var);
-    } else if(section == "places") {
-        // TODO: Parse places
-    } else if(section == "transitions") {
-        // TODO: Parse transitions
-    } else {
-        // TODO: print an error
-    }
-}
-
-*/
