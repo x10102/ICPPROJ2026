@@ -10,8 +10,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Core Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets)
+find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Core Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Network)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -24,6 +24,8 @@ set(PROJECT_SOURCES
         items.hpp
         petriscene.hpp
         petriscene.cpp
+        udpreceiver.hpp
+        udpreceiver.cpp
         theme.hpp
         theme.cpp
         ../interp.cpp
@@ -40,25 +42,13 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET petri-editor APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
-    if(ANDROID)
-        add_library(petri-editor SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(petri-editor
-            ${PROJECT_SOURCES}
-        )
-    endif()
+    add_executable(petri-editor
+        ${PROJECT_SOURCES}
+    )
 endif()
 
-target_link_libraries(petri-editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(petri-editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
 target_include_directories(petri-editor PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
