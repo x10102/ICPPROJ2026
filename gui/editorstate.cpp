@@ -175,6 +175,7 @@ void PetriNetworkSpec::exportJSON() const {
 
     root["places"] = V(places);
     root["transitions"] = V(transitions);
+    root["arcs"] = V(arcs);
     root["name"] = V(this->name);
     root["description"] = V(this->description);
     root["variables"] = V(variables);
