@@ -52,6 +52,9 @@ public:
 
     void setNetworkSpec(PetriNetworkSpec *spec);
 
+public slots:
+    void onDataReceived(picojson::object &data);
+
 signals:
     /// @brief Signál emitován při výběru místa v režimu Select.
     void placeSelected(PlaceItem *place);

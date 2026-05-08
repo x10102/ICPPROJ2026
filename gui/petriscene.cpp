@@ -1,9 +1,20 @@
 #include "petriscene.hpp"
 #include "editorstate.hpp"
+#include "gui/picojson.h"
+#include "items.hpp"
 #include <QGraphicsSceneMouseEvent>
 #include <QMenu>
 #include <QKeyEvent>
 #include <QDateTime>
+#include <cstddef>
+#include <cstdint>
+#include <qgraphicsitem.h>
+
+// TODO: all the dynamic casts from graphics items here should use the special Qt cast for speed
+
+using picojson::value;
+using picojson::object;
+using std::string;
 
 PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
     setSceneRect(0,0,SCENE_W,SCENE_H);
@@ -65,7 +76,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
-
+            // TODO: refactor
             bool isNode = (dynamic_cast<PlaceItem *>(clicked) || dynamic_cast<TransitionItem *>(clicked));
             if (!isNode) {
                 cancelArc();
@@ -86,6 +97,17 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                     }
                     else {
                         drawArc(clicked);
+                        bool toPlace = (dynamic_cast<PlaceItem*>(clicked) != nullptr);
+                        if(toPlace) {
+                            string placeName = dynamic_cast<PlaceItem*>(clicked)->name().toStdString();
+                            string transitionName = dynamic_cast<TransitionItem*>(m_arcSource)->name().toStdString();
+                            spec->addArcToPlace(placeName, transitionName, 1);
+                        } else {
+                            string placeName = dynamic_cast<PlaceItem*>(m_arcSource)->name().toStdString();
+                            string transitionName = dynamic_cast<TransitionItem*>(clicked)->name().toStdString();
+                            spec->addArcFromPlace(placeName, transitionName, 1);
+                        }
+                        m_arcSource = nullptr;
                     }
                 }
                 else {
@@ -106,6 +128,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 log(QString("Místo %1 smazáno").arg(place->name()));
 
                 removeItem(place);
+                spec->removePlace(place->name().toStdString());
                 delete place;
 
                 emit selectionCleared();
@@ -115,6 +138,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 log(QString("Přechod %1 smazán").arg(transition->name()));
 
                 removeItem(transition);
+                spec->removeTransition(transition->name().toStdString());
                 delete transition;
 
                 emit selectionCleared();
@@ -316,8 +340,6 @@ void PetriScene::drawArc(QGraphicsItem *target)
         emit transitionSelected(t);
     else if (auto *t = dynamic_cast<TransitionItem *>(target))
         emit transitionSelected(t);
-
-    m_arcSource = nullptr;
 }
 
 void PetriScene::cancelArc()
@@ -338,4 +360,21 @@ void PetriScene::applyTheme(const Theme &theme) {
     }
 
     setBackgroundBrush(theme.sceneBackground);
+}
+
+void PetriScene::onDataReceived(picojson::object &data) {
+    // TODO: We're not checking the types of values in the JSON here too much
+    if(data.find("places") == data.end())
+        return;
+    object places = value(data["places"]).get<object>();
+    for(QGraphicsItem *item : items()) {
+        if(PlaceItem *p = dynamic_cast<PlaceItem*>(item)) {
+            const std::string placeName = p->name().toStdString();
+            if(places.find(placeName) == places.end())
+                continue;
+            object currentPlace = places[placeName].get<object>();
+            int tokens = currentPlace["currentTokens"].get<int64_t>();
+            p->setTokens(tokens);
+        }
+    }
 }
