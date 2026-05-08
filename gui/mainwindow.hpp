@@ -16,7 +16,7 @@
 #include "petriscene.hpp"
 #include "theme.hpp"
 #include "editorstate.hpp"
-#include "udpreceiver.hpp"
+#include "udpconnector.hpp"
 
 class QGraphicsView;
 class QAction;
@@ -122,7 +122,7 @@ private:
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
     QLineEdit      *m_terminalInput     = nullptr;
 
-    UdpReceiver    *m_receiver          = nullptr;
+    UdpConnector    *m_receiver          = nullptr;
     QThread        *m_receiverThread    = nullptr; 
 
     PetriNetworkSpec m_spec;

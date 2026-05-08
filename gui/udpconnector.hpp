@@ -5,11 +5,11 @@
 #include <QObject>
 #include <QUdpSocket>
 
-class UdpReceiver : public QObject {
+class UdpConnector : public QObject {
     Q_OBJECT
 public:
-    explicit UdpReceiver(QObject *parent = nullptr);
-    UdpReceiver(QObject *parent = nullptr, unsigned int port = 6767);
+    explicit UdpConnector(QObject *parent = nullptr);
+    UdpConnector(QObject *parent = nullptr, unsigned int port = 6767);
 
 private:
     QUdpSocket *sock = nullptr;

@@ -26,8 +26,8 @@ set(PROJECT_SOURCES
         items.hpp
         petriscene.hpp
         petriscene.cpp
-        udpreceiver.hpp
-        udpreceiver.cpp
+        udpconnector.hpp
+        udpconnector.cpp
         geninterp.cpp
         geninterp.hpp
         theme.hpp

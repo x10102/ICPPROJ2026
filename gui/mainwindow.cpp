@@ -9,7 +9,7 @@
 #include "editorstate.hpp"
 #include "gui/petriscene.hpp"
 #include "gui/picojson.h"
-#include "gui/udpreceiver.hpp"
+#include "gui/udpconnector.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
@@ -183,14 +183,14 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::setupUDPThread() {
-    m_receiver = new UdpReceiver(this, 6768);
+    m_receiver = new UdpConnector(this, 6768);
     m_receiverThread = new QThread();
     m_receiverThread->moveToThread(m_receiverThread);
 
-    connect(m_receiverThread, &QThread::started, m_receiver, &UdpReceiver::start);
+    connect(m_receiverThread, &QThread::started, m_receiver, &UdpConnector::start);
     connect(m_receiverThread, &QThread::finished, m_receiver, &QObject::deleteLater);
-    connect(m_receiver, &UdpReceiver::dataReceived, this, &MainWindow::onDataReceived);
-    connect(m_receiver, &UdpReceiver::dataReceived, m_scene, &PetriScene::onDataReceived);
+    connect(m_receiver, &UdpConnector::dataReceived, this, &MainWindow::onDataReceived);
+    connect(m_receiver, &UdpConnector::dataReceived, m_scene, &PetriScene::onDataReceived);
 
     m_receiverThread->start();
 }
