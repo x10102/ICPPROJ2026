@@ -97,6 +97,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                     }
                     else {
                         drawArc(clicked);
+                        if(m_arcSource == nullptr || clicked == nullptr) break;
                         bool toPlace = (dynamic_cast<PlaceItem*>(clicked) != nullptr);
                         if(toPlace) {
                             string placeName = dynamic_cast<PlaceItem*>(clicked)->name().toStdString();
