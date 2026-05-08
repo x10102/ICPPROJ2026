@@ -13,6 +13,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(QT NAMES Qt5 Qt6 REQUIRED COMPONENTS Core Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Widgets Network)
 
+add_compile_definitions(PICOJSON_USE_INT64)
+
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -26,6 +28,8 @@ set(PROJECT_SOURCES
         petriscene.cpp
         udpreceiver.hpp
         udpreceiver.cpp
+        geninterp.cpp
+        geninterp.hpp
         theme.hpp
         theme.cpp
         ../interp.cpp
