@@ -15,7 +15,7 @@ UdpReceiver::UdpReceiver(QObject *parent, unsigned int port) : QObject(parent) {
 void UdpReceiver::start() {
     this->sock = new QUdpSocket(this);
     // I'm not working with IPv6 in C or C++ again, thanks for the trauma, IPK
-    this->sock->bind(QHostAddress::AnyIPv4, 6767);
+    this->sock->bind(QHostAddress::AnyIPv4, this->port);
     this->isRunning = true;
     connect(sock, &QUdpSocket::readyRead, this, &UdpReceiver::onReadyRead);
 }

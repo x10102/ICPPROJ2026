@@ -5,7 +5,7 @@
 #include <QObject>
 #include <QUdpSocket>
 
-class UdpReceiver : QObject {
+class UdpReceiver : public QObject {
     Q_OBJECT
 public:
     explicit UdpReceiver(QObject *parent = nullptr);
@@ -17,14 +17,14 @@ private:
     unsigned int port = 6767;
 
 public slots:
-    void start(void);
-    void terminate(void);
+    void start();
+    void terminate();
 
 private slots:
     void onReadyRead();
 
 signals:
-    void dataReceived(const picojson::object &data);
+    void dataReceived(picojson::object &data);
 
 };
 
