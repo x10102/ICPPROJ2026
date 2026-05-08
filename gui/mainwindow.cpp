@@ -7,6 +7,7 @@
 #include "mainwindow.hpp"
 #include "../petri.hpp"
 #include "editorstate.hpp"
+#include "gui/petriscene.hpp"
 #include "gui/picojson.h"
 #include "gui/udpreceiver.hpp"
 #include <QGraphicsView>
@@ -52,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     resize(1000,700); 
 
     m_scene = new PetriScene(this);
-    m_scene->setNetworkSpec(&this->spec);
+    m_scene->setNetworkSpec(&this->m_spec);
 
     m_view = new QGraphicsView(m_scene, this);
     m_view->setRenderHint(QPainter::Antialiasing);
@@ -189,6 +190,7 @@ void MainWindow::setupUDPThread() {
     connect(m_receiverThread, &QThread::started, m_receiver, &UdpReceiver::start);
     connect(m_receiverThread, &QThread::finished, m_receiver, &QObject::deleteLater);
     connect(m_receiver, &UdpReceiver::dataReceived, this, &MainWindow::onDataReceived);
+    connect(m_receiver, &UdpReceiver::dataReceived, m_scene, &PetriScene::onDataReceived);
 
     m_receiverThread->start();
 }
@@ -316,7 +318,7 @@ void MainWindow::setupToolbar(){
     // Wire up the menu items to their actions
     connect(btnSave, &QAction::triggered, this, [this](){
         if (this->saveNet()) {
-            this->spec.exportJSON();
+            this->m_spec.exportJSON();
         }
     });
     
@@ -333,15 +335,20 @@ void MainWindow::setupToolbar(){
         this->applyTheme(Theme::current());
     });
 
+    connect(compileAct, &QAction::triggered, this, [this](){
+        m_generator.generateMain(&m_spec);
+    });
+
     connect(nameAct, &QAction::triggered, this, [this](){
+        // TODO: This is a long ass lambda, maybe move it to its own function
         QDialog dialog(this);
         dialog.setWindowTitle("Změnit název a popis sítě");
         dialog.setFixedSize(400, 300);
 
         QFormLayout form(&dialog);
-        auto nameEdit = new QLineEdit(QString::fromStdString(this->spec.name), &dialog);
+        auto nameEdit = new QLineEdit(QString::fromStdString(this->m_spec.name), &dialog);
         form.addRow("Název:", nameEdit);
-        auto descEdit = new QPlainTextEdit(QString::fromStdString(this->spec.description), &dialog);
+        auto descEdit = new QPlainTextEdit(QString::fromStdString(this->m_spec.description), &dialog);
         descEdit->setMinimumHeight(100);
         form.addRow("Popis:", descEdit);
 
@@ -352,8 +359,8 @@ void MainWindow::setupToolbar(){
         connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
         if (dialog.exec() == QDialog::Accepted){
-            spec.setNetworkName(nameEdit->text().toStdString());
-            spec.setDescription(descEdit->toPlainText().toStdString());
+            m_spec.setNetworkName(nameEdit->text().toStdString());
+            m_spec.setDescription(descEdit->toPlainText().toStdString());
         }
     });
 }
@@ -693,14 +700,14 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
 }
 
 bool MainWindow::saveNet() {
-    QString filename = QFileDialog::getSaveFileName(this, "Uložit síť", QString::fromStdString(spec.name), "Petri Net specification (*.pnet)");
+    QString filename = QFileDialog::getSaveFileName(this, "Uložit síť", QString::fromStdString(m_spec.name), "Petri Net specification (*.pnet)");
     if (filename.isEmpty())
         return false;
     std::cout << "Save to: " << filename.toStdString() << std::endl;
 
     QString givenName = QFileInfo(filename).baseName();
     if (!givenName.isEmpty()) {
-        spec.setNetworkName(givenName.toStdString());
+        m_spec.setNetworkName(givenName.toStdString());
     }
     return true;
 }

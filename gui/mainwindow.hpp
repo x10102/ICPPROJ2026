@@ -11,6 +11,7 @@
 #include <QPoint>
 #include <qglobal.h>
 #include <qobject.h>
+#include "geninterp.hpp"
 #include "gui/picojson.h"
 #include "petriscene.hpp"
 #include "theme.hpp"
@@ -124,7 +125,8 @@ private:
     UdpReceiver    *m_receiver          = nullptr;
     QThread        *m_receiverThread    = nullptr; 
 
-    PetriNetworkSpec spec;
+    PetriNetworkSpec m_spec;
+    InterpreterGenerator m_generator;
 };
 
 #endif // MAINWINDOW_H

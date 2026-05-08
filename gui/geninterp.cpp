@@ -4,22 +4,33 @@
 
 void InterpreterGenerator::emitPlace(const PetriPlace *p) {
     this->generatedBuffer << "PLACE(";
-    this->generatedBuffer << p->name << ", " << p->name << ", ";
+    this->generatedBuffer << p->name << ", \"" << p->name << "\", ";
     this->generatedBuffer << p->initial_tokens;
     this->generatedBuffer << ");" << std::endl;
-    this->generatedBuffer << "ACTION(";
-    this->generatedBuffer << p->name << ", ";
-    this->generatedBuffer << p->placeActionMacro;
-    this->generatedBuffer << ")" << std::endl;
+    if(!p->placeActionMacro.empty()) {
+        this->generatedBuffer << "ACTION(";
+        this->generatedBuffer << p->name << ", ";
+        this->generatedBuffer << p->placeActionMacro;
+        this->generatedBuffer << ")" << std::endl;
+    }
 }
 
 void InterpreterGenerator::emitTransition(const PetriTransition *t) {
     this->generatedBuffer << "TRANSITION(";
-    this->generatedBuffer << t->name << ", " << t->name << ");" << std::endl;
-    this->generatedBuffer << "CONDITION_EXPR(" << t->name;
-    this->generatedBuffer << t->inputEventName << ", ";
-    this->generatedBuffer << t->delayMs << ", ";
-    this->generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
+    this->generatedBuffer << t->name << ", \"" << t->name << "\");" << std::endl;
+    if((t->delayMs != 0 || !t->inputEventName.empty())) {
+        if(!t->booleanGuardMacro.empty()) {
+            this->generatedBuffer << "CONDITION_EXPR(" << t->name;
+            this->generatedBuffer << "\"" << t->inputEventName << "\", ";
+            this->generatedBuffer << t->delayMs << ", ";
+            this->generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
+        } else {
+            this->generatedBuffer << "CONDITION(" << t->name;
+            this->generatedBuffer << "\"" << t->inputEventName << "\", ";
+            this->generatedBuffer << t->delayMs << ");" << std::endl;
+        }
+    }
+    
 }
 
 void InterpreterGenerator::emitArc(const PetriArc *a) {
@@ -35,10 +46,14 @@ void InterpreterGenerator::emitArc(const PetriArc *a) {
 }
 
 bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
-    for(const auto &arc : spec->arcs)
-        this->emitArc(&arc.second);
-    for(const auto &tr : spec->transitions)
-        this->emitTransition(&tr.second);
+    std::cout << "Generated main:" << std::endl;
+    generatedBuffer.str("");
     for(const auto &p : spec->places)
         this->emitPlace(&p.second);
+    for(const auto &tr : spec->transitions)
+        this->emitTransition(&tr.second);
+    for(const auto &arc : spec->arcs)
+        this->emitArc(&arc.second); 
+    std::cout << generatedBuffer.str();
+    return true;
 }

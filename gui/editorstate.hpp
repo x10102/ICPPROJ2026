@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "picojson.h"
@@ -50,8 +51,8 @@ struct PetriNetworkSpec {
 
     void addPlace(PetriPlace p);
     void addTransition(PetriTransition t);
-    void addArcFromPlace(PetriPlace p, PetriTransition t);
-    void addArcToPlace(PetriPlace p, PetriTransition t);
+    void addArcFromPlace(std::string placeName, std::string transitionName, unsigned int tokenCount);
+    void addArcToPlace(std::string placeName, std::string transitionName, unsigned int tokenCount);
     void addInput(std::string inputName);
     void addOutput(std::string outputName);
     void addVariableDef(std::string definition);
@@ -68,6 +69,7 @@ struct PetriNetworkSpec {
     void exportJSON() const;
 
     PetriPlace* getPlace(std::string name);
+    PetriTransition* getTransition(std::string name);
 
     std::string name;
     std::string description;
@@ -76,6 +78,6 @@ struct PetriNetworkSpec {
     std::vector<std::string> outputs;
     std::map<std::string, PetriPlace> places;
     std::map<std::string, PetriTransition> transitions;
-    std::map<std::string, PetriArc> arcs;
+    std::map<std::pair<std::string, std::string>, PetriArc> arcs;
 };
 #endif

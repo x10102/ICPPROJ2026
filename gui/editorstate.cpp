@@ -1,8 +1,12 @@
 #include "editorstate.hpp"
 #include "picojson.h"
+#include <cstdint>
+#include <utility>
 
 // Macro for a picojson value conversion, used very often in this file
 #define V(x) picojson::value(x)
+
+using std::make_pair;
 
 // TODO: Parametric constructor
 PetriPlace::PetriPlace() {
@@ -21,7 +25,7 @@ picojson::object PetriPlace::json() const {
     picojson::object json;
     json["name"] = V(this->name);
     json["placeAction"] = V(this->placeActionMacro);
-    json["initialTokens"] = V(static_cast<double>(this->initial_tokens));
+    json["initialTokens"] = V(static_cast<int64_t>(this->initial_tokens));
     return json;
 }
 
@@ -30,7 +34,7 @@ picojson::object PetriTransition::json() const {
     json["name"] = V(this->name);
     json["inputEventName"] = V(this->inputEventName);
     json["booleanGuard"] = V(this->booleanGuardMacro);
-    json["delayMs"] = V(static_cast<double>(this->delayMs));
+    json["delayMs"] = V(static_cast<int64_t>(this->delayMs));
     return json;
 }
 
@@ -38,9 +42,9 @@ picojson::object PetriArc::json() const {
     picojson::object json;
     json["place"] = V(this->place->name);
     json["transition"] = V(this->transition->name);
-    json["tokenCount"] = V(static_cast<double>(this->tokenCount));
+    json["tokenCount"] = V(static_cast<int64_t>(this->tokenCount));
     // TODO: This might be dangerous (moreso during deserialization)
-    json["arcType"] = V(static_cast<double>(this->type));
+    json["arcType"] = V(static_cast<int64_t>(this->type));
     return json;
 }
 
@@ -51,13 +55,70 @@ void PetriNetworkSpec::addTransition(PetriTransition t) {
     this->transitions[t.name] = t;
 }
 
-void PetriNetworkSpec::addArcFromPlace(PetriPlace p, PetriTransition t) {
+void PetriNetworkSpec::addArcFromPlace(std::string placeName, std::string transitionName, unsigned int tokenCount) {
+    // Not checking for existence here, if they're not in the map then the logic is wrong
+    PetriTransition *transition = &transitions.find(transitionName)->second;
+    PetriPlace *place = &places.find(placeName)->second;
+    PetriArc arc;
+    arc.transition = transition;
+    arc.place = place;
+    arc.tokenCount = tokenCount;
+    arc.type = PLACE_TO_TRANSITION;
+    arcs.insert({make_pair(place->name, transition->name), arc});
 }
-void PetriNetworkSpec::addArcToPlace(PetriPlace p, PetriTransition t) {}
 
-void PetriNetworkSpec::removePlace(std::string name) {}
-void PetriNetworkSpec::removeTransition(std::string name) {}
-void PetriNetworkSpec::removeArc(PetriPlace *p, PetriTransition *t) {}
+// TODO: Function to rename place or transition -> renames them in arcs too
+
+void PetriNetworkSpec::addArcToPlace(std::string placeName, std::string transitionName, unsigned int tokenCount) {
+    PetriTransition *transition = &transitions.find(transitionName)->second;
+    PetriPlace *place = &places.find(placeName)->second;
+    PetriArc arc;
+    arc.transition = transition;
+    arc.place = place;
+    arc.tokenCount = tokenCount;
+    arc.type = TRANSITION_TO_PLACE;
+    arcs.insert({make_pair(place->name, transition->name), arc});
+}
+
+void PetriNetworkSpec::removePlace(std::string name) {
+    auto p = places.find(name);
+    std::string placeName;
+    if(p != places.end()) {
+        placeName = p->second.name;
+        places.erase(p);
+    } else {
+        return;
+    }
+    // Filter the map of arcs, remove any to/from this place
+    // would use std::erase_if, but that's C++20
+    for(auto it = arcs.begin(); it != arcs.end();) {
+        if(it->first.first.compare(placeName) == 0)
+            it = arcs.erase(it);
+        else
+            it++;
+    }
+}
+void PetriNetworkSpec::removeTransition(std::string name) {
+    auto t = transitions.find(name);
+    std::string transitionName;
+    if(t != transitions.end()) {
+        transitionName = t->second.name;
+        transitions.erase(t);
+    } else {
+        return;
+    }
+    // This really should be a utility function
+    // but generics in C++ are so awful to write I'm just copying the code
+    for(auto it = arcs.begin(); it != arcs.end();) {
+        if(it->first.second.compare(transitionName) == 0)
+            it = arcs.erase(it);
+        else
+            it++;
+    }
+}
+void PetriNetworkSpec::removeArc(PetriPlace *p, PetriTransition *t) {
+    //TODO
+}
 
 void PetriNetworkSpec::addInput(std::string inputName) {
     this->inputs.push_back(inputName);
