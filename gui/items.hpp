@@ -196,15 +196,14 @@ private:
  *
  * Vykresluje orientovanou hranu se šipkou mezi dvěma uzly.
  *
- * @todo Šipka na konci hrany je vykreslena uprostřed uzlu a nejde vidět
  */
 class ArcItem : public QGraphicsLineItem {
 public:
     /**
-     * @brief Vytvoří hranu mezi dvěma uzly.
-     * @param from Zdrojový uzel (PlaceItem nebo TransitionItem)
-     * @param to   Cílový uzel (PlaceItem nebo TransitionItem)
-     * @param parent Rodičovský grafický prvek
+     * @brief Creates an arc between two nodes
+     * @param from Source node (PlaceItem or TransitionItem)
+     * @param to   Target node (PlaceItem or TransitionItem)
+     * @param parent Parent graphics element
      */
     ArcItem(QGraphicsItem *from, QGraphicsItem *to, QGraphicsItem *parent = nullptr) :
         QGraphicsLineItem(parent), m_from(from), m_to(to){
@@ -246,22 +245,22 @@ public:
         return path;
     }
 
-    /// @brief Přepočítá pozici hrany podle aktuálních středů uzlů.
+    /// @brief Recalculates arc position on screen based on node coordinates
     void updatePosition() {
         QPointF a = nodeCenter(m_from);
         QPointF b = nodeCenter(m_to);
         setLine(QLineF(a,b));
     }
 
-    /// @brief Vrátí zdrojový uzel hrany.
+    /// @brief Returns the source node of the arc
     QGraphicsItem *fromItem() const { return m_from;}
-    /// @brief Vrátí cílový uzel hrany.
+    /// @brief Returns the target node of the arc
     QGraphicsItem *toItem() const { return m_to;}
-    /// @brief TODO
+    /// @brief Returns the weight of the arc
     int weight() {return m_weight;}
     /// @brief TODO
     void setWeight(int w) {
-        m_weight = qMax(0, w);
+        m_weight = qMax(1, w);
         update();
     }
 
@@ -303,7 +302,7 @@ protected:
     }
 
 private:
-    /// @brief Vrátí střed uzlu.
+    /// @brief Returns the center screen coordinates of a node
     static QPointF nodeCenter(QGraphicsItem *item){
         if(auto *p = dynamic_cast<PlaceItem *>(item))
             return p->center();

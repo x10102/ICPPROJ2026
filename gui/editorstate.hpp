@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "items.hpp"
 #include "picojson.h"
 
 enum ArcType {
@@ -27,6 +28,7 @@ struct PetriTransition {
     std::string name;
     std::string inputEventName;
     std::string booleanGuardMacro;
+    std::string tranActionMacro;
     uint32_t delayMs;
 
     picojson::object json() const;
@@ -62,14 +64,19 @@ struct PetriNetworkSpec {
     void removePlace(std::string name);
     void removeTransition(std::string name);
     void removeArc(PetriPlace *p, PetriTransition *t);
+    void removeArc(ArcItem *arc);
     void undefVariable(std::string name);
     void removeInput(std::string inputName);
     void removeOutput(std::string outputName);
 
-    void exportJSON() const;
+    std::string exportJSON() const;
 
     PetriPlace* getPlace(std::string name);
     PetriTransition* getTransition(std::string name);
+    PetriArc* getArc(ArcItem *arc);
+
+    void renamePlace(std::string oldName, std::string newName);
+    void renameTransition(std::string oldName, std::string newName);
 
     std::string name;
     std::string description;
@@ -79,5 +86,8 @@ struct PetriNetworkSpec {
     std::map<std::string, PetriPlace> places;
     std::map<std::string, PetriTransition> transitions;
     std::map<std::pair<std::string, std::string>, PetriArc> arcs;
+
+    private:
+        std::pair<std::string, std::string> getArcMapKey(ArcItem *arc);
 };
 #endif

@@ -16,32 +16,35 @@ void InterpreterGenerator::emitPlace(const PetriPlace *p) {
 }
 
 void InterpreterGenerator::emitTransition(const PetriTransition *t) {
-    this->generatedBuffer << "TRANSITION(";
-    this->generatedBuffer << t->name << ", \"" << t->name << "\");" << std::endl;
+    generatedBuffer << "TRANSITION(";
+    generatedBuffer << t->name << ", \"" << t->name << "\");" << std::endl;
     if((t->delayMs != 0 || !t->inputEventName.empty())) {
         if(!t->booleanGuardMacro.empty()) {
-            this->generatedBuffer << "CONDITION_EXPR(" << t->name;
-            this->generatedBuffer << "\"" << t->inputEventName << "\", ";
-            this->generatedBuffer << t->delayMs << ", ";
-            this->generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
+            generatedBuffer << "CONDITION_EXPR(" << t->name;
+            generatedBuffer << "\"" << t->inputEventName << "\", ";
+            generatedBuffer << t->delayMs << ", ";
+            generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
         } else {
-            this->generatedBuffer << "CONDITION(" << t->name;
-            this->generatedBuffer << "\"" << t->inputEventName << "\", ";
-            this->generatedBuffer << t->delayMs << ");" << std::endl;
+            generatedBuffer << "CONDITION(" << t->name;
+            generatedBuffer << "\"" << t->inputEventName << "\", ";
+            generatedBuffer << t->delayMs << ");" << std::endl;
         }
+    }
+    if(!t->tranActionMacro.empty()) {
+        generatedBuffer << "ACTION(" << t->name << ", " << t->tranActionMacro << ");" << std::endl;
     }
     
 }
 
 void InterpreterGenerator::emitArc(const PetriArc *a) {
     if(a->type == PLACE_TO_TRANSITION) {
-        this->generatedBuffer << "ENTRY_EDGE(" << a->place->name << ", ";
-        this->generatedBuffer << a->transition->name << ", ";
-        this->generatedBuffer << a->tokenCount << ");" << std::endl;
+        generatedBuffer << "ENTRY_EDGE(" << a->place->name << ", ";
+        generatedBuffer << a->transition->name << ", ";
+        generatedBuffer << a->tokenCount << ");" << std::endl;
     } else if(a->type == TRANSITION_TO_PLACE) {
-        this->generatedBuffer << "EXIT_EDGE(" << a->transition->name << ", ";
-        this->generatedBuffer << a->place->name << ", ";
-        this->generatedBuffer << a->tokenCount << ");" << std::endl;
+        generatedBuffer << "EXIT_EDGE(" << a->transition->name << ", ";
+        generatedBuffer << a->place->name << ", ";
+        generatedBuffer << a->tokenCount << ");" << std::endl;
     }
 }
 

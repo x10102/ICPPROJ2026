@@ -1,12 +1,16 @@
 #include "editorstate.hpp"
+#include "items.hpp"
 #include "picojson.h"
 #include <cstdint>
+#include <iostream>
 #include <utility>
 
 // Macro for a picojson value conversion, used very often in this file
 #define V(x) picojson::value(x)
 
 using std::make_pair;
+using std::pair;
+using std::string;
 
 // TODO: Parametric constructor
 PetriPlace::PetriPlace() {
@@ -48,6 +52,21 @@ picojson::object PetriArc::json() const {
     return json;
 }
 
+pair<string, string> PetriNetworkSpec::getArcMapKey(ArcItem *arc) {
+    bool sourceIsPlace = (dynamic_cast<PlaceItem*>(arc->fromItem()) == nullptr);
+    std::string placeName;
+    std::string transitionName;
+    // TODO: again, use qGraphicsCast instead of dynamic_cast
+    if(sourceIsPlace) {
+        placeName = dynamic_cast<PlaceItem*>(arc->fromItem())->name().toStdString();
+        transitionName = dynamic_cast<TransitionItem*>(arc->toItem())->name().toStdString();
+    } else {
+        placeName = dynamic_cast<PlaceItem*>(arc->toItem())->name().toStdString();
+        transitionName = dynamic_cast<TransitionItem*>(arc->fromItem())->name().toStdString();
+    }
+    return make_pair(placeName, transitionName);
+}
+
 void PetriNetworkSpec::addPlace(PetriPlace p) {
     this->places[p.name] = p;
 }
@@ -67,7 +86,39 @@ void PetriNetworkSpec::addArcFromPlace(std::string placeName, std::string transi
     arcs.insert({make_pair(place->name, transition->name), arc});
 }
 
-// TODO: Function to rename place or transition -> renames them in arcs too
+void PetriNetworkSpec::renamePlace(string oldName, string newName) {
+    PetriPlace *place = getPlace(oldName);
+    if(place == nullptr) return;
+    std::cout << "Place " << oldName << " found.";
+    std::cout.flush();
+    // Highly evil map hacking, might be faster than just deleting and reinserting though
+    for(auto it = arcs.begin(); it != arcs.end();) {
+        if(it->first.first.compare(place->name) == 0) {
+            auto editedItem = arcs.extract(it);
+            editedItem.key().first = newName;
+            arcs.insert(std::move(editedItem));
+        } else {
+            it++;
+        }
+    }
+    place->name = newName;
+}
+
+void PetriNetworkSpec::renameTransition(string oldName, string newName) {
+    PetriTransition *tr = getTransition(oldName);
+    if(tr == nullptr) return;
+    for(auto it = arcs.begin(); it != arcs.end();) {
+        if(it->first.second.compare(tr->name) == 0) {
+            auto editedItem = arcs.extract(it);
+            editedItem.key().second = newName;
+            arcs.insert(std::move(editedItem));
+        } else {
+            it++;
+        }
+    }
+    tr->name = newName;
+}
+
 
 void PetriNetworkSpec::addArcToPlace(std::string placeName, std::string transitionName, unsigned int tokenCount) {
     PetriTransition *transition = &transitions.find(transitionName)->second;
@@ -93,6 +144,7 @@ void PetriNetworkSpec::removePlace(std::string name) {
     // would use std::erase_if, but that's C++20
     for(auto it = arcs.begin(); it != arcs.end();) {
         if(it->first.first.compare(placeName) == 0)
+            // erase() returns the next valid iterator
             it = arcs.erase(it);
         else
             it++;
@@ -116,8 +168,25 @@ void PetriNetworkSpec::removeTransition(std::string name) {
             it++;
     }
 }
+
+PetriArc* PetriNetworkSpec::getArc(ArcItem *arc) {
+    auto key = getArcMapKey(arc);
+    auto found = arcs.find(key);
+    return found == arcs.end() ? nullptr : &found->second; 
+}
+
 void PetriNetworkSpec::removeArc(PetriPlace *p, PetriTransition *t) {
-    //TODO
+    auto key = make_pair(p->name, t->name);
+    auto arc = arcs.find(key);
+    if(arc == arcs.end()) 
+        return;
+    arcs.erase(arc);
+}
+
+void PetriNetworkSpec::removeArc(ArcItem *arc) {
+    auto found = arcs.find(getArcMapKey(arc));
+    if(found != arcs.end())
+        arcs.erase(found);
 }
 
 void PetriNetworkSpec::addInput(std::string inputName) {
@@ -143,7 +212,14 @@ PetriPlace* PetriNetworkSpec::getPlace(std::string name) {
     return &item->second;
 }
 
-void PetriNetworkSpec::exportJSON() const {
+PetriTransition* PetriNetworkSpec::getTransition(std::string name) {
+    const auto item = this->transitions.find(name);
+    if(item == this->transitions.end())
+        return nullptr;
+    return &item->second;
+}
+
+std::string PetriNetworkSpec::exportJSON() const {
     picojson::object root;
     picojson::object places;
     picojson::object transitions;
@@ -182,6 +258,5 @@ void PetriNetworkSpec::exportJSON() const {
     root["inputs"] = V(inputs);
     root["outputs"] = V(outputs);
 
-    std::cout << V(root).serialize() << std::endl;
-    
+    return V(root).serialize();
 }

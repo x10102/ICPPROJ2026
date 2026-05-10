@@ -303,6 +303,7 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
 
     log(QString("Hrana %1 → %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
     removeItem(arc);
+    spec->removeArc(arc);
     delete arc;
 }
 

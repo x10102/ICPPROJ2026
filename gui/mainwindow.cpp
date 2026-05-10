@@ -10,6 +10,7 @@
 #include "gui/petriscene.hpp"
 #include "gui/picojson.h"
 #include "gui/udpconnector.hpp"
+#include "items.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
@@ -39,6 +40,7 @@
 #include <qlineedit.h>
 #include <qmenu.h>
 #include <qobject.h>
+#include <qregion.h>
 #include <qthread.h>
 #include <qtoolbutton.h>
 #include <QDialog>
@@ -557,31 +559,40 @@ void MainWindow::setupSidebar(){
 
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
+            m_spec.renamePlace(m_editedPlace->name().toStdString(), text.toStdString());
             m_editedPlace->setName(text);
         }
         if (m_editedTransition) {
+            m_spec.renameTransition(m_editedTransition->name().toStdString(), text.toStdString());
             m_editedTransition->setName(text);
         }
     });
     connect(m_tokenSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
         if (m_editedPlace) {
             m_editedPlace->setTokens(val);
+            m_spec.getPlace(m_editedPlace->name().toStdString())->initial_tokens = val;
         }
     });
     connect(m_arcWeightSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val) {
-        if (m_editedArc) m_editedArc->setWeight(val);
+        if (m_editedArc) {
+            m_editedArc->setWeight(val);
+            m_spec.getArc(m_editedArc)->tokenCount = val;
+        }
     });
     connect(m_actionEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
             m_editedPlace->setAction(text);
+            m_spec.getPlace(m_editedPlace->name().toStdString())->placeActionMacro = text.toStdString();
         }
         if (m_editedTransition) {
             m_editedTransition->setAction(text);
+            m_spec.getTransition(m_editedTransition->name().toStdString())->tranActionMacro = text.toStdString();
         }
     });
     connect(m_fireCondEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedTransition) {
             m_editedTransition->setFireCond(text);
+            m_spec.getTransition(m_editedTransition->name().toStdString())->booleanGuardMacro = text.toStdString();
         }
     });
 
@@ -640,8 +651,9 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             wspin->setFixedWidth(60);
             hbox->addWidget(wspin);
 
-            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
+            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place, this](int val) {
                 arc->setWeight(val);
+                this->m_spec.getArc(arc)->tokenCount = val;
             });
 
             m_arcLayout->addWidget(row);
@@ -666,8 +678,9 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             wspin->setFixedWidth(60);
             hbox->addWidget(wspin);
 
-            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [arc, transition, place](int val) {
+            connect(wspin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this, arc, transition, place](int val) {
                 arc->setWeight(val);
+                this->m_spec.getArc(arc)->tokenCount = val;
             });
 
             m_arcLayout->addWidget(row);
@@ -709,6 +722,14 @@ bool MainWindow::saveNet() {
     if (!givenName.isEmpty()) {
         m_spec.setNetworkName(givenName.toStdString());
     }
+    QFile outputFile(filename);
+
+    if(!outputFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        appendLog("Chyba: Nelze otevřít soubor " + filename + " pro zápis.");
+    }
+
+    outputFile.write(m_spec.exportJSON().c_str());
+    appendLog("Specifikace sítě uložena do " + filename);
     return true;
 }
 
