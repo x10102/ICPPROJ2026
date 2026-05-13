@@ -5,6 +5,11 @@
 #include <filesystem>
 #include <sstream>
 #include <string>
+#include <QString>
+
+const std::string MAIN_FILENAME = "program.cpp";
+const std::string MAIN_GENERATED = "program.generated.cpp";
+
 class InterpreterGenerator {
     public:
         void setPath(const std::filesystem::path path);
@@ -18,10 +23,11 @@ class InterpreterGenerator {
         void emitPlace(const PetriPlace *p);
         void emitTransition(const PetriTransition *t);
         void emitArc(const PetriArc *a);
+        void emitAll(const PetriNetworkSpec *spec);
 
         std::filesystem::path interpSourcePath;
         std::string interpEntryFilename;
-        std::string interpDefMarker;
+        QString interpDefMarker;
         std::ostringstream generatedBuffer;
 };
 

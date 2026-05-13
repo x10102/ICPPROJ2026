@@ -1,6 +1,15 @@
 #include "geninterp.hpp"
 #include "editorstate.hpp"
+#include <filesystem>
 #include <ostream>
+#include <qchar.h>
+#include <qevent.h>
+#include <qlist.h>
+#include <qlocale.h>
+#include <QTextStream>
+#include <qregion.h>
+
+using namespace std;
 
 void InterpreterGenerator::emitPlace(const PetriPlace *p) {
     this->generatedBuffer << "PLACE(";
@@ -48,15 +57,51 @@ void InterpreterGenerator::emitArc(const PetriArc *a) {
     }
 }
 
-bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
-    std::cout << "Generated main:" << std::endl;
-    generatedBuffer.str("");
+void InterpreterGenerator::emitAll(const PetriNetworkSpec *spec) {
     for(const auto &p : spec->places)
         this->emitPlace(&p.second);
     for(const auto &tr : spec->transitions)
         this->emitTransition(&tr.second);
     for(const auto &arc : spec->arcs)
         this->emitArc(&arc.second); 
-    std::cout << generatedBuffer.str();
-    return true;
+}
+
+// TODO: Make this a signal?
+bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
+    this->generatedBuffer.clear();
+    this->emitAll(spec);
+    // TODO: Raise an exception
+    filesystem::path mainPath = this->interpSourcePath / MAIN_FILENAME;
+    if(!filesystem::exists(mainPath)) {
+        cerr << "Error generating interpreter: file " << mainPath << " doesn't exist" << endl;
+        return false;
+    }
+    QFile source(QString::fromStdString(mainPath));
+    if(!source.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        cerr << "Error generating interpreter: file " << mainPath << " cannot be opened" << endl;
+        return false;
+    }
+    QTextStream inputStream(&source);
+    QStringList outSourceLines;
+
+    while(!inputStream.atEnd()) {
+        QString currentLine = inputStream.readLine();
+        if(currentLine.contains(interpDefMarker)) {
+            currentLine.replace("// " + interpDefMarker, QString::fromStdString(generatedBuffer.str()));
+        }
+        outSourceLines.append(currentLine);
+    }
+    source.close();
+
+    for(const auto &line : outSourceLines) {
+        cout << line.toStdString() << endl;
+    }
+}
+
+void InterpreterGenerator::setMarker(std::string marker) {
+    this->interpDefMarker = QString::fromStdString(marker);
+}
+
+void InterpreterGenerator::setPath(std::filesystem::path path) {
+    this->interpSourcePath = path;
 }
