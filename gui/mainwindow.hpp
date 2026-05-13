@@ -8,7 +8,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsView>
+#include <QAction>
+#include <QDockWidget>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QLabel>
 #include <QPoint>
+#include <QVBoxLayout>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QFrame>
 #include <qglobal.h>
 #include <qobject.h>
 #include "geninterp.hpp"
@@ -18,17 +28,12 @@
 #include "editorstate.hpp"
 #include "udpconnector.hpp"
 
-class QGraphicsView;
-class QAction;
-class QDockWidget;
-class QLineEdit;
-class QSpinBox;
-class QLabel;
-class QVBoxLayout;
-class QPlainTextEdit;
-class QPushButton;
-class QFrame;
 class QtInterpreter;
+
+enum TerminalTab {
+    GUI,
+    BUILD
+};
 
 /**
  * @brief Main application window
@@ -58,9 +63,7 @@ private:
     /// @brief Creates a terminal in the lower part of the window
     void setupTerminal();
     /// @brief Appends a message to the GUI terminal log
-    void appendLog(const QString &msg);
-    /// @brief Appends a message to the Interpreter terminal tab
-    void appendInterpLog(const QString &msg);
+    void appendLog(const QString &msg, const TerminalTab tab = GUI);
     /// @brief Creates floating tool and simulation panels over the scene
     void setupFloatingPanels();
     /// @brief Recalculates the simulation panel position to the lower right corner
@@ -126,6 +129,7 @@ private:
 
     QDockWidget    *m_terminalDock      = nullptr;
     QPlainTextEdit *m_terminal          = nullptr; ///< GUI log tab
+    QPlainTextEdit *m_build_terminal    = nullptr; /// Build log tab
     QLineEdit      *m_terminalInput     = nullptr;
 
     UdpConnector    *m_receiver          = nullptr;
@@ -134,5 +138,7 @@ private:
     PetriNetworkSpec m_spec;
     InterpreterGenerator m_generator;
 };
+
+
 
 #endif // MAINWINDOW_H
