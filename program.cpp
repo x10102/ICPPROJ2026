@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     port = 6767;
     
     setHelperInterpreter(&interp);
-
+    /*
     PLACE(a1, "prvni" ,1);
     PLACE(a2, "druhy", 0);
     PLACE(a3, "treti", 100);
@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
     EXIT_EDGE(t3, a4, 5);
     CONDITION(t3, "sestsedm", 0);
     ACTION(t3, output("sixsevenovni vystup", "ahojahojahoj"));
+    */
 
     // #### MARKER ####
 
