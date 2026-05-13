@@ -5,7 +5,6 @@
  */
 
 #include "mainwindow.hpp"
-#include "../petri.hpp"
 #include "editorstate.hpp"
 #include "geninterp.hpp"
 #include "gui/petriscene.hpp"
@@ -43,6 +42,7 @@
 #include <qlineedit.h>
 #include <qmenu.h>
 #include <qobject.h>
+#include <qplaintextedit.h>
 #include <qregion.h>
 #include <qthread.h>
 #include <qtoolbutton.h>
@@ -233,9 +233,11 @@ void MainWindow::setupTerminal() {
     };
 
     m_terminal  = makeLog();
+    m_build_terminal = makeLog();
 
     QTabWidget *tabs = new QTabWidget;
     tabs->addTab(m_terminal,  "GUI");
+    tabs->addTab(m_build_terminal, "Sestavení");
     vbox->addWidget(tabs);
 
     // Vstup pro příkazy uživatele
@@ -268,10 +270,18 @@ void MainWindow::setupTerminal() {
 
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
-    m_terminalDock->hide();
+    //m_terminalDock->hide();
 }
- 
-void MainWindow::appendLog(const QString &msg) {
+
+void MainWindow::appendLog(const QString &msg, const TerminalTab tab) {
+    QPlainTextEdit *selectedTab;
+    switch(tab) {
+        case TerminalTab::BUILD:
+            selectedTab = m_build_terminal;
+        default:
+        case TerminalTab::GUI:
+            selectedTab = m_terminal;
+    }
     m_terminal->appendPlainText(msg);
     m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
 }
