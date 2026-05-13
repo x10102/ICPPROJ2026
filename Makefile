@@ -3,6 +3,7 @@ ARGS=-g -std=c++17
 
 COMPILE=$(CC) $(ARGS)
 CPPFILES=program.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
+CPPGEN=program.generated.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
 
 program: $(CPPFILES)
 	$(COMPILE) $^ -o $@.out
@@ -12,6 +13,9 @@ program-dbg: $(CPPFILES)
 
 program-trace: $(CPPFILES)
 	$(COMPILE) $^ -DTRACE -o program.out
+
+program-generated: $(CPPGEN)
+	$(COMPILE) $^ -DDEBUG -o generated.out
 
 clean:
 	rm program program.out
