@@ -53,7 +53,7 @@ picojson::object PetriArc::json() const {
 }
 
 pair<string, string> PetriNetworkSpec::getArcMapKey(ArcItem *arc) {
-    bool sourceIsPlace = (dynamic_cast<PlaceItem*>(arc->fromItem()) == nullptr);
+    bool sourceIsPlace = (dynamic_cast<PlaceItem*>(arc->fromItem()) != nullptr);
     std::string placeName;
     std::string transitionName;
     // TODO: again, use qGraphicsCast instead of dynamic_cast
