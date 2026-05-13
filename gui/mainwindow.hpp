@@ -69,11 +69,17 @@ private:
     /// @brief Lets the user choose a file using the system file picker dialog and saves the net
     bool saveNet();
 
+    /// @brief Lets the user choose a directory with the interpreter source
+    bool setSourceDir();
+
     /// @brief A message handler to append Qt logger messages to the terminal
     void terminalMessageHandler(QtMsgType msgType, QMessageLogContext &ctx, const QString &message);
 
     /// @brief Sets up the UDP receiver thread for communication with the client
     void setupUDPThread();
+
+    /// @brief Sets up paths for the interpreter generator
+    void setupSourceGenerator();
 
     void applyTheme(const Theme &theme);
 

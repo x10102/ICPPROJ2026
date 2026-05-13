@@ -13,6 +13,7 @@ const std::string MAIN_GENERATED = "program.generated.cpp";
 class InterpreterGenerator {
     public:
         void setPath(const std::filesystem::path path);
+        std::filesystem::path getPath();
         void setEntrypoint(const std::string filename);
         void setMarker(const std::string);
         bool generateMain(const PetriNetworkSpec *spec);

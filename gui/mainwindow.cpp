@@ -7,6 +7,7 @@
 #include "mainwindow.hpp"
 #include "../petri.hpp"
 #include "editorstate.hpp"
+#include "geninterp.hpp"
 #include "gui/petriscene.hpp"
 #include "gui/picojson.h"
 #include "gui/udpconnector.hpp"
@@ -33,6 +34,8 @@
 #include <QToolButton>
 #include <QTimer>
 #include <QApplication>
+#include <cstdlib>
+#include <filesystem>
 #include <qaction.h>
 #include <qchar.h>
 #include <qglobal.h>
@@ -174,6 +177,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_dock->hide();
     });
 
+    setupSourceGenerator();
     setupUDPThread();
 }
 
@@ -182,6 +186,11 @@ MainWindow::~MainWindow() {
         m_receiverThread->quit();
         m_receiverThread->wait();
     }
+}
+
+void MainWindow::setupSourceGenerator() {
+    m_generator.setMarker("#### MARKER ####");
+    m_generator.setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO");
 }
 
 void MainWindow::setupUDPThread() {
@@ -301,6 +310,7 @@ void MainWindow::setupToolbar(){
 
     // Populate the submenus with buttons
     auto btnSave = fileMenu->addAction("Uložit síť");
+    auto btnSetSource = fileMenu->addAction("Vybrat zdrojový adresář");
 
     auto termAct = viewMenu->addAction("Terminál");
     termAct->setCheckable(true);
@@ -323,6 +333,10 @@ void MainWindow::setupToolbar(){
             this->m_spec.exportJSON();
         }
     });
+
+    connect(btnSetSource, &QAction::triggered, this, [this](){
+        this->setSourceDir();
+    });
     
     connect(termAct, &QAction::toggled, this, [this](bool checked) {
         checked ? m_terminalDock->show() : m_terminalDock->hide();
@@ -338,7 +352,20 @@ void MainWindow::setupToolbar(){
     });
 
     connect(compileAct, &QAction::triggered, this, [this](){
-        m_generator.generateMain(&m_spec);
+        appendLog("Generuji kód interpretu...");
+        if(!m_generator.generateMain(&m_spec)) {
+            appendLog("Generování selhalo");
+            return false;
+        }
+        std::ostringstream command;
+        appendLog("Kompiluji interpret...");
+        command << "cd " << m_generator.getPath().string() << " && make program-generated > compile.log";
+        if(system(command.str().c_str())) {
+            appendLog("Kompilace selhala, zkontrolujte compile.log pro detaily.");
+            return false;
+        }
+        appendLog("Interpret úspěšně sestaven");
+        return true;
     });
 
     connect(nameAct, &QAction::triggered, this, [this](){
@@ -712,11 +739,28 @@ void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
     }
 }
 
+bool MainWindow::setSourceDir() {
+    QString dir = QFileDialog::getExistingDirectory(this, "Vybrat zdrojovou složku");
+    if(dir.isEmpty()) {
+        appendLog("Výběr zrušen");
+        return false;
+    }
+    std::filesystem::path path = dir.toStdString();
+    if(!std::filesystem::exists(path / MAIN_FILENAME)) {
+        appendLog("Složka neobsahuje program.cpp, vybrali jste správně?");
+        return false;
+    }
+    m_generator.setPath(path);
+    appendLog("Používám zdrojový kód z " + dir);
+    return true;
+}
+
 bool MainWindow::saveNet() {
     QString filename = QFileDialog::getSaveFileName(this, "Uložit síť", QString::fromStdString(m_spec.name), "Petri Net specification (*.pnet)");
-    if (filename.isEmpty())
+    if (filename.isEmpty()) {
+        appendLog("Výběr zrušen");
         return false;
-    std::cout << "Save to: " << filename.toStdString() << std::endl;
+    }
 
     QString givenName = QFileInfo(filename).baseName();
     if (!givenName.isEmpty()) {

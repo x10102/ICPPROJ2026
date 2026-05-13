@@ -8,8 +8,13 @@
 #include <qlocale.h>
 #include <QTextStream>
 #include <qregion.h>
+#include <qstringliteral.h>
 
 using namespace std;
+
+filesystem::path InterpreterGenerator::getPath() {
+    return this->interpSourcePath;
+}
 
 void InterpreterGenerator::emitPlace(const PetriPlace *p) {
     this->generatedBuffer << "PLACE(";
@@ -93,9 +98,19 @@ bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
     }
     source.close();
 
-    for(const auto &line : outSourceLines) {
-        cout << line.toStdString() << endl;
+    filesystem::path outputPath = this->interpSourcePath / MAIN_GENERATED;
+    QFile output(QString::fromStdString(outputPath));
+
+    if(!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        cerr << "Could not write output source file" << endl;
+        return false;
     }
+
+    QTextStream outputStream(&output);
+    for(const auto &line : outSourceLines) {
+        outputStream << line << Qt::endl;
+    }
+    return true;
 }
 
 void InterpreterGenerator::setMarker(std::string marker) {

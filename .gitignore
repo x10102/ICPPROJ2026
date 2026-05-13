@@ -60,3 +60,6 @@ gui/Makefile
 
 
 **/petri-editor
+
+program.generated.cpp
+*.log
