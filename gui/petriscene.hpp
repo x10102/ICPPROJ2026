@@ -8,6 +8,7 @@
 #define PETRISCENE_H
 
 #include <QGraphicsScene>
+#include "terminaltab.hpp"
 #include "items.hpp"
 #include "editorstate.hpp"
 
@@ -65,7 +66,7 @@ signals:
     /// @brief Signál emitován při zrušení výběru - kliknutí do prázdma.
     void selectionCleared();
     /// @brief Signál emitován při logovatelné akci uživatele.
-    void logMessage(const QString &message);
+    void logMessage(const QString &message, const TerminalTab tab);
     
 
 protected:

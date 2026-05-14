@@ -23,6 +23,7 @@ set(PROJECT_SOURCES
         editorstate.hpp
         picojson.h
         mainwindow.ui
+        mw_toolbars.cpp
         items.hpp
         petriscene.hpp
         petriscene.cpp
@@ -30,6 +31,7 @@ set(PROJECT_SOURCES
         udpconnector.cpp
         geninterp.cpp
         geninterp.hpp
+        styles.hpp
         theme.hpp
         theme.cpp
         ../interp.cpp

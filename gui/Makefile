@@ -187,6 +187,54 @@ petri-editor_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor_autogen.dir/build.make CMakeFiles/petri-editor_autogen.dir/build
 .PHONY : petri-editor_autogen/fast
 
+editorstate.o: editorstate.cpp.o
+.PHONY : editorstate.o
+
+# target to build an object file
+editorstate.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/editorstate.cpp.o
+.PHONY : editorstate.cpp.o
+
+editorstate.i: editorstate.cpp.i
+.PHONY : editorstate.i
+
+# target to preprocess a source file
+editorstate.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/editorstate.cpp.i
+.PHONY : editorstate.cpp.i
+
+editorstate.s: editorstate.cpp.s
+.PHONY : editorstate.s
+
+# target to generate assembly for a file
+editorstate.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/editorstate.cpp.s
+.PHONY : editorstate.cpp.s
+
+geninterp.o: geninterp.cpp.o
+.PHONY : geninterp.o
+
+# target to build an object file
+geninterp.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/geninterp.cpp.o
+.PHONY : geninterp.cpp.o
+
+geninterp.i: geninterp.cpp.i
+.PHONY : geninterp.i
+
+# target to preprocess a source file
+geninterp.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/geninterp.cpp.i
+.PHONY : geninterp.cpp.i
+
+geninterp.s: geninterp.cpp.s
+.PHONY : geninterp.s
+
+# target to generate assembly for a file
+geninterp.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/geninterp.cpp.s
+.PHONY : geninterp.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -331,6 +379,30 @@ mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s
 .PHONY : mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.cpp.s
 
+mw_toolbars.o: mw_toolbars.cpp.o
+.PHONY : mw_toolbars.o
+
+# target to build an object file
+mw_toolbars.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mw_toolbars.cpp.o
+.PHONY : mw_toolbars.cpp.o
+
+mw_toolbars.i: mw_toolbars.cpp.i
+.PHONY : mw_toolbars.i
+
+# target to preprocess a source file
+mw_toolbars.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mw_toolbars.cpp.i
+.PHONY : mw_toolbars.cpp.i
+
+mw_toolbars.s: mw_toolbars.cpp.s
+.PHONY : mw_toolbars.s
+
+# target to generate assembly for a file
+mw_toolbars.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/mw_toolbars.cpp.s
+.PHONY : mw_toolbars.cpp.s
+
 petri-editor_autogen/mocs_compilation.o: petri-editor_autogen/mocs_compilation.cpp.o
 .PHONY : petri-editor_autogen/mocs_compilation.o
 
@@ -379,29 +451,53 @@ petriscene.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/petriscene.cpp.s
 .PHONY : petriscene.cpp.s
 
-qtinterp.o: qtinterp.cpp.o
-.PHONY : qtinterp.o
+theme.o: theme.cpp.o
+.PHONY : theme.o
 
 # target to build an object file
-qtinterp.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.o
-.PHONY : qtinterp.cpp.o
+theme.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/theme.cpp.o
+.PHONY : theme.cpp.o
 
-qtinterp.i: qtinterp.cpp.i
-.PHONY : qtinterp.i
+theme.i: theme.cpp.i
+.PHONY : theme.i
 
 # target to preprocess a source file
-qtinterp.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.i
-.PHONY : qtinterp.cpp.i
+theme.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/theme.cpp.i
+.PHONY : theme.cpp.i
 
-qtinterp.s: qtinterp.cpp.s
-.PHONY : qtinterp.s
+theme.s: theme.cpp.s
+.PHONY : theme.s
 
 # target to generate assembly for a file
-qtinterp.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/qtinterp.cpp.s
-.PHONY : qtinterp.cpp.s
+theme.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/theme.cpp.s
+.PHONY : theme.cpp.s
+
+udpconnector.o: udpconnector.cpp.o
+.PHONY : udpconnector.o
+
+# target to build an object file
+udpconnector.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/udpconnector.cpp.o
+.PHONY : udpconnector.cpp.o
+
+udpconnector.i: udpconnector.cpp.i
+.PHONY : udpconnector.i
+
+# target to preprocess a source file
+udpconnector.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/udpconnector.cpp.i
+.PHONY : udpconnector.cpp.i
+
+udpconnector.s: udpconnector.cpp.s
+.PHONY : udpconnector.s
+
+# target to generate assembly for a file
+udpconnector.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/petri-editor.dir/build.make CMakeFiles/petri-editor.dir/udpconnector.cpp.s
+.PHONY : udpconnector.cpp.s
 
 # Help Target
 help:
@@ -417,6 +513,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... petri-editor_autogen"
 	@echo "... petri-editor"
+	@echo "... editorstate.o"
+	@echo "... editorstate.i"
+	@echo "... editorstate.s"
+	@echo "... geninterp.o"
+	@echo "... geninterp.i"
+	@echo "... geninterp.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
@@ -435,15 +537,21 @@ help:
 	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.o"
 	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.i"
 	@echo "... mnt/c/Users/CrackTek/Desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO/transition.s"
+	@echo "... mw_toolbars.o"
+	@echo "... mw_toolbars.i"
+	@echo "... mw_toolbars.s"
 	@echo "... petri-editor_autogen/mocs_compilation.o"
 	@echo "... petri-editor_autogen/mocs_compilation.i"
 	@echo "... petri-editor_autogen/mocs_compilation.s"
 	@echo "... petriscene.o"
 	@echo "... petriscene.i"
 	@echo "... petriscene.s"
-	@echo "... qtinterp.o"
-	@echo "... qtinterp.i"
-	@echo "... qtinterp.s"
+	@echo "... theme.o"
+	@echo "... theme.i"
+	@echo "... theme.s"
+	@echo "... udpconnector.o"
+	@echo "... udpconnector.i"
+	@echo "... udpconnector.s"
 .PHONY : help
 
 

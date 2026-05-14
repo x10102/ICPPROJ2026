@@ -24,16 +24,12 @@
 #include "geninterp.hpp"
 #include "gui/picojson.h"
 #include "petriscene.hpp"
+#include "terminaltab.hpp"
 #include "theme.hpp"
 #include "editorstate.hpp"
 #include "udpconnector.hpp"
 
 class QtInterpreter;
-
-enum TerminalTab {
-    GUI,
-    BUILD
-};
 
 /**
  * @brief Main application window
@@ -83,6 +79,12 @@ private:
 
     /// @brief Sets up paths for the interpreter generator
     void setupSourceGenerator();
+
+    /// @brief Opens a dialog used to change the net properties (name etc.)
+    void openNetPropsDialog();
+
+    /// @brief Triggers interpreter codegen and compilation
+    void compileInterpreter();
 
     void applyTheme(const Theme &theme);
 

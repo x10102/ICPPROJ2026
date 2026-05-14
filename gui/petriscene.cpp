@@ -6,7 +6,6 @@
 #include <QMenu>
 #include <QKeyEvent>
 #include <QDateTime>
-#include <cstddef>
 #include <cstdint>
 #include <qgraphicsitem.h>
 
@@ -41,7 +40,7 @@ void PetriScene::setTool(Tool tool) {
 
 void PetriScene::log(const QString &msg) {
     QString time = QDateTime::currentDateTime().toString("hh:mm:ss");
-    emit logMessage(QString("[%1] %2").arg(time, msg));
+    emit logMessage(QString("[%1] %2").arg(time, msg), GUI);
 }
 
 void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
