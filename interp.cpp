@@ -4,6 +4,9 @@
 // - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
 
 #include "petri.hpp"
+#include "interp.hpp"
+#include "debug.hpp"
+#include "gui/picojson.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
@@ -15,9 +18,9 @@
 #include <string>
 #include <thread>
 #include <vector>
-#include "interp.hpp"
-#include "debug.hpp"
-#include "gui/picojson.h"
+#include <netinet/in.h>
+#include <sys/socket.h>
+
 
 using namespace std;
 
@@ -265,4 +268,61 @@ void Interpreter::clearEvents() {
 
 void Interpreter::clearFired() {
     this->firedLastStep.clear();
+}
+
+void Interpreter::run(uint16_t port) {
+    // TODO: Move allll of this shit to the interpreter class, maybe make a separate network handler class to not clutter the petri logic too much
+    struct sockaddr_in editor_addr;
+    struct sockaddr_in self_addr;
+    char netbuffer[NETWORK_BUFFER_SIZE];
+    memset(&editor_addr, 0, sizeof(struct sockaddr_in));
+    memset(&self_addr, 0, sizeof(struct sockaddr_in));
+    self_addr.sin_addr.s_addr = INADDR_ANY;
+    self_addr.sin_family = AF_INET;
+    self_addr.sin_port = htons(port);
+    int sock_recv = socket(AF_INET, SOCK_DGRAM, 0);
+    if(sock_recv < 0) {
+        LOG_I("Application error: failed to create socket");
+        exit(2);
+    }
+    socklen_t saddr = sizeof(struct sockaddr_in);
+    if(bind(sock_recv, (struct sockaddr*)&self_addr, saddr) < 0) {
+        LOG_I("Application error: failed to bind socket");
+        exit(2);
+    }
+
+    int recv_len;
+    
+    while(true) {
+        picojson::value data;
+        recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
+        editor_addr.sin_port = htons(port-1);
+        std::string decode_error = picojson::parse(data, netbuffer);
+        if(!decode_error.empty() || !data.is<picojson::object>()) {
+            LOG_I("Application error: received malformed command, ignoring it.");
+            continue;
+        }
+        auto payload = data.get<picojson::object>();
+        std::string command = payload["command"].to_str();
+        if(command.compare("step") == 0) {
+            // With the way the interpreter is programmed, we can really only do one step at a time
+            // We could add a parameter for N steps
+            // And also a parameter for "half-steps" - the doTransitions() loop will only run for one cycle and then report back state
+            // Would make it easier to follow convoluted networks where lots of transitions will fire each cycle
+            doTransitions();
+        } else if(command.compare("event") == 0) {
+            inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
+        } else if(command.compare("exit") == 0) {
+            terminate();
+            break;
+        }
+        std::string json = picojson::value(this->json()).serialize(false);
+        json.copy(netbuffer, NETWORK_BUFFER_SIZE);
+        // Terminate the buffer manually because string.copy() doesn't do that apparently???
+        netbuffer[json.length()] = '\0';
+        sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
+        // Clear the events that fired
+        clearFired();
+        clearEvents();
+    }
 }

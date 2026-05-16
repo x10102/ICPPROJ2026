@@ -1,10 +1,11 @@
 // interp.hpp - interpreter interface
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
-// - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
 
 #ifndef _INTERP_H
 #define _INTERP_H
+
+#define NETWORK_BUFFER_SIZE 8192
 
 #include "petri.hpp"
 #include "gui/picojson.h"
@@ -26,9 +27,6 @@ using namespace std;
 class Interpreter {
 
     protected:
-        //Metadata pro save a load
-        string netName;
-        string netComment;
         unordered_map<string, string> inputValues;
         unordered_map<string, string> outputValues;
         vector<Variable> variables;
@@ -46,13 +44,7 @@ class Interpreter {
 
         void delayedFire(Transition *tr, uint32_t delay_ms);
 
-        //void parseLoadFileLine(const string &section, const string &line);
     public:
-        /*
-        bool save(const string &filename);
-        bool load(const string &filename);
-        void clearNet();
-        */
 
         Place* createPlace(string identifier, uint32_t initial_tokens);
         Place* getPlace(string identifier);
@@ -73,6 +65,7 @@ class Interpreter {
         // Functions for clearing the internal "queues" of events and fired transitions
         void clearFired();
         void clearEvents();
+        void run(uint16_t port);
         
         picojson::object json();
 

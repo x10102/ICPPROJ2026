@@ -6,16 +6,11 @@
 #include <cstring>
 #include <iostream>
 #include <string>
-#include <netinet/in.h>
-#include <sys/socket.h>
 #include <memory.h>
 #include "interp.hpp"
 #include "petri.hpp"
 #include "debug.hpp"
 #include "scripting_helper.hpp"
-#include "gui/picojson.h"
-
-#define NETWORK_BUFFER_SIZE 8192
 
 #define PLACE(var, id, tok) Place *var = interp.createPlace(id, tok)
 #define TRANSITION(var, id) Transition *var = interp.createTransition(id)
@@ -66,71 +61,19 @@ void interactive_test() {
     }
 }
 
+// Prefix any local variables here with __INTERNAL_
+// To prevent clash with net variables (user-defined)
+// TODO: Check for name clashes in GUI
 int main(int argc, char *argv[]) {
     
-    Interpreter interp;
-    unsigned int port;
-    port = 6768;
+    Interpreter __INTERNAL_interp;
+    unsigned int __INTERNAL_port;
+    __INTERNAL_port = 6768;
     
-    setHelperInterpreter(&interp);
+    setHelperInterpreter(&__INTERNAL_interp);
 
     // #### MARKER ####
 
-    // TODO: Move allll of this shit to the interpreter class, maybe make a separate network handler class to not clutter the petri logic too much
-    struct sockaddr_in editor_addr;
-    struct sockaddr_in self_addr;
-    char netbuffer[NETWORK_BUFFER_SIZE];
-    memset(&editor_addr, 0, sizeof(struct sockaddr_in));
-    memset(&self_addr, 0, sizeof(struct sockaddr_in));
-    self_addr.sin_addr.s_addr = INADDR_ANY;
-    self_addr.sin_family = AF_INET;
-    self_addr.sin_port = htons(port);
-    int sock_recv = socket(AF_INET, SOCK_DGRAM, 0);
-    if(sock_recv < 0) {
-        LOG_I("Application error: failed to create socket");
-        exit(2);
-    }
-    socklen_t saddr = sizeof(struct sockaddr_in);
-    if(bind(sock_recv, (struct sockaddr*)&self_addr, saddr) < 0) {
-        LOG_I("Application error: failed to bind socket");
-        exit(2);
-    }
-
-    int recv_len;
-    
-    while(true) {
-        picojson::value data;
-        recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
-        editor_addr.sin_port = htons(port-1);
-        std::string decode_error = picojson::parse(data, netbuffer);
-        if(!decode_error.empty() || !data.is<picojson::object>()) {
-            LOG_I("Application error: received malformed command, ignoring it.");
-            continue;
-        }
-        auto payload = data.get<picojson::object>();
-        std::string command = payload["command"].to_str();
-        if(command.compare("step") == 0) {
-            // With the way the interpreter is programmed, we can really only do one step at a time
-            // We could add a parameter for N steps
-            // And also a parameter for "half-steps" - the doTransitions() loop will only run for one cycle and then report back state
-            // Would make it easier to follow convoluted networks where lots of transitions will fire each cycle
-            interp.doTransitions();
-        } else if(command.compare("event") == 0) {
-            interp.inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
-        } else if(command.compare("exit") == 0) {
-            interp.terminate();
-            break;
-        }
-        std::string json = picojson::value(interp.json()).serialize(false);
-        json.copy(netbuffer, NETWORK_BUFFER_SIZE);
-        // Terminate the buffer manually because string.copy() doesn't do that apparently???
-        netbuffer[json.length()] = '\0';
-        sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
-        // Clear the events that fired
-        interp.clearFired();
-        interp.clearEvents();
-    }
-
-    //interactive_test();
+    __INTERNAL_interp.run(__INTERNAL_port);
     return 0;
 }
