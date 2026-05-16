@@ -72,6 +72,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             storeT.name = name.toStdString();
             storeT.x = pos.x();
             storeT.y = pos.y();
+            storeT.initial_tokens = 1;
             this->spec->addPlace(storeT);
             log(QString("Místo %1 přidáno").arg(name));
             break;
