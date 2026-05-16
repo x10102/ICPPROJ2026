@@ -66,6 +66,9 @@ private:
     /// @brief Lets the user choose a file using the system file picker dialog and saves the net
     bool saveNet();
 
+    /// @brief Opens a file picker to choose a net specification file and loads it
+    bool loadNet();
+
     /// @brief Lets the user choose a directory with the interpreter source
     bool setSourceDir();
 
@@ -80,6 +83,9 @@ private:
 
     /// @brief Opens a dialog used to change the net properties (name etc.)
     void openNetPropsDialog();
+
+    /// @brief Opens a dialog used to define variables
+    void openVariablesDialog();
 
     /// @brief Triggers interpreter codegen and compilation
     void compileInterpreter();
@@ -103,6 +109,8 @@ private:
      */
     void populateTransitionSidebar(TransitionItem *transition);
 
+    bool           m_interpRunnable     = false;    ///< True if interpreter was built and can be run
+
     PetriScene     *m_scene             = nullptr;  ///< Petri net scene
     QGraphicsView  *m_view              = nullptr;  ///< View for the scene
     QPushButton    *m_activeToolBtn     = nullptr;  ///< Currently active tool button
@@ -123,6 +131,9 @@ private:
 
     QLineEdit      *m_fireCondEdit      = nullptr;  ///< Line edit for the fire condition of the selected transition
     QLabel         *m_fireCondLabel     = nullptr;  ///< Label for the fire condition edit in the sidebar
+
+    QLineEdit      *m_evtNameEdit      = nullptr;  ///< Line edit for the input event name of the selected transition
+    QLabel         *m_evtNameLabel     = nullptr;  ///< Label for the input event edit in the sidebar
 
     PlaceItem      *m_editedPlace       = nullptr;  ///< Currently selected place for editing, nullptr if no place is selected
     TransitionItem *m_editedTransition  = nullptr;  ///< Currently selected transition for editing, nullptr if no transition is selected
