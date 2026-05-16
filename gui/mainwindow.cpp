@@ -332,7 +332,9 @@ bool MainWindow::setSourceDir() {
 }
 
 bool MainWindow::saveNet() {
-    QString filename = QFileDialog::getSaveFileName(this, "Uložit síť", QString::fromStdString(m_spec.name), "Petri Net specification (*.pnet)");
+    QFileDialog fd;
+    fd.setDefaultSuffix("pnet");
+    QString filename = fd.getSaveFileName(this, "Uložit síť", QString::fromStdString(m_spec.name), "Petri Net specification (*.pnet)");
     if (filename.isEmpty()) {
         appendLog("Výběr zrušen");
         return false;
@@ -350,6 +352,62 @@ bool MainWindow::saveNet() {
 
     outputFile.write(m_spec.exportJSON().c_str());
     appendLog("Specifikace sítě uložena do " + filename);
+    return true;
+}
+
+bool MainWindow::loadNet() {
+    QString filename = QFileDialog::getOpenFileName(this, "Načíst síť", QString::fromStdString(m_spec.name), "Petri Net specification (*.pnet)");
+    if (filename.isEmpty()) {
+        appendLog("Výběr zrušen");
+        return false;
+    }
+
+    QString givenName = QFileInfo(filename).baseName();
+    if (!givenName.isEmpty()) {
+        m_spec.setNetworkName(givenName.toStdString());
+    }
+    QFile outputFile(filename);
+
+    if(!outputFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        appendLog("Chyba: Nelze otevřít soubor " + filename + " pro čtení.");
+    }
+
+    m_spec.loadJSON(outputFile.readAll().toStdString());
+
+    // Create two maps for the transition and place items we create
+    // So that we don't have to inefficiently search m_scene.items() on every arc added
+    std::map<std::string, PlaceItem*> createdPlaces;
+    std::map<std::string, TransitionItem*> createdTransitions;
+
+    for(const auto &[_, data] : m_spec.places) {
+        QPointF position(data.x, data.y);
+        auto *p = new PlaceItem(position);
+        p->setName(QString::fromStdString(data.name));
+        p->setAction(QString::fromStdString(data.placeActionMacro));
+        p->setTokens(data.initial_tokens);
+        m_scene->addItem(p);
+        createdPlaces[data.name] = p;
+    }
+
+    for(const auto &[_, data] : m_spec.transitions) {
+        QPointF position(data.x, data.y);
+        auto *t = new TransitionItem(position);
+        t->setName(QString::fromStdString(data.name));
+        t->setAction(QString::fromStdString(data.tranActionMacro));
+        t->setFireCond(QString::fromStdString(data.booleanGuardMacro));
+        t->setInputEvtName(QString::fromStdString(data.inputEventName));
+        m_scene->addItem(t);
+        createdTransitions[data.name] = t;
+    }
+
+    for(const auto &arc : m_spec.arcs) {
+        const PetriArc &data = arc.second;
+        const std::string placeName = data.place->name;
+        const std::string transitionName = data.transition->name;
+        auto *a = new ArcItem(createdPlaces[placeName], createdTransitions[transitionName]);
+        a->setWeight(data.tokenCount);
+        m_scene->addItem(a);
+    }
     return true;
 }
 
