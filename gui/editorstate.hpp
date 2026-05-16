@@ -24,6 +24,8 @@ struct PetriPlace {
     std::string name;
     uint32_t initial_tokens;
     std::string placeActionMacro;
+    double x = 0.0;
+    double y = 0.0;
 
     picojson::object json() const;
     PetriPlace();
@@ -35,6 +37,8 @@ struct PetriTransition {
     std::string booleanGuardMacro;
     std::string tranActionMacro;
     uint32_t delayMs;
+    double x = 0.0;
+    double y = 0.0;
 
     picojson::object json() const;
     PetriTransition();

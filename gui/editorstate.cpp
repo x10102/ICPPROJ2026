@@ -35,6 +35,8 @@ picojson::object PetriPlace::json() const {
     json["name"] = V(this->name);
     json["placeAction"] = V(this->placeActionMacro);
     json["initialTokens"] = V(static_cast<int64_t>(this->initial_tokens));
+    json["x"] = V(this->x);
+    json["y"] = V(this->y);
     return json;
 }
 
@@ -44,6 +46,8 @@ picojson::object PetriTransition::json() const {
     json["inputEventName"] = V(this->inputEventName);
     json["booleanGuard"] = V(this->booleanGuardMacro);
     json["delayMs"] = V(static_cast<int64_t>(this->delayMs));
+    json["x"] = V(this->x);
+    json["y"] = V(this->y);
     return json;
 }
 

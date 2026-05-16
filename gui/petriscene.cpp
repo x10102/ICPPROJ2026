@@ -60,6 +60,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             addItem(place);
             PetriPlace storeT;
             storeT.name = name.toStdString();
+            storeT.x = pos.x();
+            storeT.y = pos.y();
             this->spec->addPlace(storeT);
             log(QString("Místo %1 přidáno").arg(name));
             break;
@@ -72,6 +74,8 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             addItem(transition);
             PetriTransition storeT;
             storeT.name = name.toStdString();
+            storeT.x = pos.x();
+            storeT.y = pos.y();
             this->spec->addTransition(storeT);
             log(QString("Přechod %1 přidán").arg(name));
             break;
