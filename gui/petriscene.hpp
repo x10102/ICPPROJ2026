@@ -111,7 +111,7 @@ private:
      * 
      * @param place The place for which to show the context menu
      * @param screenPos The position on the screen where the menu should be shown
-     */     *  @param tab The terminal tab where the message should be logged.
+     */
     void showPlaceContextMenu(PlaceItem *place, QPoint screenPos);
 
     /**
