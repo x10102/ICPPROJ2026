@@ -73,24 +73,6 @@ int main(int argc, char *argv[]) {
     port = 6768;
     
     setHelperInterpreter(&interp);
-    /*
-    PLACE(a1, "prvni" ,1);
-    PLACE(a2, "druhy", 0);
-    PLACE(a3, "treti", 100);
-    PLACE(a4, "ctvrty", 0);
-    
-    TRANSITION(t2, "start_time_cond");
-    ENTRY_EDGE(a1, t2, 1);
-    EXIT_EDGE(t2, a2, 67);
-    CONDITION_EXPR(t2, "", 0, now() >= 5000);
-    ACTION(t2, output("amongusovni_vystup", to_string(now())))
-
-    TRANSITION(t3, "input_event_cond");
-    ENTRY_EDGE(a3, t3, 100);
-    EXIT_EDGE(t3, a4, 5);
-    CONDITION(t3, "sestsedm", 0);
-    ACTION(t3, output("sixsevenovni vystup", "ahojahojahoj"));
-    */
 
     // #### MARKER ####
 
