@@ -30,6 +30,16 @@ static void setNodeHighlight(QGraphicsItem *item, bool on) {
         t->setHighlighted(on);
 }
 
+static QString nameOf(QGraphicsItem *item) {
+    if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) {
+        return p->name();
+    }
+    if (auto *t = qgraphicsitem_cast<TransitionItem *>(item)){
+        return t->name();
+    }
+    return "?";
+}
+
 void PetriScene::setNetworkSpec(PetriNetworkSpec *spec) {
     this->spec = spec;
 }
@@ -152,7 +162,12 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 emit selectionCleared();
 
             } else if (auto *arc = qgraphicsitem_cast<ArcItem *>(clicked)) {
-                showArcContextMenu(arc, event->screenPos());
+                log(QString("Hrana z %1 -> %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
+                removeItem(arc);
+                spec->removeArc(arc);
+                delete arc;
+
+                emit selectionCleared();
             }
             break;
         }
@@ -287,14 +302,6 @@ void PetriScene::removeConnectedArcs(QGraphicsItem *node)
         auto *arc = qgraphicsitem_cast<ArcItem *>(item);
         if (!arc || (arc->fromItem() != node && arc->toItem() != node))
             continue;
-
-        auto nameOf = [](QGraphicsItem *item) -> QString {
-            if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
-                return p->name();
-            if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
-                return t->name();
-            return "?";
-        };
         
         log(QString("Hrana %1 → %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
         removeItem(arc);
@@ -309,14 +316,6 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
 
     if (menu.exec(screenPos) != remove)
         return;
-
-    auto nameOf = [](QGraphicsItem *item) -> QString {
-        if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
-            return p->name();
-        if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
-            return t->name();
-        return "?";
-    };
 
     log(QString("Hrana %1 → %2 smazána").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
     removeItem(arc);
@@ -346,13 +345,6 @@ void PetriScene::drawArc(QGraphicsItem *target)
     ArcItem *arc = new ArcItem(m_arcSource, target);
     addItem(arc);
 
-    auto nameOf = [](QGraphicsItem *item) -> QString {
-        if (auto *p = qgraphicsitem_cast<PlaceItem *>(item))
-            return p->name();
-        if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
-            return t->name();
-        return "?";
-    };
     log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));
 
     if (auto *t = qgraphicsitem_cast<TransitionItem *>(m_arcSource))
