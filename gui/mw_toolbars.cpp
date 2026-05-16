@@ -3,6 +3,7 @@
  * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
  * @brief Implementace nástrojových widgetů v GUI
  */
+#include "gui/udpconnector.hpp"
 #include "mainwindow.hpp"
 #include "styles.hpp"
 #include <QFormLayout>
@@ -13,6 +14,7 @@
 #include <QMenu>
 #include <QToolButton>
 #include <QTimer>
+#include <qpushbutton.h>
 
 void MainWindow::setupSidebar(){
     m_dock = new QDockWidget("Vlastnosti", this);
@@ -240,8 +242,10 @@ void MainWindow::setupFloatingPanels() {
     simLayout->setSpacing(6);
 
     QPushButton *stepBtn = new QPushButton("Step", m_simPanel);
-    stepBtn->setEnabled(false);
+    stepBtn->setEnabled(true);
     simLayout->addWidget(stepBtn);
+
+    connect(stepBtn, &QPushButton::clicked, this->m_receiver, &UdpConnector::sendStep);
 
     m_runBtn = new QPushButton("Run", m_simPanel);
     m_runBtn->setCheckable(true);

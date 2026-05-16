@@ -9,6 +9,7 @@
 #include "gui/picojson.h"
 #include <QObject>
 #include <QUdpSocket>
+#include <qudpsocket.h>
 
 class UdpConnector : public QObject {
     Q_OBJECT
@@ -17,13 +18,17 @@ public:
     UdpConnector(QObject *parent = nullptr, unsigned int port = 6767);
 
 private:
-    QUdpSocket *sock = nullptr;
+    QUdpSocket *inSock = nullptr;
+    QUdpSocket *outSock = nullptr;
     bool isRunning = false;
+    bool isConnected = false;
     unsigned int port = 6767;
 
 public slots:
     void start();
     void terminate();
+    void sendStep();
+    void connectToInt();
 
 private slots:
     void onReadyRead();

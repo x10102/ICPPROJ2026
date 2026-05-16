@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_view->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(m_view);
 
+    setupSourceGenerator();
+    setupUDPThread();
+
     setupTerminal();
     setupToolbar();
     setupSidebar();
@@ -164,8 +167,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_dock->hide();
     });
 
-    setupSourceGenerator();
-    setupUDPThread();
+    
 }
 
 void MainWindow::setupSourceGenerator() {
@@ -187,7 +189,7 @@ void MainWindow::setupSourceGenerator() {
 }
 
 void MainWindow::setupUDPThread() {
-    m_receiver = new UdpConnector(this, 6768);
+    m_receiver = new UdpConnector(this, 6767);
     m_receiverThread = new QThread();
     m_receiverThread->moveToThread(m_receiverThread);
 

@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     
     Interpreter interp;
     unsigned int port;
-    port = 6767;
+    port = 6768;
     
     setHelperInterpreter(&interp);
     /*
@@ -119,6 +119,7 @@ int main(int argc, char *argv[]) {
     while(true) {
         picojson::value data;
         recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
+        editor_addr.sin_port = htons(port-1);
         std::string decode_error = picojson::parse(data, netbuffer);
         if(!decode_error.empty() || !data.is<picojson::object>()) {
             LOG_I("Application error: received malformed command, ignoring it.");

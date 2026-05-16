@@ -18,25 +18,39 @@ UdpConnector::UdpConnector(QObject *parent, unsigned int port) : QObject(parent)
 }
 
 void UdpConnector::start() {
-    this->sock = new QUdpSocket(this);
+    this->inSock = new QUdpSocket(this);
     // I'm not working with IPv6 in C or C++ again, thanks for the trauma, IPK
-    this->sock->bind(QHostAddress::AnyIPv4, this->port);
+    this->inSock->bind(QHostAddress::AnyIPv4, this->port);
+    this->outSock = new QUdpSocket(this);
     this->isRunning = true;
-    connect(sock, &QUdpSocket::readyRead, this, &UdpConnector::onReadyRead);
+    connect(inSock, &QUdpSocket::readyRead, this, &UdpConnector::onReadyRead);
 }
 
 void UdpConnector::terminate() {
     this->isRunning = false;
-    if(this->sock)
-        this->sock->close();
+    if(this->inSock)
+        this->inSock->close();
+}
+
+void UdpConnector::sendStep() {
+    std::string command = "{\"command\": \"step\"}";
+    QByteArray datagram(command.c_str());
+    this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
+}
+
+void UdpConnector::connectToInt() {
+    QHostAddress local("127.0.0.1");
+    this->outSock->connectToHost(local, this->port+1);
 }
 
 void UdpConnector::onReadyRead() {
-    while(sock->hasPendingDatagrams()) {
+    while(inSock->hasPendingDatagrams()) {
         QByteArray data;
         picojson::value json;
-        data.resize(sock->pendingDatagramSize());
-        sock->readDatagram(data.data(), data.size());
+        data.resize(inSock->pendingDatagramSize());
+
+        // Save the remote address so we know where to respond to later
+        inSock->readDatagram(data.data(), data.size());
 
         // This may not be necessary, idk if we can make picojson read it straight from the buffer
         std::string jsonStr = QString::fromUtf8(data).toStdString();
