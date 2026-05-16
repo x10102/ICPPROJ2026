@@ -14,7 +14,9 @@
 #include <QMenu>
 #include <QToolButton>
 #include <QTimer>
-#include <qpushbutton.h>
+#include <QAction>
+#include <QLineEdit>
+#include <QPushButton>
 
 void MainWindow::setupSidebar(){
     m_dock = new QDockWidget("Vlastnosti", this);
@@ -34,7 +36,7 @@ void MainWindow::setupSidebar(){
 
     QFormLayout *actionForm = new QFormLayout;
     m_actionEdit = new QLineEdit;
-    actionForm->addRow(new QLabel("Akce (volitelné):"));
+    actionForm->addRow(new QLabel("Akce:"));
     actionForm->addRow(m_actionEdit);
     vbox->addLayout(actionForm);
     
@@ -56,6 +58,12 @@ void MainWindow::setupSidebar(){
     fireCondForm->addRow(m_fireCondEdit);
     vbox->addLayout(fireCondForm);
 
+    QFormLayout *inputEvtNameForm = new QFormLayout;
+    m_evtNameEdit = new QLineEdit;
+    m_evtNameLabel = new QLabel("Název vstupní události:");
+    inputEvtNameForm->addRow(m_evtNameLabel);
+    inputEvtNameForm->addRow(m_evtNameEdit);
+    vbox->addLayout(inputEvtNameForm);
 
     m_arcPanel = new QWidget;
     m_arcLayout = new QVBoxLayout(m_arcPanel);
@@ -114,6 +122,12 @@ void MainWindow::setupSidebar(){
             m_spec.getTransition(m_editedTransition->name().toStdString())->booleanGuardMacro = text.toStdString();
         }
     });
+    connect(m_evtNameEdit, &QLineEdit::textEdited, this, [this](const QString &text){
+        if (m_editedTransition) {
+            m_editedTransition->setInputEvtName(text);
+            m_spec.getTransition(m_editedTransition->name().toStdString())->inputEventName = text.toStdString();
+        }
+    });
 
 
     m_dock->setWidget(panel);
@@ -147,6 +161,7 @@ void MainWindow::setupToolbar(){
 
     // Populate the submenus with buttons
     auto btnSave = fileMenu->addAction("Uložit síť");
+    auto btnLoad = fileMenu->addAction("Načíst síť");
     auto btnSetSource = fileMenu->addAction("Vybrat zdrojový adresář");
 
     auto termAct = viewMenu->addAction("Terminál");
@@ -171,9 +186,11 @@ void MainWindow::setupToolbar(){
         }
     });
 
-    connect(btnSetSource, &QAction::triggered, this, [this](){
-        this->setSourceDir();
+    connect(btnLoad, &QAction::triggered, this, [this](){
+        this->loadNet();
     });
+
+    connect(btnSetSource, &QAction::triggered, this, [this](){this->setSourceDir();});
     
     connect(termAct, &QAction::toggled, this, [this](bool checked) {
         checked ? m_terminalDock->show() : m_terminalDock->hide();
