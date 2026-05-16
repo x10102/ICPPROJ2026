@@ -311,8 +311,8 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
 
             LOAD_INTO(p.initial_tokens, obj, "initial_tokens", int64_t);
             LOAD_INTO(p.placeActionMacro, obj, "placeActionMacro", int64_t);
-            LOAD_INTO(p.x, obj, "x", int64_t);
-            LOAD_INTO(p.y, obj, "y", int64_t);
+            LOAD_INTO(p.x, obj, "x", double);
+            LOAD_INTO(p.y, obj, "y", double);
 
             this->places[p.name] = p;
         }
@@ -330,8 +330,8 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
             LOAD_INTO(t.inputEventName, obj, "inputEventName", std::string);
             LOAD_INTO(t.booleanGuardMacro, obj, "booleanGuardMacro", std::string);
             LOAD_INTO(t.delayMs, obj, "delayMs", int64_t);
-            LOAD_INTO(t.x, obj, "x", std::int64_t);
-            LOAD_INTO(t.y, obj, "y", std::int64_t);
+            LOAD_INTO(t.x, obj, "x", double);
+            LOAD_INTO(t.y, obj, "y", double);
 
             this->transitions[t.name] = t;
         }
