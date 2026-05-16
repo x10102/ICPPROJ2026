@@ -141,10 +141,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_nameEdit->blockSignals(true);
 
         auto nameOf = [](QGraphicsItem *item) -> QString {
-            if (auto *p = dynamic_cast<PlaceItem *>(item)) {
+            if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) {
                 return p->name();
             }
-            if (auto *t = dynamic_cast<TransitionItem *>(item)){
+            if (auto *t = qgraphicsitem_cast<TransitionItem *>(item)){
                 return t->name();
             }
             return "?";

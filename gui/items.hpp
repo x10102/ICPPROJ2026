@@ -19,6 +19,12 @@
 class Place;      // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
 class Transition; // forward declaration — TransitionItem holds a pointer to its interpreter counterpart
 
+enum ItemTypes {
+    PlaceItemType = QGraphicsItem::UserType + 1,
+    TransitionItemType = QGraphicsItem::UserType + 2,
+    ArcItemType = QGraphicsItem::UserType + 3
+};
+
 /**
  * @brief Grafická reprezentace místa (place) v Petriho síti.
  *
@@ -95,6 +101,13 @@ public:
         setBrush(theme.placeBackground);
         setPen(QPen(theme.placeBorder, 2));
         update();
+    }
+
+    enum {
+        Type = PlaceItemType
+    };
+    int type() const override {
+        return Type;
     }
 
 
@@ -185,6 +198,13 @@ public:
         update();
     }
 
+    enum {
+        Type = TransitionItemType
+    };
+    int type() const override {
+        return Type;
+    }
+
 private:
     QString m_name;   ///< Název přechodu
     QString m_action;
@@ -269,6 +289,13 @@ public:
         update();
     }
 
+    enum {
+        Type = ArcItemType
+    };
+    int type() const override {
+        return Type;
+    }
+
 protected:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override {
         QGraphicsLineItem::paint(painter, option, widget);
@@ -304,9 +331,9 @@ protected:
 private:
     /// @brief Returns the center screen coordinates of a node
     static QPointF nodeCenter(QGraphicsItem *item){
-        if(auto *p = dynamic_cast<PlaceItem *>(item))
+        if(auto *p = qgraphicsitem_cast<PlaceItem *>(item))
             return p->center();
-        if(auto *t = dynamic_cast<TransitionItem *>(item))
+        if(auto *t = qgraphicsitem_cast<TransitionItem *>(item))
             return t->center();
         return item->scenePos();
     }

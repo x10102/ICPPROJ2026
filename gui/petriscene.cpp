@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <qgraphicsitem.h>
 
-// TODO: all the dynamic casts from graphics items here should use the special Qt cast for speed
-
 using picojson::value;
 using picojson::object;
 using std::string;
@@ -20,9 +18,9 @@ PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
 }
 
 static void setNodeHighlight(QGraphicsItem *item, bool on) {
-    if (auto *p = dynamic_cast<PlaceItem *>(item)) 
+    if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
         p->setHighlighted(on);
-    if (auto *t = dynamic_cast<TransitionItem *>(item))
+    if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
         t->setHighlighted(on);
 }
 
@@ -76,7 +74,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
             // TODO: refactor
-            bool isNode = (dynamic_cast<PlaceItem *>(clicked) || dynamic_cast<TransitionItem *>(clicked));
+            bool isNode = (qgraphicsitem_cast<PlaceItem *>(clicked) || qgraphicsitem_cast<TransitionItem *>(clicked));
             if (!isNode) {
                 cancelArc();
                 break;
@@ -89,22 +87,22 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             else {
                 if (clicked != m_arcSource){
 
-                    if ((dynamic_cast<PlaceItem *>(m_arcSource) == nullptr) && (dynamic_cast<PlaceItem *>(clicked) == nullptr)){
+                    if ((qgraphicsitem_cast<PlaceItem *>(m_arcSource) == nullptr) && (qgraphicsitem_cast<PlaceItem *>(clicked) == nullptr)){
                         cancelArc();
-                    } else if ((dynamic_cast<TransitionItem *>(m_arcSource) == nullptr) && (dynamic_cast<TransitionItem *>(clicked) == nullptr)){
+                    } else if ((qgraphicsitem_cast<TransitionItem *>(m_arcSource) == nullptr) && (qgraphicsitem_cast<TransitionItem *>(clicked) == nullptr)){
                         cancelArc();
                     }
                     else {
                         drawArc(clicked);
                         if(m_arcSource == nullptr || clicked == nullptr) break;
-                        bool toPlace = (dynamic_cast<PlaceItem*>(clicked) != nullptr);
+                        bool toPlace = (qgraphicsitem_cast<PlaceItem*>(clicked) != nullptr);
                         if(toPlace) {
-                            string placeName = dynamic_cast<PlaceItem*>(clicked)->name().toStdString();
-                            string transitionName = dynamic_cast<TransitionItem*>(m_arcSource)->name().toStdString();
+                            string placeName = qgraphicsitem_cast<PlaceItem*>(clicked)->name().toStdString();
+                            string transitionName = qgraphicsitem_cast<TransitionItem*>(m_arcSource)->name().toStdString();
                             spec->addArcToPlace(placeName, transitionName, 1);
                         } else {
-                            string placeName = dynamic_cast<PlaceItem*>(m_arcSource)->name().toStdString();
-                            string transitionName = dynamic_cast<TransitionItem*>(clicked)->name().toStdString();
+                            string placeName = qgraphicsitem_cast<PlaceItem*>(m_arcSource)->name().toStdString();
+                            string transitionName = qgraphicsitem_cast<TransitionItem*>(clicked)->name().toStdString();
                             spec->addArcFromPlace(placeName, transitionName, 1);
                         }
                         m_arcSource = nullptr;
@@ -123,7 +121,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::Remove: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
-            if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
+            if (auto *place = qgraphicsitem_cast<PlaceItem *>(clicked)) {
                 removeConnectedArcs(place);
                 log(QString("Místo %1 smazáno").arg(place->name()));
 
@@ -133,7 +131,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
                 emit selectionCleared();
 
-            } else if (auto *transition = dynamic_cast<TransitionItem *>(clicked)) {
+            } else if (auto *transition = qgraphicsitem_cast<TransitionItem *>(clicked)) {
                 removeConnectedArcs(transition);
                 log(QString("Přechod %1 smazán").arg(transition->name()));
 
@@ -143,7 +141,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
                 emit selectionCleared();
 
-            } else if (auto *arc = dynamic_cast<ArcItem *>(clicked)) {
+            } else if (auto *arc = qgraphicsitem_cast<ArcItem *>(clicked)) {
                 showArcContextMenu(arc, event->screenPos());
             }
             break;
@@ -156,15 +154,15 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
             QGraphicsScene::mousePressEvent(event);
 
-            if (auto *place = dynamic_cast<PlaceItem *>(mouseGrabberItem()))
+            if (auto *place = qgraphicsitem_cast<PlaceItem *>(mouseGrabberItem()))
                 emit placeSelected(place);
             else if (selectedItems().isEmpty())
                 emit selectionCleared();
-            else if (auto *place = dynamic_cast<PlaceItem *>(selectedItems().first()))
+            else if (auto *place = qgraphicsitem_cast<PlaceItem *>(selectedItems().first()))
                 emit placeSelected(place);
-            else if (auto *transition = dynamic_cast<TransitionItem *>(selectedItems().first()))
+            else if (auto *transition = qgraphicsitem_cast<TransitionItem *>(selectedItems().first()))
                 emit transitionSelected(transition);
-            else if (auto *arc = dynamic_cast<ArcItem *>(selectedItems().first()))
+            else if (auto *arc = qgraphicsitem_cast<ArcItem *>(selectedItems().first()))
                 emit arcSelected(arc);
             else
                 emit selectionCleared();
@@ -173,13 +171,13 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
     }
     else if (event->button() == Qt::RightButton){
         QGraphicsItem *clicked = itemAt(event->scenePos(), QTransform());
-        if (auto *place = dynamic_cast<PlaceItem *>(clicked)) {
+        if (auto *place = qgraphicsitem_cast<PlaceItem *>(clicked)) {
             showPlaceContextMenu(place, event->screenPos());
         }
-        else if (auto *transition = dynamic_cast<TransitionItem *>(clicked)) {
+        else if (auto *transition = qgraphicsitem_cast<TransitionItem *>(clicked)) {
             showTransitionContextMenu(transition, event->screenPos());
         }
-        else if (auto *arc = dynamic_cast<ArcItem *>(clicked)) {
+        else if (auto *arc = qgraphicsitem_cast<ArcItem *>(clicked)) {
             showArcContextMenu(arc, event->screenPos());
         }
     }
@@ -255,7 +253,7 @@ void PetriScene::keyPressEvent(QKeyEvent *event){
 
 void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
     for (QGraphicsItem *item : items()) {
-        if (auto *arc = dynamic_cast<ArcItem *>(item)) {
+        if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
             arc->updatePosition();
         }
     }
@@ -266,14 +264,14 @@ void PetriScene::removeConnectedArcs(QGraphicsItem *node)
 {
     const QList<QGraphicsItem *> allItems = items();
     for (QGraphicsItem *item : allItems) {
-        auto *arc = dynamic_cast<ArcItem *>(item);
+        auto *arc = qgraphicsitem_cast<ArcItem *>(item);
         if (!arc || (arc->fromItem() != node && arc->toItem() != node))
             continue;
 
         auto nameOf = [](QGraphicsItem *item) -> QString {
-            if (auto *p = dynamic_cast<PlaceItem *>(item)) 
+            if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
                 return p->name();
-            if (auto *t = dynamic_cast<TransitionItem *>(item))
+            if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
                 return t->name();
             return "?";
         };
@@ -293,9 +291,9 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
         return;
 
     auto nameOf = [](QGraphicsItem *item) -> QString {
-        if (auto *p = dynamic_cast<PlaceItem *>(item)) 
+        if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
             return p->name();
-        if (auto *t = dynamic_cast<TransitionItem *>(item))
+        if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
             return t->name();
         return "?";
     };
@@ -309,7 +307,7 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
 void PetriScene::drawArc(QGraphicsItem *target)
 {
     for (QGraphicsItem *item : items()) {
-        if (auto *a = dynamic_cast<ArcItem *>(item)) {
+        if (auto *a = qgraphicsitem_cast<ArcItem *>(item)) {
             
             if (a->fromItem() == m_arcSource && a->toItem() == target){
                 cancelArc();
@@ -329,17 +327,17 @@ void PetriScene::drawArc(QGraphicsItem *target)
     addItem(arc);
 
     auto nameOf = [](QGraphicsItem *item) -> QString {
-        if (auto *p = dynamic_cast<PlaceItem *>(item))
+        if (auto *p = qgraphicsitem_cast<PlaceItem *>(item))
             return p->name();
-        if (auto *t = dynamic_cast<TransitionItem *>(item))
+        if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
             return t->name();
         return "?";
     };
     log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));
 
-    if (auto *t = dynamic_cast<TransitionItem *>(m_arcSource))
+    if (auto *t = qgraphicsitem_cast<TransitionItem *>(m_arcSource))
         emit transitionSelected(t);
-    else if (auto *t = dynamic_cast<TransitionItem *>(target))
+    else if (auto *t = qgraphicsitem_cast<TransitionItem *>(target))
         emit transitionSelected(t);
 }
 
@@ -352,11 +350,11 @@ void PetriScene::cancelArc()
 void PetriScene::applyTheme(const Theme &theme) {
     const QList<QGraphicsItem *> allItems = items();
     for (QGraphicsItem *item : allItems){
-        if (auto *p = dynamic_cast<PlaceItem *>(item))
+        if (auto *p = qgraphicsitem_cast<PlaceItem *>(item))
             p->applyTheme(theme);
-        else if (auto *t = dynamic_cast<TransitionItem *>(item))
+        else if (auto *t = qgraphicsitem_cast<TransitionItem *>(item))
             t->applyTheme(theme);
-        else if (auto *a = dynamic_cast<ArcItem *>(item))
+        else if (auto *a = qgraphicsitem_cast<ArcItem *>(item))
             a->applyTheme(theme);
     }
 
@@ -369,7 +367,7 @@ void PetriScene::onDataReceived(picojson::object &data) {
         return;
     object places = value(data["places"]).get<object>();
     for(QGraphicsItem *item : items()) {
-        if(PlaceItem *p = dynamic_cast<PlaceItem*>(item)) {
+        if(PlaceItem *p = qgraphicsitem_cast<PlaceItem*>(item)) {
             const std::string placeName = p->name().toStdString();
             if(places.find(placeName) == places.end())
                 continue;

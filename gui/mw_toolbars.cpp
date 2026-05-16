@@ -335,7 +335,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
 
     QList<ArcItem *> incoming, outgoing;
     for (QGraphicsItem *item : m_scene->items()) {
-        if (auto *arc = dynamic_cast<ArcItem *>(item)) {
+        if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
             if (arc->toItem()   == transition)
                 incoming.append(arc);
             if (arc->fromItem() == transition)
@@ -351,7 +351,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
         m_arcLayout->addWidget(new QLabel("<br>Příchozí<br>"));
 
         for (ArcItem *arc : incoming){
-            auto *place = dynamic_cast<PlaceItem *>(arc->fromItem());
+            auto *place = qgraphicsitem_cast<PlaceItem *>(arc->fromItem());
             QString placeName = place ? place->name() : "?";
 
             QWidget *row = new QWidget;
@@ -378,7 +378,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
         m_arcLayout->addWidget(new QLabel("<br>Odchozí<br>"));
 
         for (ArcItem *arc : outgoing){
-            auto *place = dynamic_cast<PlaceItem *>(arc->toItem());
+            auto *place = qgraphicsitem_cast<PlaceItem *>(arc->toItem());
             QString placeName = place ? place->name() : "?";
 
             QWidget *row = new QWidget;
