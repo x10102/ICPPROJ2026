@@ -79,6 +79,7 @@ struct PetriNetworkSpec {
     void removeOutput(std::string outputName);
 
     std::string exportJSON() const;
+    bool loadJSON(std::string jsonString);
 
     PetriPlace* getPlace(std::string name);
     PetriTransition* getTransition(std::string name);

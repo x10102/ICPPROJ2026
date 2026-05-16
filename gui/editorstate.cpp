@@ -13,6 +13,10 @@
 // Macro for a picojson value conversion, used very often in this file
 #define V(x) picojson::value(x)
 
+// Macro to check a json object existence/type and load it into a class field
+#define LOAD_INTO(into, from, key, type) do {if (from.count(key) && from.at(key).is<type>())\
+                into = from.at(key).get<type>();} while(false);
+
 using std::make_pair;
 using std::pair;
 using std::string;
@@ -267,4 +271,106 @@ std::string PetriNetworkSpec::exportJSON() const {
     root["outputs"] = V(outputs);
 
     return V(root).serialize();
+}
+
+bool PetriNetworkSpec::loadJSON(std::string jsonString) {
+    picojson::value root;
+    std::string err = picojson::parse(root, jsonString);
+
+    if (!err.empty() || !root.is<picojson::object>()) {
+        return false;
+    }
+
+    const picojson::object rootObj = root.get<picojson::object>();
+
+    LOAD_INTO(this->name, rootObj, "name", std::string);
+    LOAD_INTO(this->description, rootObj, "description", std::string);
+
+    auto loadStringArray = [&](const std::string &key, std::vector<std::string> &target) {
+        if (rootObj.count(key) && rootObj.at(key).is<picojson::array>()) {
+            target.clear();
+            for (const auto &item : rootObj.at(key).get<picojson::array>()) {
+                if (item.is<std::string>())
+                    target.push_back(item.get<std::string>());
+            }
+        }
+    };
+
+    loadStringArray("variables", this->variables);
+    loadStringArray("inputs",    this->inputs);
+    loadStringArray("outputs",   this->outputs);
+
+    this->places.clear();
+    if (rootObj.count("places") && rootObj.at("places").is<picojson::object>()) {
+        for (const auto &entry : rootObj.at("places").get<picojson::object>()) {
+            if (!entry.second.is<picojson::object>()) continue;
+            const auto &obj = entry.second.get<picojson::object>();
+
+            PetriPlace p;
+            p.name = entry.first;
+
+            LOAD_INTO(p.initial_tokens, obj, "initial_tokens", int64_t);
+            LOAD_INTO(p.placeActionMacro, obj, "placeActionMacro", int64_t);
+            LOAD_INTO(p.x, obj, "x", int64_t);
+            LOAD_INTO(p.y, obj, "y", int64_t);
+
+            this->places[p.name] = p;
+        }
+    }
+
+    this->transitions.clear();
+    if (rootObj.count("transitions") && rootObj.at("transitions").is<picojson::object>()) {
+        for (const auto &entry : rootObj.at("transitions").get<picojson::object>()) {
+            if (!entry.second.is<picojson::object>()) continue;
+            const auto &obj = entry.second.get<picojson::object>();
+
+            PetriTransition t;
+            t.name = entry.first;
+
+            LOAD_INTO(t.inputEventName, obj, "inputEventName", std::string);
+            LOAD_INTO(t.booleanGuardMacro, obj, "booleanGuardMacro", std::string);
+            LOAD_INTO(t.delayMs, obj, "delayMs", int64_t);
+            LOAD_INTO(t.x, obj, "x", std::int64_t);
+            LOAD_INTO(t.y, obj, "y", std::int64_t);
+
+            this->transitions[t.name] = t;
+        }
+    }
+
+    this->arcs.clear();
+    if (rootObj.count("arcs") && rootObj.at("arcs").is<picojson::array>()) {
+
+        for (const auto &item : rootObj.at("arcs").get<picojson::array>()) {
+
+            if (!item.is<picojson::object>())
+                std::cout << "Breaking couldn't parse as object" << std::endl;
+
+            const auto &obj = item.get<picojson::object>();
+
+            if (!obj.count("place") || !obj.count("transition") || !obj.count("arcType") || !obj.count("tokenCount"))
+                std::cout << "Breaking because required attr missing" << std::endl;
+                
+
+            std::string placeName      = obj.at("place").get<std::string>();
+            std::string transitionName = obj.at("transition").get<std::string>();
+
+            PetriPlace      *placePtr = this->getPlace(placeName);
+            PetriTransition *tranPtr  = this->getTransition(transitionName);
+            if (!placePtr || !tranPtr)
+                continue;
+
+            PetriArc arc;
+            arc.place      = placePtr;
+            arc.transition = tranPtr;
+
+            LOAD_INTO(arc.tokenCount, obj, "tokenCount", int64_t);
+
+            const int64_t typeNum = obj.at("arcType").get<int64_t>();
+            arc.type = (ArcType)typeNum;
+
+            this->arcs[{placeName, transitionName}] = arc;
+        }
+    }
+
+    return true;
 }
