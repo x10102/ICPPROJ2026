@@ -183,6 +183,15 @@ public:
         m_fireCond = fireCond;
         update();
     }
+    /// @brief Returns the current input event name
+    QString inputEvtName() const {return m_inputEvent;};
+    /**
+     * @brief Sets the required input event name
+     * @param action Event name
+     */
+    void setInputEvtName(const QString name) {
+        m_inputEvent = name;
+    }
     void setHighlighted(bool on) {
         if (on) {
             setPen(QPen(Theme::current().highlightColor, 3));
@@ -207,6 +216,7 @@ public:
 
 private:
     QString m_name;   ///< Název přechodu
+    QString m_inputEvent;
     QString m_action;
     QString m_fireCond;
 };
