@@ -6,6 +6,7 @@
 #include "geninterp.hpp"
 #include "editorstate.hpp"
 #include <filesystem>
+#include <iostream>
 #include <ostream>
 #include <qchar.h>
 #include <qevent.h>
@@ -58,6 +59,7 @@ void InterpreterGenerator::emitTransition(const PetriTransition *t) {
 }
 
 void InterpreterGenerator::emitArc(const PetriArc *a) {
+    cout << "emit place" << endl;
     if(a->type == PLACE_TO_TRANSITION) {
         generatedBuffer << "ENTRY_EDGE(" << a->place->name << ", ";
         generatedBuffer << a->transition->name << ", ";
@@ -80,7 +82,8 @@ void InterpreterGenerator::emitAll(const PetriNetworkSpec *spec) {
 
 // TODO: Make this a signal?
 bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
-    this->generatedBuffer.clear();
+    // Clear the buffer
+    this->generatedBuffer.str("");
     this->emitAll(spec);
     // TODO: Raise an exception
     filesystem::path mainPath = this->interpSourcePath / MAIN_FILENAME;
@@ -106,8 +109,8 @@ bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
     source.close();
 
     filesystem::path outputPath = this->interpSourcePath / MAIN_GENERATED;
+    
     QFile output(QString::fromStdString(outputPath));
-
     if(!output.open(QIODevice::WriteOnly | QIODevice::Text)) {
         cerr << "Could not write output source file" << endl;
         return false;
