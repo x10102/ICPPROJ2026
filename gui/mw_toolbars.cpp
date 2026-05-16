@@ -18,7 +18,7 @@
 
 void MainWindow::setupSidebar(){
     m_dock = new QDockWidget("Vlastnosti", this);
-    m_dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    m_dock->setFeatures(QDockWidget::DockWidgetClosable);
     m_dock->setMinimumWidth(200);
 
     QWidget *panel = new QWidget;
