@@ -29,7 +29,7 @@ Interpreter::Interpreter() {
 picojson::object Interpreter::json() {
     // TODO: Maybe reformat this using the value macro
     picojson::object json;
-    picojson::array aPlaces;
+    picojson::object aPlaces;
     // We don't really need to send the transitions, they don't hold any state
     // and the editor already knows about them
     //picojson::array aTransitions;
@@ -38,7 +38,7 @@ picojson::object Interpreter::json() {
 
     // TODO: timers
     for(auto &p : this->places)
-        aPlaces.push_back(picojson::value(p.second->json()));
+        aPlaces[p.second->identifier] = picojson::value(p.second->json());
     for(auto &f : this->firedLastStep)
         firedLast.push_back(picojson::value(f));
 
