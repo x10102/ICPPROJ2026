@@ -1,3 +1,8 @@
+/**
+ * @file styles.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Konstanty pro Qt styly
+ */
 #ifndef _STYLES_HPP
 #define _STYLES_HPP
 

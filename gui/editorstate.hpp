@@ -1,3 +1,8 @@
+/**
+ * @file editorstate.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Rozhraní JSON serializace / deserializace
+ */
 #ifndef _EDITORSTATE_HPP
 #define _EDITORSTATE_HPP
 

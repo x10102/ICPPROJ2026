@@ -1,3 +1,8 @@
+/**
+ * @file geninterp.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Implementace generátoru kódu interpretu
+ */
 #include "geninterp.hpp"
 #include "editorstate.hpp"
 #include <filesystem>
@@ -7,6 +12,8 @@
 #include <qlist.h>
 #include <qlocale.h>
 #include <QTextStream>
+#include <QProcess>
+#include <QTimer>
 #include <qregion.h>
 #include <qstringliteral.h>
 
@@ -119,4 +126,66 @@ void InterpreterGenerator::setMarker(std::string marker) {
 
 void InterpreterGenerator::setPath(std::filesystem::path path) {
     this->interpSourcePath = path;
+}
+
+void InterpreterGenerator::compile() {
+
+    compileProcess = new QProcess(this);
+    compileProcess->setWorkingDirectory(
+        QString::fromStdString(interpSourcePath.string()));
+
+    connect(compileProcess, &QProcess::readyReadStandardOutput,
+            this, &InterpreterGenerator::onReadyReadStdout);
+    connect(compileProcess, &QProcess::readyReadStandardError,
+            this, &InterpreterGenerator::onReadyReadStderr);
+    connect(compileProcess,
+            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, &InterpreterGenerator::onProcessFinished);
+    connect(compileProcess, &QProcess::errorOccurred,
+            this, &InterpreterGenerator::onProcessError);
+
+    emit compileStarted();
+    compileProcess->start("make", {"program-generated"});
+}
+
+void InterpreterGenerator::onReadyReadStdout() {
+    const QByteArray data = compileProcess->readAllStandardOutput();
+    for (const QByteArray &rawLine : data.split('\n')) {
+        const QString line = QString::fromLocal8Bit(rawLine).trimmed();
+        if (!line.isEmpty())
+            emit compileProgress(line);
+    }
+}
+
+void InterpreterGenerator::onReadyReadStderr() {
+    const QByteArray data = compileProcess->readAllStandardError();
+    for (const QByteArray &rawLine : data.split('\n')) {
+        const QString line = QString::fromLocal8Bit(rawLine).trimmed();
+        if (!line.isEmpty()) {
+            emit compileProgress(line);
+        }
+    }
+}
+
+void InterpreterGenerator::onProcessFinished(int exitCode, QProcess::ExitStatus status) {
+    compileProcess->deleteLater();
+    compileProcess = nullptr;
+
+    if (status == QProcess::CrashExit || exitCode != 0)
+        emit compileFailed();
+    else
+        emit compileFinished();
+}
+
+void InterpreterGenerator::onProcessError(QProcess::ProcessError error) {
+    /*
+    const QString reason = compileProcess
+                           ? compileProcess->errorString()
+                           : QProcess::tr("Neznámá chyba (%1)").arg(error);
+    */
+    if (compileProcess) {
+        compileProcess->deleteLater();
+        compileProcess = nullptr;
+    }
+    emit compileFailed();
 }

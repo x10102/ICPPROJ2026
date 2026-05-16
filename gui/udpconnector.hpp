@@ -1,3 +1,8 @@
+/**
+ * @file udpconnector.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Definice UDP rozhraní pro komunikaci interpretu a GUI
+ */
 #ifndef _UDPREC_H
 #define _UDPREC_H
 

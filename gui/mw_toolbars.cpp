@@ -1,4 +1,8 @@
-
+/**
+ * @file mw_toolbars.cpp
+ * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
+ * @brief Implementace nástrojových widgetů v GUI
+ */
 #include "mainwindow.hpp"
 #include "styles.hpp"
 #include <QFormLayout>

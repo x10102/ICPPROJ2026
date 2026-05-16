@@ -136,9 +136,10 @@ private:
 
     UdpConnector    *m_receiver          = nullptr;
     QThread        *m_receiverThread    = nullptr; 
+    InterpreterGenerator *m_generator   = nullptr;
 
     PetriNetworkSpec m_spec;
-    InterpreterGenerator m_generator;
+    
 };
 
 

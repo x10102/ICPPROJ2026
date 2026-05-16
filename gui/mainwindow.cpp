@@ -12,6 +12,7 @@
 #include "gui/udpconnector.hpp"
 #include "items.hpp"
 #include "styles.hpp"
+#include "terminaltab.hpp"
 #include <QGraphicsView>
 #include <QToolBar>
 #include <QAction>
@@ -168,8 +169,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 }
 
 void MainWindow::setupSourceGenerator() {
-    m_generator.setMarker("#### MARKER ####");
-    m_generator.setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO");
+    m_generator = new InterpreterGenerator(this);
+    m_generator->setMarker("#### MARKER ####");
+    m_generator->setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO");
+    connect(m_generator, &InterpreterGenerator::compileStarted, this, [this]() {
+    appendLog("Kompiluji interpret...", TerminalTab::BUILD);
+    });
+    connect(m_generator, &InterpreterGenerator::compileProgress, this, [this](QString msg) {
+        appendLog(msg, TerminalTab::BUILD);
+    });
+    connect(m_generator, &InterpreterGenerator::compileFinished, this, [this]() {
+        appendLog("Interpret úspěšně sestaven.", TerminalTab::BUILD);
+    });
+    connect(m_generator, &InterpreterGenerator::compileFailed, this, [this]() {
+        appendLog("Kompilace selhala. Zkontrolujte syntaxi akcí míst/přechodů.", TerminalTab::BUILD);
+    });
 }
 
 void MainWindow::setupUDPThread() {
@@ -190,29 +204,23 @@ void MainWindow::appendLog(const QString &msg, const TerminalTab tab) {
     switch(tab) {
         case TerminalTab::BUILD:
             selectedTab = m_build_terminal;
+            break;
         default:
         case TerminalTab::GUI:
             selectedTab = m_terminal;
+            break;
     }
-    m_terminal->appendPlainText(msg);
-    m_terminal->verticalScrollBar()->setValue(m_terminal->verticalScrollBar()->maximum());
+    selectedTab->appendPlainText(msg);
+    selectedTab->verticalScrollBar()->setValue(selectedTab->verticalScrollBar()->maximum());
 }
 
 void MainWindow::compileInterpreter() {
-    appendLog("Generuji kód interpretu...", BUILD);
-    if(!m_generator.generateMain(&m_spec)) {
-        appendLog("Generování selhalo", BUILD);
+     appendLog("Generuji kód interpretu...", TerminalTab::BUILD);
+    if (!m_generator->generateMain(&m_spec)) {
+        appendLog("Generování selhalo.", TerminalTab::BUILD);
         return;
     }
-    std::ostringstream command;
-    appendLog("Kompiluji interpret...", BUILD);
-    command << "cd " << m_generator.getPath().string() << " && make program-generated > compile.log";
-    if(system(command.str().c_str())) {
-        appendLog("Kompilace selhala, zkontrolujte compile.log pro detaily.", BUILD);
-        return;
-    }
-    appendLog("Interpret úspěšně sestaven", BUILD);
-    return;
+    m_generator->compile();
 }
 
 void MainWindow::openNetPropsDialog() {
@@ -326,8 +334,8 @@ bool MainWindow::setSourceDir() {
         appendLog("Složka neobsahuje program.cpp, vybrali jste správně?");
         return false;
     }
-    m_generator.setPath(path);
-    appendLog("Používám zdrojový kód z " + dir);
+    m_generator->setPath(path);
+    appendLog("Používám zdrojový kód z " + dir, TerminalTab::BUILD);
     return true;
 }
 

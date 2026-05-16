@@ -1,3 +1,8 @@
+/**
+ * @file editorstate.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Implementace JSON serializace / deserializace
+ */
 #include "editorstate.hpp"
 #include "items.hpp"
 #include "picojson.h"
