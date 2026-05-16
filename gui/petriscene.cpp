@@ -265,6 +265,16 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
     for (QGraphicsItem *item : items()) {
         if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
             arc->updatePosition();
+        } else if (auto *place = qgraphicsitem_cast<PlaceItem *>(item)){
+            if (auto *sp = spec->getPlace(place->name().toStdString())) {
+                sp->x = place->center().x();
+                sp->y = place->center().y();
+            }
+        } else if (auto *transition = qgraphicsitem_cast<TransitionItem *>(item)){
+            if (auto *st = spec->getTransition(transition->name().toStdString())) {
+                st->x = transition->center().x();
+                st->y = transition->center().y();
+            }
         }
     }
     QGraphicsScene::mouseMoveEvent(event);
