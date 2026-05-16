@@ -1,3 +1,9 @@
+/**
+ * @file petriscene.cpp
+ * @author Dalibor Kalina, xkalin16
+ * @brief PetriNet Scene editor
+ */
+
 #include "petriscene.hpp"
 #include "editorstate.hpp"
 #include "gui/picojson.h"
