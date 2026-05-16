@@ -331,7 +331,12 @@ void MainWindow::setupTerminal() {
 }
 
 void MainWindow::populateTransitionSidebar(TransitionItem *transition){
-    clearArcRows();
+    QLayoutItem *arcItem;
+    while ((arcItem = m_arcLayout->takeAt(0)) != nullptr) {
+        if (arcItem->widget())
+            arcItem->widget()->deleteLater();
+        delete arcItem;
+    }
 
     QList<ArcItem *> incoming, outgoing;
     for (QGraphicsItem *item : m_scene->items()) {

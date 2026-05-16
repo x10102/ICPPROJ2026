@@ -1,7 +1,7 @@
 /**
  * @file mainwindow.h
  * @author Dalibor Kalina, xkalin16, Ondřej Turek, xtureko00
- * @brief Hlavní okno aplikace editoru Petriho sítí.
+ * @brief Main application window of the Petri network editor
  */
 
 #include "mainwindow.hpp"
@@ -289,16 +289,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     }
 
     return QMainWindow::eventFilter(obj, event);
-}
-
-void MainWindow::clearArcRows()
-{
-    QLayoutItem *item;
-    while ((item = m_arcLayout->takeAt(0)) != nullptr) {
-        if (item->widget())
-            item->widget()->deleteLater();
-        delete item;
-    }
 }
 
 void MainWindow::setActiveTool(Tool tool, QPushButton *btn) {
