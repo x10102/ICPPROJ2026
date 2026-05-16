@@ -25,13 +25,20 @@
 #include <QApplication>
 #include <cstdlib>
 #include <filesystem>
+#include <map>
+#include <qchar.h>
+#include <qfiledialog.h>
 #include <qglobal.h>
+#include <qgraphicsitem.h>
 #include <qmenu.h>
+#include <qpoint.h>
+#include <qstringliteral.h>
 #include <qthread.h>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QThread>
 #include <sstream>
+#include <string>
 
 MainWindow::~MainWindow() {
     if(m_receiverThread) {
@@ -245,6 +252,27 @@ void MainWindow::openNetPropsDialog() {
 
     if (dialog.exec() == QDialog::Accepted){
         m_spec.setNetworkName(nameEdit->text().toStdString());
+        m_spec.setDescription(descEdit->toPlainText().toStdString());
+    }
+}
+
+void MainWindow::openVariablesDialog() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Definovat proměnné");
+    dialog.setFixedSize(400, 300);
+
+    QFormLayout form(&dialog);
+    auto descEdit = new QPlainTextEdit(QString::fromStdString(this->m_spec.description), &dialog);
+    descEdit->setMinimumHeight(100);
+    form.addRow("Definice:", descEdit);
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, Qt::Horizontal, &dialog);
+    form.addRow(buttons);
+
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Accepted){
         m_spec.setDescription(descEdit->toPlainText().toStdString());
     }
 }
