@@ -195,9 +195,13 @@ void MainWindow::setupSourceGenerator() {
     });
     connect(m_generator, &InterpreterGenerator::compileFinished, this, [this]() {
         appendLog("Interpret úspěšně sestaven.", TerminalTab::BUILD);
+        m_interpRunnable = true;
+        m_runBtn->setEnabled(true);
     });
     connect(m_generator, &InterpreterGenerator::compileFailed, this, [this]() {
         appendLog("Kompilace selhala. Zkontrolujte syntaxi akcí míst/přechodů.", TerminalTab::BUILD);
+        m_interpRunnable = false;
+        m_runBtn->setEnabled(false);
     });
 }
 
