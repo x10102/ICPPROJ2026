@@ -137,7 +137,7 @@ private:
      * @todo If the arc already exists, it could be removed instead of doing nothing.
      * @param target The node to which the arc should be drawn.
      */
-    void drawArc(QGraphicsItem *target);
+    bool drawArc(QGraphicsItem *target);
 
     /**
      * @brief Cancles the arc drawing mode without drawing an arc.

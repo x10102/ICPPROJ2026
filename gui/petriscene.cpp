@@ -95,7 +95,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
-            if (!isNode(clicked)) {
+            if (!isNode(clicked) || clicked == m_arcSource) {
                 cancelArc();
                 break;
             }
@@ -106,11 +106,7 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
                 break;
             }
 
-            if (clicked == m_arcSource) {
-                cancelArc();
-                break;
-            }
-            drawArc(clicked);
+            if(!drawArc(clicked)) break;
             string fromName = dynamic_cast<INamed*>(m_arcSource)->name().toStdString();
             string toName = dynamic_cast<INamed*>(clicked)->name().toStdString();
             if(clicked->type() == PlaceItem::Type) {
@@ -311,19 +307,24 @@ void PetriScene::showArcContextMenu(ArcItem *arc, QPoint screenPos)
     delete arc;
 }
 
-void PetriScene::drawArc(QGraphicsItem *target)
+bool PetriScene::drawArc(QGraphicsItem *target)
 {
+    if(target->type() == m_arcSource->type()) {
+        cancelArc();
+        return false;
+    }
+    // TODO: This could definitely be a bit prettier too
     for (QGraphicsItem *item : items()) {
         if (auto *a = qgraphicsitem_cast<ArcItem *>(item)) {
             
             if (a->fromItem() == m_arcSource && a->toItem() == target){
                 cancelArc();
-                return;
+                return false;
             }
 
             if (a->fromItem() == target && a->toItem() == m_arcSource){
                 cancelArc();
-                return;
+                return false;
             }
 
         }
@@ -335,10 +336,12 @@ void PetriScene::drawArc(QGraphicsItem *target)
 
     log(QString("Hrana přidána: %1 → %2").arg(nameOf(m_arcSource), nameOf(target)));
 
+    // Why?
     if (auto *t = qgraphicsitem_cast<TransitionItem *>(m_arcSource))
         emit transitionSelected(t);
     else if (auto *t = qgraphicsitem_cast<TransitionItem *>(target))
         emit transitionSelected(t);
+    return true;
 }
 
 void PetriScene::cancelArc()
