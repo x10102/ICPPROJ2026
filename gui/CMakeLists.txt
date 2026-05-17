@@ -34,13 +34,6 @@ set(PROJECT_SOURCES
         styles.hpp
         theme.hpp
         theme.cpp
-        ../interp.cpp
-        ../interp.hpp
-        ../petri.hpp
-        ../place.cpp
-        ../transition.cpp
-        ../scripting_helper.cpp
-        ../scripting_helper.hpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
