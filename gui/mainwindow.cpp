@@ -83,6 +83,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_nameEdit->setReadOnly(false);
         m_fireCondEdit->setVisible(false);
         m_fireCondLabel->setVisible(false);
+        m_evtNameEdit->setVisible(false);
+        m_evtNameLabel->setVisible(false);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -112,6 +114,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_nameEdit->setReadOnly(false);
         m_fireCondEdit->setVisible(true);
         m_fireCondLabel->setVisible(true);
+        m_evtNameEdit->setVisible(true);
+        m_evtNameLabel->setVisible(true);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -141,6 +145,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_tokenSpin->setVisible(false);
         m_tokenLabel->setVisible(false);
         m_arcPanel->setVisible(false);
+        m_evtNameEdit->setVisible(false);
+        m_evtNameLabel->setVisible(false);
 
         m_arcWeightPanel->setVisible(true);
         
