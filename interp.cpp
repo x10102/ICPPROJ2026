@@ -199,7 +199,9 @@ void Interpreter::waitForAllTimers() {
     }
 }
 
-void Interpreter::doTransitions() {
+// if "all" is false, only do a single iteration of the transition loop
+// don't check for new transitions that can fire
+void Interpreter::doTransitions(bool all) {
     // We will store transitions which can be fired here, along with their order
     // After that we sort the array and fire them in order, skipping those that no longer meet the conditions
     std::vector<std::pair<uint32_t, Transition*>> to_fire;
@@ -259,6 +261,7 @@ void Interpreter::doTransitions() {
                 
             }
         }
+        if(!all) break;
     } while(fire_count > 0);
 }
 

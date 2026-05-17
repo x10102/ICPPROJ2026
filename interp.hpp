@@ -53,7 +53,7 @@ class Interpreter {
         Transition* createTransition(string identifier);
         bool renameTransition(const string &oldId, const string &newId);
         bool removeTransition(const string &identifier);
-        void doTransitions();
+        void doTransitions(bool all = true);
         void inputEvent(const std::string input, const std::string value);
         virtual void outputEvent(const std::string output, const std::string value);
         void waitForAllTimers();
