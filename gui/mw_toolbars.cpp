@@ -358,7 +358,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
     QList<ArcItem *> incoming, outgoing;
     for (QGraphicsItem *item : m_scene->items()) {
         if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
-            if (arc->toItem()   == transition)
+            if (arc->toItem() == transition)
                 incoming.append(arc);
             if (arc->fromItem() == transition)
                 outgoing.append(arc);

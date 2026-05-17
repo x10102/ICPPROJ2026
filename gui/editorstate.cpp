@@ -67,17 +67,10 @@ picojson::object PetriArc::json() const {
 }
 
 pair<string, string> PetriNetworkSpec::getArcMapKey(ArcItem *arc) {
-    bool sourceIsPlace = (qgraphicsitem_cast<PlaceItem*>(arc->fromItem()) != nullptr);
-    std::string placeName;
-    std::string transitionName;
-    if(sourceIsPlace) {
-        placeName = qgraphicsitem_cast<PlaceItem*>(arc->fromItem())->name().toStdString();
-        transitionName = qgraphicsitem_cast<TransitionItem*>(arc->toItem())->name().toStdString();
-    } else {
-        placeName = qgraphicsitem_cast<PlaceItem*>(arc->toItem())->name().toStdString();
-        transitionName = qgraphicsitem_cast<TransitionItem*>(arc->fromItem())->name().toStdString();
-    }
-    return make_pair(placeName, transitionName);
+    std::string fromName = dynamic_cast<INamed*>(arc->fromItem())->name().toStdString();
+    std::string toName = dynamic_cast<INamed*>(arc->toItem())->name().toStdString();
+    auto fromItemType = arc->fromItem()->type();
+    return fromItemType == PlaceItem::Type ? make_pair(fromName, toName) : make_pair(toName, fromName);
 }
 
 void PetriNetworkSpec::addPlace(PetriPlace p) {

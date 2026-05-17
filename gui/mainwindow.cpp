@@ -153,17 +153,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_editedArc = arc;
         m_nameEdit->blockSignals(true);
 
-        auto nameOf = [](QGraphicsItem *item) -> QString {
-            if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) {
-                return p->name();
-            }
-            if (auto *t = qgraphicsitem_cast<TransitionItem *>(item)){
-                return t->name();
-            }
-            return "?";
-        };
+        QString fromName = dynamic_cast<INamed*>(arc->fromItem())->name();
+        QString toName = dynamic_cast<INamed*>(arc->toItem())->name();
 
-        m_nameEdit->setText(QString("hrana z %1 -> %2").arg(nameOf(arc->fromItem()), nameOf(arc->toItem())));
+        m_nameEdit->setText(QString("hrana z %1 -> %2").arg(fromName, toName));
         m_nameEdit->setReadOnly(true);
         m_nameEdit->blockSignals(false);
         m_arcWeightSpin->blockSignals(true);

@@ -23,6 +23,11 @@ PetriScene::PetriScene(QObject *parent) : QGraphicsScene(parent) {
     setSceneRect(0,0,SCENE_W,SCENE_H);
 }
 
+static bool isNode(QGraphicsItem *n) {
+    if(!n) return false;
+    return n->type() == PlaceItem::Type || n->type() == TransitionItem::Type; 
+}
+
 static void setNodeHighlight(QGraphicsItem *item, bool on) {
     if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) 
         p->setHighlighted(on);
@@ -31,12 +36,8 @@ static void setNodeHighlight(QGraphicsItem *item, bool on) {
 }
 
 static QString nameOf(QGraphicsItem *item) {
-    if (auto *p = qgraphicsitem_cast<PlaceItem *>(item)) {
-        return p->name();
-    }
-    if (auto *t = qgraphicsitem_cast<TransitionItem *>(item)){
-        return t->name();
-    }
+    if (auto *n = dynamic_cast<INamed*>(item))
+        return n->name();
     return "?";
 }
 
@@ -94,47 +95,33 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::AddArc: {
             QGraphicsItem *clicked = itemAt(pos, QTransform());
-            // TODO: refactor
-            bool isNode = (qgraphicsitem_cast<PlaceItem *>(clicked) || qgraphicsitem_cast<TransitionItem *>(clicked));
-            if (!isNode) {
+            if (!isNode(clicked)) {
                 cancelArc();
                 break;
             }
 
-            if (!m_arcSource){
+            if (!isNode(m_arcSource)){
                 m_arcSource = clicked;
                 setNodeHighlight(m_arcSource, true);
+                break;
             }
-            else {
-                if (clicked != m_arcSource){
 
-                    if ((qgraphicsitem_cast<PlaceItem *>(m_arcSource) == nullptr) && (qgraphicsitem_cast<PlaceItem *>(clicked) == nullptr)){
-                        cancelArc();
-                    } else if ((qgraphicsitem_cast<TransitionItem *>(m_arcSource) == nullptr) && (qgraphicsitem_cast<TransitionItem *>(clicked) == nullptr)){
-                        cancelArc();
-                    }
-                    else {
-                        drawArc(clicked);
-                        if(m_arcSource == nullptr || clicked == nullptr) break;
-                        bool toPlace = (qgraphicsitem_cast<PlaceItem*>(clicked) != nullptr);
-                        if(toPlace) {
-                            string placeName = qgraphicsitem_cast<PlaceItem*>(clicked)->name().toStdString();
-                            string transitionName = qgraphicsitem_cast<TransitionItem*>(m_arcSource)->name().toStdString();
-                            spec->addArcToPlace(placeName, transitionName, 1);
-                        } else {
-                            string placeName = qgraphicsitem_cast<PlaceItem*>(m_arcSource)->name().toStdString();
-                            string transitionName = qgraphicsitem_cast<TransitionItem*>(clicked)->name().toStdString();
-                            spec->addArcFromPlace(placeName, transitionName, 1);
-                        }
-                        m_arcSource = nullptr;
-                    }
-                }
-                else {
-                    cancelArc();
-                }
+            if (clicked == m_arcSource) {
+                cancelArc();
+                break;
             }
+            drawArc(clicked);
+            string fromName = dynamic_cast<INamed*>(m_arcSource)->name().toStdString();
+            string toName = dynamic_cast<INamed*>(clicked)->name().toStdString();
+            if(clicked->type() == PlaceItem::Type) {
+                spec->addArcToPlace(toName, fromName, 1);
+            } else {
+                spec->addArcFromPlace(fromName, toName, 1);
+            }
+            m_arcSource = nullptr;
             break;
         }
+            
 
         case Tool::Pan:
             // TODO

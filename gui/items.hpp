@@ -14,10 +14,35 @@
 #include <QGraphicsLineItem>
 #include <QPainter>
 #include <cmath>
+#include <qchar.h>
+#include <qgraphicsitem.h>
 #include "theme.hpp"
 
 class Place;      // forward declaration — PlaceItem holds a pointer to its interpreter counterpart
 class Transition; // forward declaration — TransitionItem holds a pointer to its interpreter counterpart
+
+/**
+ * @brief A mixin class used for named items
+ * 
+ * (This is done to simplify the code, a pattern that was used often was 
+ *  checking the type of a graphics item and then q_graphicsitem casting to either
+ *  PlaceItem or TransitionItem, both of which have a name getter and setter anyway.
+ *  This avoids it.)
+ */
+class INamed {
+    public:
+    /// @brief Vrátí jméno
+    QString name() const { return m_name;}
+    /**
+     * @brief Nastaví jméno
+     * @param name Nové jméno
+     */
+    void setName(const QString &name) {
+        m_name = name;
+    }
+    protected:
+    QString m_name;
+};
 
 enum ItemTypes {
     PlaceItemType = QGraphicsItem::UserType + 1,
@@ -31,7 +56,7 @@ enum ItemTypes {
  * Zobrazuje místo jako kruh s počtem tokenů uprostřed.
  * Místo lze přetahovat myší a upravovat stav jeho tokenů.
  */
-class PlaceItem : public QGraphicsEllipseItem {
+class PlaceItem : public QGraphicsEllipseItem, public INamed {
 public:
     static constexpr qreal RADIUS = 30.0; ///< Poloměr kruhu místa v pixelech
 
@@ -65,16 +90,6 @@ public:
     /// @brief Nastaví počet tokenů na zadanou hodnotu.
     void setTokens(int val){
         m_tokens = qMax(0,val);
-        update();
-    }
-    /// @brief Vrátí jméno místa
-    QString name() const { return m_name;}
-    /**
-     * @brief Nastaví jméno místa
-     * @param name Nové jméno
-     */
-    void setName(const QString &name) {
-        m_name = name;
         update();
     }
     /// @brief Vráti akci místa
@@ -136,7 +151,7 @@ private:
  * Zobrazuje přechod jako černý úzký obdélník.
  * Přechod lze přetahovat myší.
  */
-class TransitionItem : public QGraphicsEllipseItem {
+class TransitionItem : public QGraphicsEllipseItem, public INamed {
 public:
     static constexpr qreal W = 20.0; ///< Šířka přechodu v pixelech
     static constexpr qreal H = 60.0; ///< Výška přechodu v pixelech
@@ -153,16 +168,6 @@ public:
 
     /// @brief Vrátí střed přechodu v souřadnicích scény.
     QPointF center() const {return mapToScene(rect().center());}
-    /// @brief Vrátí jméno přechodu
-    QString name() const {return m_name;}
-    /**
-     * @brief Nastaví jméno přechodu
-     * @param name Nové jméno
-     */
-    void setName(const QString &name) {
-        m_name = name;
-        update();
-    }
     /// @brief Vráti akci místa
     QString action() const { return m_action; }
     /**
@@ -341,11 +346,7 @@ protected:
 private:
     /// @brief Returns the center screen coordinates of a node
     static QPointF nodeCenter(QGraphicsItem *item){
-        if(auto *p = qgraphicsitem_cast<PlaceItem *>(item))
-            return p->center();
-        if(auto *t = qgraphicsitem_cast<TransitionItem *>(item))
-            return t->center();
-        return item->scenePos();
+        return item->mapToScene(item->boundingRect().center());
     }
 
     QGraphicsItem *m_from; ///< Zdrojový uzel
