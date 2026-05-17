@@ -42,6 +42,7 @@ uint32_t Place::getInitTokens(void) const {
 void Place::addTokens(const uint32_t token_count) {
     currentTokens += token_count;
     lastChange = duration_cast<milliseconds>(steady_clock::now().time_since_epoch());
+    if(placeEventAction) placeEventAction();
 }
 
 bool Place::removeTokens(const uint32_t token_count) {
