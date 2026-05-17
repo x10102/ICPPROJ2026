@@ -1,6 +1,7 @@
 // program.cpp - program entry point
 // Authors:
 // - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+#include <algorithm>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -41,7 +42,9 @@ void __INTERNAL_interactive_test(Interpreter *interp) {
                 interp->terminate();
                 break;
             } else if(buffer.compare("step") == 0 || buffer[0] == 's') {
-                interp->doTransitions(false);
+                const uint step_count = std::count(buffer.begin(), buffer.end(), 's');
+                for(uint i = 0; i < step_count; i++)
+                    interp->doTransitions(false);
                 interp->printState();
             } else if(buffer.compare("continue") == 0 || buffer[0] == 'c') {
                 interp->doTransitions();
