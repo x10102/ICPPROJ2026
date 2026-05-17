@@ -432,7 +432,12 @@ bool MainWindow::loadNet() {
         const PetriArc &data = arc.second;
         const std::string placeName = data.place->name;
         const std::string transitionName = data.transition->name;
-        auto *a = new ArcItem(createdPlaces[placeName], createdTransitions[transitionName]);
+        ArcItem *a;
+        if(data.type == PLACE_TO_TRANSITION) {
+            a = new ArcItem(createdPlaces[placeName], createdTransitions[transitionName]);
+        } else {
+            a = new ArcItem(createdTransitions[transitionName], createdPlaces[placeName]);
+        }
         a->setWeight(data.tokenCount);
         m_scene->addItem(a);
     }
