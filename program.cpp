@@ -15,7 +15,7 @@
 #define TRANSITION(var, id) Transition *var = __INTERNAL_interp.createTransition(id)
 #define CONDITION(tr, name, delay) tr->setFireCondition({delay, name})
 #define CONDITION_EXPR(tr, name, delay, expr) tr->setFireCondition({delay, name, LAMBDA_FROM_EXPR(expr)})
-#define ACTION(tr, expr) tr->setAction(LAMBDA_FROM_EXPR(expr));
+#define ACTION(tr, expr) tr->setAction(LAMBDA_FROM_EXPR_NORETURN(expr));
 #define ENTRY_EDGE(from, tr, weight) tr->addEntryEdge(from, weight)
 #define EXIT_EDGE(tr, to, weight) tr->addExitEdge(to, weight)
 

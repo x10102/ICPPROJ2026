@@ -7,6 +7,7 @@
 #include <cstdint>
 
 #define LAMBDA_FROM_EXPR(e) [](){return e;}
+#define LAMBDA_FROM_EXPR_NORETURN(e) [](){e}
 
 void setHelperInterpreter(Interpreter *itr);
 const char* valueof(string input_id);
