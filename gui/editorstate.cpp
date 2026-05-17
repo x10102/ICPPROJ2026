@@ -8,6 +8,7 @@
 #include "picojson.h"
 #include <cstdint>
 #include <iostream>
+#include <string>
 #include <utility>
 
 // Macro for a picojson value conversion, used very often in this file
@@ -309,8 +310,8 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
             PetriPlace p;
             p.name = entry.first;
 
-            LOAD_INTO(p.initial_tokens, obj, "initial_tokens", int64_t);
-            LOAD_INTO(p.placeActionMacro, obj, "placeActionMacro", int64_t);
+            LOAD_INTO(p.initial_tokens, obj, "initialTokens", int64_t);
+            LOAD_INTO(p.placeActionMacro, obj, "placeAction", std::string);
             LOAD_INTO(p.x, obj, "x", double);
             LOAD_INTO(p.y, obj, "y", double);
 
@@ -328,7 +329,7 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
             t.name = entry.first;
 
             LOAD_INTO(t.inputEventName, obj, "inputEventName", std::string);
-            LOAD_INTO(t.booleanGuardMacro, obj, "booleanGuardMacro", std::string);
+            LOAD_INTO(t.booleanGuardMacro, obj, "booleanGuard", std::string);
             LOAD_INTO(t.delayMs, obj, "delayMs", int64_t);
             LOAD_INTO(t.x, obj, "x", double);
             LOAD_INTO(t.y, obj, "y", double);
