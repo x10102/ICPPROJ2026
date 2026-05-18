@@ -18,3 +18,7 @@ Editor ukládá specifikace sítí opět ve formátu JSON. Data míst a přechod
 ## Inskripční jazyk
 
 Akce míst a přechodů mohou být zadány libovolně v C++ kódu, za podmínky, že jej lze vložit do těla lambda funkce. Podmínky pro odpálení přechodu mohou být zadány jako jeden C++ výraz s návratovou hodnotou typu `bool`, který lze vložit za přikaz `return`. Jsou k dispozici veškeré pomocné funkce specifikované v zadání.
+
+## Interaktivní režim interpretu
+
+Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuštění s parametrem `--interactive`. V interaktivním režimu lze skrz textové rozhraní krokovat, sledovat stav sítě, generovat vstupní události nebo síť v aktuálním stavu připojit k editoru. Přesné instrukce k použití jsou po spuštění interaktivního režimu vypsány na konzoli.
