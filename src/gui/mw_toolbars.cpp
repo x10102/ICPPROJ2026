@@ -19,6 +19,7 @@
 #include <QAction>
 #include <QLineEdit>
 #include <QPushButton>
+#include <qaction.h>
 #include <qpushbutton.h>
 
 void MainWindow::setupSidebar(){
@@ -34,15 +35,16 @@ void MainWindow::setupSidebar(){
     // --- shared attributes ---
 
     // Name of the selected element
-    QFormLayout *form = new QFormLayout;
-    m_nameEdit = new QLineEdit;
+    QFormLayout *form = new QFormLayout(this);
+    m_nameEdit = new QLineEdit(this);
     form->addRow("Jméno: ", m_nameEdit);
     vbox->addLayout(form);
 
     // Action of the selected element
     QFormLayout *actionForm = new QFormLayout;
-    m_actionEdit = new QLineEdit;
-    actionForm->addRow(new QLabel("Akce:"));
+    m_actionEdit = new QLineEdit(this);
+    m_actionLabel = new QLabel("Akce:");
+    actionForm->addRow(m_actionLabel);
     actionForm->addRow(m_actionEdit);
     vbox->addLayout(actionForm);
 
@@ -187,6 +189,7 @@ void MainWindow::setupToolbar(){
     auto variablesAct = netMenu->addAction("Proměnné");
     auto compileAct = netMenu->addAction("Sestavit interpret");
     auto runAct = netMenu->addAction("Spustit interpret");
+    auto stopAct = netMenu->addAction("Ukončit interpret");
 
     auto termAct = viewMenu->addAction("Terminál");
     termAct->setCheckable(true);
@@ -212,6 +215,11 @@ void MainWindow::setupToolbar(){
 
     connect(variablesAct, &QAction::triggered, this, [this](){
         showVariableEditor(this->variables, this);
+    });
+
+    connect(stopAct, &QAction::triggered, this, [this](){
+        this->m_generator->kill();
+        this->m_runBtn->setEnabled(true);
     });
 
     connect(btnSetSource, &QAction::triggered, this, [this](){this->setSourceDir();});

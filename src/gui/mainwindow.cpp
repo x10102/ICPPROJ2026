@@ -84,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_fireCondLabel->setVisible(false);
         m_evtNameEdit->setVisible(false);
         m_evtNameLabel->setVisible(false);
+        m_actionEdit->setVisible(true);
+        m_actionLabel->setVisible(true);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -115,6 +117,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_fireCondLabel->setVisible(true);
         m_evtNameEdit->setVisible(true);
         m_evtNameLabel->setVisible(true);
+        m_actionEdit->setVisible(true);
+        m_actionLabel->setVisible(true);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -146,6 +150,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_arcPanel->setVisible(false);
         m_evtNameEdit->setVisible(false);
         m_evtNameLabel->setVisible(false);
+        m_actionEdit->setVisible(false);
+        m_actionLabel->setVisible(false);
 
         m_arcWeightPanel->setVisible(true);
         
@@ -201,6 +207,7 @@ void MainWindow::setupSourceGenerator() {
         appendLog("Interpret spuštěn.", TerminalTab::INTERPRETER);
         m_interpRunning = true;
         m_stepBtn->setEnabled(true);
+        m_runBtn->setEnabled(false);
         m_contBtn->setEnabled(true);
     });
     connect(m_generator, &InterpreterGenerator::interpreterOutput, this, [this](QString line) {
@@ -211,12 +218,14 @@ void MainWindow::setupSourceGenerator() {
         m_interpRunning = false;
         m_stepBtn->setEnabled(false);
         m_contBtn->setEnabled(false);
+        m_runBtn->setEnabled(true);
     });
     connect(m_generator, &InterpreterGenerator::interpreterError, this, [this](QString reason) {
         appendLog("Chyba interpretu: " + reason, TerminalTab::INTERPRETER);
         m_interpRunning = false;
         m_stepBtn->setEnabled(false);
         m_contBtn->setEnabled(false);
+        m_runBtn->setEnabled(true);
     });
 
 }
@@ -305,11 +314,6 @@ void MainWindow::openVariablesDialog() {
         m_spec.setDescription(descEdit->toPlainText().toStdString());
     }
 }
-
-// -------------------------
-//     PANEL WITH BUTTONS
-// -------------------------
-
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     if (obj == m_view && event->type() == QEvent::Resize) {

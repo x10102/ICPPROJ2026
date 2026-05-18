@@ -131,7 +131,9 @@ private:
 
     QDockWidget    *m_dock              = nullptr;  ///< Sidebar dock widget (right)
     QLineEdit      *m_nameEdit          = nullptr;  ///< Line edit for the name of the selected node
+
     QLineEdit      *m_actionEdit        = nullptr;  ///< Line edit for the action of the selected node
+    QLabel         *m_actionLabel       = nullptr;
 
     QSpinBox       *m_tokenSpin         = nullptr;  ///< Spin box for the token count of the selected place
     QLabel         *m_tokenLabel        = nullptr;  ///< Label for the token count spin box in the sidebar
