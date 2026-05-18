@@ -9,7 +9,7 @@
 #include "debug.hpp"
 #include "gui/picojson.h"
 #include <algorithm>
-#include <asm-generic/socket.h>
+#include <unistd.h>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
@@ -316,13 +316,16 @@ void Interpreter::run(uint16_t port) {
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {
             terminate();
+            close(sock_recv);
             break;
         }
+        
         std::string json = picojson::value(this->json()).serialize(false);
         json.copy(netbuffer, NETWORK_BUFFER_SIZE);
         // Terminate the buffer manually because string.copy() doesn't do that apparently???
         netbuffer[json.length()] = '\0';
         sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
+
         // Clear the events that fired
         clearFired();
         clearEvents();
