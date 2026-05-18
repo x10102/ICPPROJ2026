@@ -1,6 +1,0 @@
-== TODO
-- Okomentovat neokomentovane
-- Moznost smazat vse pravym
-- Chybi moznost zavrit sidebar
-- SaveDialog
-- Seznam právě povolených přechodů (enabled) a seznam naplánovaných (čekajících) timeoutů (pending timers), nejlépe přímo v diagramu (např. barevně zvýraznit).

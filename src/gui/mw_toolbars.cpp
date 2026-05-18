@@ -22,28 +22,34 @@
 #include <qpushbutton.h>
 
 void MainWindow::setupSidebar(){
+    // Attribute sidebar on the right side of the window
     m_dock = new QDockWidget("Vlastnosti", this);
     m_dock->setFeatures(QDockWidget::DockWidgetClosable);
     m_dock->setMinimumWidth(200);
-
     QWidget *panel = new QWidget;
     QVBoxLayout *vbox = new QVBoxLayout(panel);
     vbox->setContentsMargins(10,10,10,10);
     vbox->setSpacing(8);
 
-    // Sdílené vlastnosti
+    // --- shared attributes ---
+
+    // Name of the selected element
     QFormLayout *form = new QFormLayout;
     m_nameEdit = new QLineEdit;
     form->addRow("Jméno: ", m_nameEdit);
     vbox->addLayout(form);
 
+    // Action of the selected element
     QFormLayout *actionForm = new QFormLayout;
     m_actionEdit = new QLineEdit;
     actionForm->addRow(new QLabel("Akce:"));
     actionForm->addRow(m_actionEdit);
     vbox->addLayout(actionForm);
+
     
-    // Vlastnosti místa
+    // --- place-specific attributes ---
+
+    // Token count of the place
     QFormLayout *tokenForm = new QFormLayout;
     m_tokenSpin = new QSpinBox;
     m_tokenSpin->setMinimum(0);
@@ -53,7 +59,9 @@ void MainWindow::setupSidebar(){
     vbox->addLayout(tokenForm);
 
 
-    // Vlastnosti přechodu
+    // --- transition-specific attributes ---
+
+    // Firing condition of the transition
     QFormLayout *fireCondForm = new QFormLayout;
     m_fireCondEdit = new QLineEdit;
     m_fireCondLabel = new QLabel("Podmínka odpálení:");
@@ -61,6 +69,7 @@ void MainWindow::setupSidebar(){
     fireCondForm->addRow(m_fireCondEdit);
     vbox->addLayout(fireCondForm);
 
+    // Input event of the transition
     QFormLayout *inputEvtNameForm = new QFormLayout;
     m_evtNameEdit = new QLineEdit;
     m_evtNameLabel = new QLabel("Název vstupní události:");
@@ -68,6 +77,8 @@ void MainWindow::setupSidebar(){
     inputEvtNameForm->addRow(m_evtNameEdit);
     vbox->addLayout(inputEvtNameForm);
 
+
+    // --- arc-specific attributes ---
     m_arcPanel = new QWidget;
     m_arcLayout = new QVBoxLayout(m_arcPanel);
     m_arcLayout->setContentsMargins(0,0,0,0);
@@ -75,6 +86,7 @@ void MainWindow::setupSidebar(){
     vbox->addWidget(m_arcPanel);
     m_arcPanel->setVisible(false);
 
+    // Setting the weight of the arc
     m_arcWeightPanel = new QWidget;
     QFormLayout *wf = new QFormLayout(m_arcWeightPanel);
     m_arcWeightLabel = new QLabel("Váha:");
@@ -87,6 +99,7 @@ void MainWindow::setupSidebar(){
 
     vbox->addStretch();
 
+    // --- wiring up the attribute editors to update the Petri net specification ---
     connect(m_nameEdit, &QLineEdit::textEdited, this, [this](const QString &text) {
         if (m_editedPlace) {
             m_spec.renamePlace(m_editedPlace->name().toStdString(), text.toStdString());
@@ -138,12 +151,14 @@ void MainWindow::setupSidebar(){
     m_dock->hide();
 }
 
+
+
 void MainWindow::setupToolbar(){
+    // Create setup toolbar with dropdown menus at the top of the window
     QToolBar *tb = addToolBar("Nástroje");
     tb->setMovable(false);
 
-    // Create menus and menu open buttons    
-
+    // -- Dropdown menus ---
     auto fileMenu = new QMenu(this);
     auto fileMenuButton = new QToolButton(this);
     fileMenuButton->setText("Soubor");
@@ -162,28 +177,29 @@ void MainWindow::setupToolbar(){
     netMenuButton->setMenu(netMenu);
     netMenuButton->setPopupMode(QToolButton::InstantPopup);
 
-    // Populate the submenus with buttons
+
+    // -- Menu items for each dropdown menu ---
     auto btnSave = fileMenu->addAction("Uložit síť");
     auto btnLoad = fileMenu->addAction("Načíst síť");
     auto btnSetSource = fileMenu->addAction("Vybrat zdrojový adresář");
-
-    auto termAct = viewMenu->addAction("Terminál");
-    termAct->setCheckable(true);
-
-    auto darkAct = viewMenu->addAction("Dark Theme");
-    darkAct->setCheckable(true);
 
     auto nameAct = netMenu->addAction("Vlastnosti");
     auto variablesAct = netMenu->addAction("Proměnné");
     auto compileAct = netMenu->addAction("Sestavit interpret");
     auto runAct = netMenu->addAction("Spustit interpret");
 
+    auto termAct = viewMenu->addAction("Terminál");
+    termAct->setCheckable(true);
+    auto darkAct = viewMenu->addAction("Dark Theme");
+    darkAct->setCheckable(true);
+
     // Add the menus to the toolbar
     tb->addWidget(fileMenuButton);
     tb->addWidget(netMenuButton);
     tb->addWidget(viewMenuButton);
 
-    // Wire up the menu items to their actions
+
+    // -- Connecting menu items to their respective actions ---
     connect(btnSave, &QAction::triggered, this, [this](){
         if (this->saveNet()) {
             this->m_spec.exportJSON();
@@ -223,7 +239,7 @@ void MainWindow::setupToolbar(){
 }
 
 void MainWindow::setupFloatingPanels() {
-    // Panel nástrojů vlevo nahore
+    // Tool panel with buttons for selecting the active tool
     m_toolPanel = new QFrame(m_view);
     m_toolPanel->setFrameShape(QFrame::StyledPanel);
     m_toolPanel->setStyleSheet(styles::ToolPanelDefault);
@@ -232,6 +248,7 @@ void MainWindow::setupFloatingPanels() {
     toolLayout->setContentsMargins(6,6,6,6);
     toolLayout->setSpacing(4);
 
+    // Lambda function to create a tool button and connect it to setActiveTool
     auto makeToolBtn = [&](const QString &label, Tool tool) {
         auto *btn = new QPushButton(label, m_toolPanel);
         btn->setCheckable(true);
@@ -242,7 +259,8 @@ void MainWindow::setupFloatingPanels() {
         return btn;
     };
 
-    QPushButton *panBtn    = makeToolBtn("Posun", Tool::Pan);
+    // Create the buttons for each tool
+    makeToolBtn("Posun", Tool::Pan);
     QPushButton *selectBtn = makeToolBtn("Výběr", Tool::Select);
     makeToolBtn("Místo", Tool::AddPlace);
     makeToolBtn("Přechod", Tool::AddTransition);
@@ -254,10 +272,12 @@ void MainWindow::setupFloatingPanels() {
     m_toolPanel->show();
     m_toolPanel->raise();
 
-    (void)panBtn;
+    // Set the default active tool to Select
     setActiveTool(Tool::Select, selectBtn);
 
-    // --- Panel simulace (vpravo dole) ---
+
+
+    // -- Simulation panel with buttons for controlling the simulation in the lower right corner
     m_simPanel = new QFrame(m_view);
     m_simPanel->setFrameShape(QFrame::StyledPanel);
     m_simPanel->setStyleSheet(styles::SimPanelDefault);
@@ -288,6 +308,8 @@ void MainWindow::setupFloatingPanels() {
     QTimer::singleShot(0, this, [this]() { repositionSimPanel(); });
 }
 
+
+
 void MainWindow::repositionSimPanel() {
     if (!m_simPanel || !m_view) return;
     QRect vp = m_view->viewport()->geometry();
@@ -297,7 +319,10 @@ void MainWindow::repositionSimPanel() {
     m_toolPanel->raise();
 }
 
+
+
 void MainWindow::setupTerminal() {
+    // Terminal dock at the bottom of the window
     m_terminalDock = new QDockWidget("Terminál", this);
     m_terminalDock->setAllowedAreas(Qt::BottomDockWidgetArea);
 
@@ -310,6 +335,7 @@ void MainWindow::setupTerminal() {
     f.setStyleHint(QFont::TypeWriter);
     f.setPointSize(9);
 
+    // Lambda function to create a read-only log widget
     auto makeLog = [&]() {
         auto *w = new QPlainTextEdit;
         w->setReadOnly(true);
@@ -329,7 +355,7 @@ void MainWindow::setupTerminal() {
     m_terminalTabs->addTab(m_interpTerminal, "Interpret");
     vbox->addWidget(m_terminalTabs);
 
-    // Vstup pro příkazy uživatele
+    // User input row with a line edit and send button
     QWidget *inputRow = new QWidget;
     QHBoxLayout *hbox = new QHBoxLayout(inputRow);
     hbox->setContentsMargins(0, 0, 0, 0);
@@ -345,6 +371,7 @@ void MainWindow::setupTerminal() {
 
     vbox->addWidget(inputRow);
 
+    // Connecting the send button and Enter key to send commands from the input line edit
     connect(sendBtn, &QPushButton::clicked, this, [this](){
         QString cmd = m_terminalInput->text().trimmed();
         if (cmd.isEmpty())
@@ -359,10 +386,12 @@ void MainWindow::setupTerminal() {
 
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);
-    //m_terminalDock->hide();
 }
 
+
+
 void MainWindow::populateTransitionSidebar(TransitionItem *transition){
+    // Clear previous arc weight editors
     QLayoutItem *arcItem;
     while ((arcItem = m_arcLayout->takeAt(0)) != nullptr) {
         if (arcItem->widget())
@@ -370,6 +399,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
         delete arcItem;
     }
 
+    // Finding all arcs connected to the transition
     QList<ArcItem *> incoming, outgoing;
     for (QGraphicsItem *item : m_scene->items()) {
         if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
@@ -384,6 +414,7 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
         m_arcLayout->addWidget(new QLabel("Žádné příchozí nebo odchozí hrany"));
     }
 
+    // List of incoming arcs with editable weights
     if (!incoming.isEmpty()){
         m_arcLayout->addWidget(new QLabel("<br>Příchozí<br>"));
 
@@ -411,6 +442,8 @@ void MainWindow::populateTransitionSidebar(TransitionItem *transition){
             m_arcLayout->addWidget(row);
         }
     }
+
+    // List of outgoing arcs with editable weights
     if (!outgoing.isEmpty()){
         m_arcLayout->addWidget(new QLabel("<br>Odchozí<br>"));
 

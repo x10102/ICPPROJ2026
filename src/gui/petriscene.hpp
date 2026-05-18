@@ -99,6 +99,8 @@ protected:
      */
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+
     /** @brief Handles the Delete key to remove selected nodes/arcs.
      *  @param event The key event.
      */
