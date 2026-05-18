@@ -48,21 +48,21 @@ class Interpreter {
 
     public:
 
-        [[nodiscard]] Place* createPlace(string identifier, uint32_t initial_tokens);
-        Place* getPlace(string identifier);
-        bool renamePlace(const string &oldId, const string &newId);
-        bool removePlace(const string &identifier);
-        [[nodiscard]] Transition* createTransition(string identifier);
+        [[nodiscard]] Place* createPlace(string identifier, uint32_t initial_tokens); ///< Creates a place in the interpreter
+        Place* getPlace(string identifier); ///< Retrieves a place in the interpreter
+        bool renamePlace(const string &oldId, const string &newId); ///< Renames a place in the interpreter
+        bool removePlace(const string &identifier); ///< Deletes a place in the interpreter
+        [[nodiscard]] Transition* createTransition(string identifier); ///< Creates a transition in the interpreter
         bool renameTransition(const string &oldId, const string &newId);
         bool removeTransition(const string &identifier);
-        void doTransitions(bool all = true);
-        void inputEvent(const std::string input, const std::string value);
-        virtual void outputEvent(const std::string output, const std::string value);
-        void waitForAllTimers();
-        void terminate();
-        virtual void printState();
-        bool inputDefined(const std::string input);
-        string *lastInputValue(const std::string input);
+        void doTransitions(bool all = true); ///< Processes all transitions which can be fired
+        void inputEvent(const std::string input, const std::string value); ///< Sets an input to a value
+        virtual void outputEvent(const std::string output, const std::string value); ///< Generates an output event
+        void waitForAllTimers(); ///< Waits for all timed transitions to expire
+        void terminate(); ///< Exits the interpreter
+        virtual void printState(); ///< Prints the current markings to the standard output
+        bool inputDefined(const std::string input); ///< Checks if an input is defined
+        string *lastInputValue(const std::string input); ///< Retrieves the last known value of an input
 
         // Functions for clearing the internal "queues" of events and fired transitions
         void clearFired();
