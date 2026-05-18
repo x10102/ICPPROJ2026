@@ -178,7 +178,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 void MainWindow::setupSourceGenerator() {
     m_generator = new InterpreterGenerator(this);
     m_generator->setMarker("#### MARKER ####");
-    m_generator->setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO"); // TODO
     connect(m_generator, &InterpreterGenerator::compileStarted, this, [this]() {
         m_terminalTabs->setCurrentIndex(TerminalTab::BUILD);
         appendLog("Kompiluji interpret...", TerminalTab::BUILD);
@@ -495,5 +494,5 @@ void MainWindow::applyTheme(const Theme &theme){
 }
 
 void MainWindow::onDataReceived(picojson::object &data) {
-    std::cout << picojson::value(data) << std::endl;
+    //std::cout << picojson::value(data) << std::endl;
 }

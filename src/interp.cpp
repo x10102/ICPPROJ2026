@@ -63,7 +63,6 @@ picojson::object Interpreter::json() {
 // Triggers an input event -
 // - Sets the appropriate input to the value passed
 // - Updates the last input name
-// - Triggers transition processing
 void Interpreter::inputEvent(const std::string input, const std::string value) {
     if(this->exiting) {
         LOG_I("Ignoring input event %s while exiting", input.c_str());
@@ -72,7 +71,6 @@ void Interpreter::inputEvent(const std::string input, const std::string value) {
     LOG_D("Input event: %s=%s", input.c_str(), value.c_str());
     this->inputValues[input] = value;
     this->last_input = input;
-    this->doTransitions();
 }
 
 void Interpreter::outputEvent(string output, string value) {
@@ -313,6 +311,7 @@ void Interpreter::run(uint16_t port) {
         } else if(command.compare("step") == 0) {
             doTransitions(true);
         } else if(command.compare("event") == 0) {
+            LOG_I("Process input event");
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {
             terminate();

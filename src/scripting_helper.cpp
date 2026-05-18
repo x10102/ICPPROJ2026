@@ -8,6 +8,8 @@
 #include "debug.hpp"
 #include <chrono>
 
+static const char *EMPTY = "";
+
 using namespace chrono;
 
 // One evil global variable per app is okay, right? >w<
@@ -33,7 +35,7 @@ inline static milliseconds current_ms(void) {
 // Returns the last value of the input with the specified id
 const char* valueof(string input_id) {
     if(!interpreter->inputDefined(input_id))
-        return nullptr;
+        return EMPTY;
     const string* last_val = interpreter->lastInputValue(input_id);
     // This should be fine - c_str returns a pointer to the string object's internal buffer
     // That string object is owned by the interpreter instance, which will in any case outlive expressions using this

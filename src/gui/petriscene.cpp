@@ -1,6 +1,6 @@
 /**
  * @file petriscene.cpp
- * @author Dalibor Kalina, xkalin16
+ * @author Dalibor Kalina, xkalin16, Ondřej Turek, xtureko00
  * @brief PetriNet Scene editor implementation
  */
 

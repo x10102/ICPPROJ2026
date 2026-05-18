@@ -37,9 +37,9 @@ void InterpreterGenerator::emitPlace(const PetriPlace *p) {
 void InterpreterGenerator::emitTransition(const PetriTransition *t) {
     generatedBuffer << "TRANSITION(";
     generatedBuffer << t->name << ", \"" << t->name << "\");" << std::endl;
-    if((t->delayMs != 0 || !t->inputEventName.empty())) {
+    if((t->delayMs != 0 || !t->inputEventName.empty() || !t->booleanGuardMacro.empty())) {
         if(!t->booleanGuardMacro.empty()) {
-            generatedBuffer << "CONDITION_EXPR(" << t->name;
+            generatedBuffer << "CONDITION_EXPR(" << t->name << ", ";
             generatedBuffer << "\"" << t->inputEventName << "\", ";
             generatedBuffer << t->delayMs << ", ";
             generatedBuffer << t->booleanGuardMacro << ");" << std::endl;

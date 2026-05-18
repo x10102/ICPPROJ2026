@@ -361,10 +361,16 @@ void MainWindow::setupTerminal() {
     hbox->setContentsMargins(0, 0, 0, 0);
     hbox->setSpacing(4);
 
-    m_terminalInput = new QLineEdit;
-    m_terminalInput->setFont(f);
-    m_terminalInput->setPlaceholderText("Příkaz");
-    hbox->addWidget(m_terminalInput);
+    m_eventNameEdit = new QLineEdit;
+    m_eventNameEdit->setFont(f);
+    m_eventNameEdit->setPlaceholderText("Název události");
+
+    m_eventValueEdit = new QLineEdit;
+    m_eventValueEdit->setFont(f);
+    m_eventValueEdit->setPlaceholderText("Hodnota události");
+
+    hbox->addWidget(m_eventNameEdit);
+    hbox->addWidget(m_eventValueEdit);
 
     QPushButton *sendBtn = new QPushButton("Odeslat");
     hbox->addWidget(sendBtn);
@@ -373,16 +379,13 @@ void MainWindow::setupTerminal() {
 
     // Connecting the send button and Enter key to send commands from the input line edit
     connect(sendBtn, &QPushButton::clicked, this, [this](){
-        QString cmd = m_terminalInput->text().trimmed();
-        if (cmd.isEmpty())
+        if(!m_receiver->isRunning) {
+            appendLog("Not sending event (not connected)");
             return;
-        m_terminalInput->clear();
-        
-        // Tohle nahradit. Aktualne printuju jen do GUI terminalu
-        appendLog(QString("> %1").arg(cmd));      
+        }
+        appendLog(QString("INPUT: %1=%2").arg(m_eventNameEdit->text()).arg(m_eventValueEdit->text()));
+        m_receiver->sendEvent(m_eventNameEdit->text(), m_eventValueEdit->text());
     });
-
-    connect(m_terminalInput, &QLineEdit::returnPressed, sendBtn, &QPushButton::click);
 
     m_terminalDock->setWidget(container);
     addDockWidget(Qt::BottomDockWidgetArea, m_terminalDock);

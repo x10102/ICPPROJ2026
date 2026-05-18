@@ -10,6 +10,7 @@
 #include <qglobal.h>
 #include <qhostaddress.h>
 #include <qobject.h>
+#include <qstringliteral.h>
 #include <qudpsocket.h>
 #include <string>
 
@@ -36,6 +37,13 @@ void UdpConnector::sendStep(bool singleIteration) {
     const static std::string commandContinue = "{\"command\": \"step\"}";
     const static std::string commandSingle = "{\"command\": \"stepSingle\"}";
     QByteArray datagram(singleIteration ? commandSingle.c_str() : commandContinue.c_str());
+    this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
+}
+
+void UdpConnector::sendEvent(const QString evtName, const QString evtValue) {
+    const std::string command = \
+        QStringLiteral("{\"command\": \"event\", \"eventName\": \"%1\", \"eventVal\": \"%2\"}").arg(evtName).arg(evtValue).toStdString();
+    const QByteArray datagram(command.c_str());
     this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
 }
 

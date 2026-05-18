@@ -16,18 +16,18 @@ class UdpConnector : public QObject {
 public:
     explicit UdpConnector(QObject *parent = nullptr);
     UdpConnector(QObject *parent = nullptr, unsigned int port = 6767);
+    bool isRunning = false;
 
 private:
     QUdpSocket *inSock = nullptr;
     QUdpSocket *outSock = nullptr;
-    bool isRunning = false;
-    bool isConnected = false;
     unsigned int port = 6767;
 
 public slots:
     void start();
     void terminate();
     void sendStep(bool singleIteration = false);
+    void sendEvent(const QString evtName, const QString evtValue);
     void connectToInt();
 
 private slots:

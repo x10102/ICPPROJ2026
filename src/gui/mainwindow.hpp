@@ -157,7 +157,8 @@ private:
     QPlainTextEdit *m_terminal          = nullptr;  ///< GUI log tab
     QPlainTextEdit *m_buildTerminal     = nullptr;  ///< Build log tab
     QPlainTextEdit *m_interpTerminal    = nullptr;  ///< Interpreter output tab
-    QLineEdit      *m_terminalInput     = nullptr;  ///< Input line for the terminal tab
+    QLineEdit      *m_eventNameEdit     = nullptr;  ///< Input line for the input event name
+    QLineEdit      *m_eventValueEdit    = nullptr;  ///< Input line for the input event value
 
     VariableMap     variables;
 
