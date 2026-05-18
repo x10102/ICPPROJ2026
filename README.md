@@ -2,6 +2,14 @@
 
 Zadání: Nástroj pro vizuální editaci, generování kódu a monitorování běhu interpretovaných Petriho sítí 
 
+# Spuštění
+
+- `make` nebo `make run` sestaví a spustí editor
+- `make gui` pouze sestaví editor
+- `make pack` vytvoří archiv k odevzdání
+- `make doxygen` vytvoří dokumentaci pod `/doc`
+- `make clean` vyčistí sestavené soubory
+
 # Popis celkové implementace
 
 ## Komunikace interpretu a editoru
@@ -45,3 +53,4 @@ Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuš
 - Generování kódu a sestavení interpretu
 - Tmavý režim
 - Zobrazení aktuálního počtu tokenů v místech
+- Zobrazení aktuálního výstupu interpretu
