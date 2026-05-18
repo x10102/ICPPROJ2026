@@ -427,6 +427,7 @@ void PetriScene::onDataReceived(picojson::object &data) {
     if(data.find("places") == data.end())
         return;
     object places = value(data["places"]).get<object>();
+    // This is inefficient and horrible, but there's no time to make anything better work
     for(QGraphicsItem *item : items()) {
         if(PlaceItem *p = qgraphicsitem_cast<PlaceItem*>(item)) {
             const std::string placeName = p->name().toStdString();
@@ -435,6 +436,15 @@ void PetriScene::onDataReceived(picojson::object &data) {
             object currentPlace = places[placeName].get<object>();
             int tokens = currentPlace["currentTokens"].get<int64_t>();
             p->setTokens(tokens);
+        } else if(TransitionItem *t = qgraphicsitem_cast<TransitionItem*>(item)) {
+            auto fired = value(data["fired"]).get<picojson::array>();
+            for(auto &f : fired) {
+                if(f.get<std::string>().compare(t->name().toStdString()) == 0) {
+                    t->setHighlighted(true);
+                } else {
+                    t->setHighlighted(false);
+                }
+            }
         }
     }
 }
