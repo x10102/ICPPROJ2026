@@ -1,3 +1,9 @@
+/**
+ * @file theme.cpp
+ * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
+ * @brief GUI Themes interface
+ */
+
 #ifndef THEME_HPP
 #define THEME_HPP
 #include <QColor>

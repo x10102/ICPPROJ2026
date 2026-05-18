@@ -1,7 +1,7 @@
 /**
  * @file udpconnector.cpp
  * @author Ondřej Turek, xtureko00
- * @brief Implementace UDP rozhraní pro komunikaci interpretu a GUI
+ * @brief UDP socket for interpreter IPC implementation
  */
 #include "udpconnector.hpp"
 #include "gui/picojson.h"

@@ -1,6 +1,8 @@
-// transition.cpp - Transition class implementation
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+/**
+ * @file petri.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Petri net transition implementation
+ */
 
 #include "petri.hpp"
 #include <cstdint>

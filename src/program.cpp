@@ -1,6 +1,8 @@
-// program.cpp - program entry point
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+/**
+ * @file program.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Interpreter entry point
+ */
 #include <algorithm>
 #include <cstddef>
 #include <cstdio>

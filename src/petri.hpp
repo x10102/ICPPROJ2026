@@ -1,7 +1,8 @@
-// petri.hpp - Petri net objects interface
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
-// - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
+/**
+ * @file petri.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Petri net objects interface
+ */
 
 
 #ifndef _PETRI_H

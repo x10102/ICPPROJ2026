@@ -1,6 +1,8 @@
-// interp.hpp - interpreter interface
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+/**
+ * @file interp.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Interpreter engine interface
+ */
 
 #ifndef _INTERP_H
 #define _INTERP_H

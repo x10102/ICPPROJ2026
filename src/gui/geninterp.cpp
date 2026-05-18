@@ -20,10 +20,6 @@
 
 using namespace std;
 
-filesystem::path InterpreterGenerator::getPath() {
-    return this->interpSourcePath;
-}
-
 void InterpreterGenerator::emitPlace(const PetriPlace *p) {
     this->generatedBuffer << "PLACE(";
     this->generatedBuffer << p->name << ", \"" << p->name << "\", ";

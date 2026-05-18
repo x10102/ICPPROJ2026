@@ -1,3 +1,9 @@
+/**
+ * @file theme.cpp
+ * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
+ * @brief GUI Themes definitions
+ */
+
 #include "theme.hpp"
 
 Theme Theme::current_theme = Theme::light();

@@ -1,7 +1,7 @@
 /**
  * @file petriscene.cpp
  * @author Dalibor Kalina, xkalin16
- * @brief PetriNet Scene editor
+ * @brief PetriNet Scene editor implementation
  */
 
 #include "petriscene.hpp"

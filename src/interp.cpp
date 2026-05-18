@@ -1,7 +1,8 @@
-// interp.cpp - interpreter implementation
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
-// - Adam Šrámek <xsramea00@stud.fit.vutbr.cz>
+/**
+ * @file interp.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Interpreter engine implementation
+ */
 
 #include "petri.hpp"
 #include "interp.hpp"

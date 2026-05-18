@@ -16,6 +16,7 @@
 #include <QString>
 #include <QProcess>
 
+
 const std::string MAIN_FILENAME = "program.cpp";
 const std::string MAIN_GENERATED = "program.generated.cpp";
 
@@ -23,32 +24,77 @@ class InterpreterGenerator : public QObject {
     Q_OBJECT
     public:
         explicit InterpreterGenerator(QObject *parent = nullptr) {};
+
+        /// @brief Sets the path to the interpreter source code
         void setPath(const std::filesystem::path path);
-        std::filesystem::path getPath();
+
+        /// @brief Sets the file name of the entry point source file
         void setEntrypoint(const std::string filename);
+
+        /// @brief Sets the marker to replace with the net definition
         void setMarker(const std::string);
+
+        /// @brief Generates an entry point source file for the interpreter from the specification
         bool generateMain(const PetriNetworkSpec *spec);
+
+        /// @brief Compiles the interpreter from the source and generated entry point file
         void compile();
+
+        /// @brief Runs the interpreter
         bool run();
 
+        /// @brief Terminates the interpreter process
+        void kill();
+
     signals:
+        /// @brief Emitted when the compiler succesfully starts
         void compileStarted();
+
+        /// @brief Emitted when the compiler writes to the standard output
         void compileProgress(QString stdout);
+
+        /// @brief Emitted when the compiler exits with an error
         void compileFailed();
+
+        /// @brief Emitted when the compiler exits succesfully
         void compileFinished();
+
+        /// @brief Emitted when the interpreter starts
+        void interpreterStarted();
+
+        /// @brief Emitted when the interpreter writes to stdout
+        void interpreterOutput(QString line);
+
+        /// @brief Emitted when the interpreter exits
+        void interpreterStopped(int exitCode);
+
+        /// @brief Emitted when the compiler exits with an error
+        void interpreterError(QString reason);
     
     private:
+        /// @brief Inserts the definition of a place into the buffer
         void emitPlace(const PetriPlace *p);
+
+        /// @brief Inserts the definition of a transition into the buffer
         void emitTransition(const PetriTransition *t);
+
+        /// @brief Inserts the definition of an arc into the buffer
         void emitArc(const PetriArc *a);
+
+        /// @brief Emits all arcs, transitions and places from the passed specification
         void emitAll(const PetriNetworkSpec *spec);
 
-        std::filesystem::path interpSourcePath;
-        std::string interpEntryFilename;
-        QString interpDefMarker;
+        /// @brief A buffer containing the code to be inserted into the program's code
         std::ostringstream generatedBuffer;
-        QProcess *compileProcess;
-        QString stderrOutput;
+
+        /// @brief Path to the directory containing the interpreter's source code
+        std::filesystem::path interpSourcePath;
+
+        /// @brief Content of the comment marking the definition point in the source code
+        QString interpDefMarker;
+        
+        QProcess *compileProcess = nullptr; ///< Handle to the compiler process
+        QProcess *interpreterProcess = nullptr; ///< Handle to the interpreter process
 
     private slots:
         void onReadyReadStdout();
@@ -58,3 +104,7 @@ class InterpreterGenerator : public QObject {
 };
 
 #endif
+
+
+
+    

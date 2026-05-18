@@ -1,6 +1,8 @@
-// debug.hpp - debug logging macros
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+/**
+ * @file debug.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Debug logging macros
+ */
 #include <cstdio>
 
 #ifndef _DEBUG_H

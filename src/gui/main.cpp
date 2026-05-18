@@ -1,3 +1,9 @@
+/**
+ * @file main.cpp
+ * @author Dalibor Kalina, xkalin16
+ * @brief Entry point for the GUI application
+ */
+
 #include "mainwindow.hpp"
 
 #include <QApplication>

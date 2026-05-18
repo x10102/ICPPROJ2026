@@ -1,7 +1,7 @@
 /**
  * @file terminaltab.hpp
  * @author Ondřej Turek, xtureko00
- * @brief Definice záložek v terminálu
+ * @brief Terminal tab enum
  */
 #ifndef _TERMTAB_HPP
 #define _TERMTAB_HPP

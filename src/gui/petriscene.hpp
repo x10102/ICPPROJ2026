@@ -1,7 +1,7 @@
 /**
  * @file petriscene.hpp
  * @author Dalibor Kalina, xkalin16
- * @brief PetriNet Scene editor
+ * @brief PetriNet Scene editor interface
  */
 
 #ifndef PETRISCENE_H

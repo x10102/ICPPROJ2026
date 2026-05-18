@@ -1,6 +1,8 @@
-// scripting_helper.hpp - Inscription language helpers interface
-// Authors:
-// - Ondřej Turek <xtureko00@stud.fit.vutbr.cz>
+/**
+ * @file scripting_helper.hpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Inscription language helper functions interface
+ */
 #ifndef _SHELPER_H
 #define _SHELPER_H
 #include "interp.hpp"

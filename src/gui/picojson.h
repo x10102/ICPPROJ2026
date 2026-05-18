@@ -1,3 +1,8 @@
+/**
+  * @file picojson.h
+  * @author Kazuho Oku (https://github.com/kazuho)
+  * @brief PicoJSON single-header library, cloned from GitHub 
+  */
 /*
  * Copyright 2009-2010 Cybozu Labs, Inc.
  * Copyright 2011-2014 Kazuho Oku
