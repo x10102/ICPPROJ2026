@@ -5,6 +5,15 @@ COMPILE=$(CC) $(ARGS)
 CPPFILES=program.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
 CPPGEN=program.generated.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
 
+run: gui
+	cd ./gui && ./petri-editor
+
+gui:
+	mkdir -p ./gui/build && cd ./gui/build && cmake .. && make && mv petri-editor ..
+
+clean: clean-interp
+	cd ./gui && cmake . --target clean
+
 program: $(CPPFILES)
 	$(COMPILE) $^ -o $@.out
 
@@ -17,7 +26,7 @@ program-trace: $(CPPFILES)
 program-generated: $(CPPGEN)
 	$(COMPILE) $^ -DDEBUG -o generated.out
 
-clean:
-	rm program program.out
+clean-interp:
+	rm -f program program.out
 
-.PHONY: clean
+.PHONY: clean gui run clean-interp
