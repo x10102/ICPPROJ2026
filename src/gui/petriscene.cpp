@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QKeyEvent>
 #include <QDateTime>
+#include <QSet>
 #include <cstdint>
 #include <qgraphicsitem.h>
 
@@ -39,6 +40,33 @@ static QString nameOf(QGraphicsItem *item) {
     if (auto *n = dynamic_cast<INamed*>(item))
         return n->name();
     return "?";
+}
+
+static void pushOverlappingItems(QGraphicsItem *newItem, QSet<QGraphicsItem*> visited = {}) {
+    visited.insert(newItem);
+    const qreal pushDistance = 70.0;
+    auto *newEllipse = static_cast<QGraphicsEllipseItem*>(newItem);
+    QPointF newCenter = newItem->scenePos() + newEllipse->rect().center();
+
+    for (QGraphicsItem *item : newItem->collidingItems()) {
+        if (!isNode(item) || visited.contains(item)) {
+            continue;
+        }
+
+        auto *otherEllipse = static_cast<QGraphicsEllipseItem*>(item);
+        QPointF otherCenter = item->scenePos() + otherEllipse->rect().center();
+
+        QPointF delta = otherCenter - newCenter;
+        qreal distance = std::hypot(delta.x(), delta.y());
+        if (distance < 0.1) {
+            delta = QPointF(pushDistance, 0);
+        } else {
+            delta = delta / distance * pushDistance;
+        }
+
+        item->setPos(newCenter + delta - otherEllipse->rect().center());
+        pushOverlappingItems(item, visited);
+    }
 }
 
 void PetriScene::setNetworkSpec(PetriNetworkSpec *spec) {
@@ -69,6 +97,14 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("p%1").arg(++m_placeCounter);
             place->setName(name);
             addItem(place);
+
+            pushOverlappingItems(place);
+            for (QGraphicsItem *item : items()) {
+                if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
+                    arc->updatePosition();
+                }
+            }
+
             PetriPlace storeT;
             storeT.name = name.toStdString();
             storeT.x = pos.x();
@@ -84,6 +120,14 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
             QString name = QString("t%1").arg(++m_transitionCounter);
             transition->setName(name);
             addItem(transition);
+
+            pushOverlappingItems(transition);
+            for (QGraphicsItem *item : items()) {
+                if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
+                    arc->updatePosition();
+                }
+            }
+
             PetriTransition storeT;
             storeT.name = name.toStdString();
             storeT.x = pos.x();
@@ -277,6 +321,20 @@ void PetriScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event){
         }
     }
     QGraphicsScene::mouseMoveEvent(event);
+}
+
+void PetriScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
+    QGraphicsScene::mouseReleaseEvent(event);
+    for (QGraphicsItem *item : selectedItems()) {
+        if(isNode(item)) {
+            pushOverlappingItems(item);
+            for (QGraphicsItem *item : items()) {
+                if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
+                    arc->updatePosition();
+                }
+            }
+        }
+    }
 }
 
 void PetriScene::removeConnectedArcs(QGraphicsItem *node)
