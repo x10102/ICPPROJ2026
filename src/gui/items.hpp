@@ -31,11 +31,11 @@ class Transition; // forward declaration — TransitionItem holds a pointer to i
  */
 class INamed {
     public:
-    /// @brief Vrátí jméno
+    /// @brief Returns the name
     QString name() const { return m_name;}
     /**
-     * @brief Nastaví jméno
-     * @param name Nové jméno
+     * @brief Sets the name
+     * @param name New name
      */
     void setName(const QString &name) {
         m_name = name;

@@ -274,7 +274,6 @@ void Interpreter::clearFired() {
 }
 
 void Interpreter::run(uint16_t port) {
-    // TODO: Move allll of this shit to the interpreter class, maybe make a separate network handler class to not clutter the petri logic too much
     struct sockaddr_in editor_addr;
     struct sockaddr_in self_addr;
     char netbuffer[NETWORK_BUFFER_SIZE];
@@ -299,7 +298,7 @@ void Interpreter::run(uint16_t port) {
     while(true) {
         picojson::value data;
         recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
-        editor_addr.sin_port = htons(port-1);
+        editor_addr.sin_port = htons(port-1); // Port 6767, pretty bad way to define it but whatever
         std::string decode_error = picojson::parse(data, netbuffer);
         if(!decode_error.empty() || !data.is<picojson::object>()) {
             LOG_I("Application error: received malformed command, ignoring it.");
@@ -312,6 +311,7 @@ void Interpreter::run(uint16_t port) {
             // We could add a parameter for N steps
             // And also a parameter for "half-steps" - the doTransitions() loop will only run for one cycle and then report back state
             // Would make it easier to follow convoluted networks where lots of transitions will fire each cycle
+            // TODO: partial steps implemented, add a command for them
             doTransitions();
         } else if(command.compare("event") == 0) {
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());

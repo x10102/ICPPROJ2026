@@ -57,9 +57,13 @@ gui/Testing/Temporary
 **/CMakeLists.txt.user
 **/CMakeCache.txt.prev
 gui/Makefile
+src/gui/build
 
 
 **/petri-editor
 
 program.generated.cpp
 *.log
+
+html
+*.zip

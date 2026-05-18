@@ -46,11 +46,11 @@ class Interpreter {
 
     public:
 
-        Place* createPlace(string identifier, uint32_t initial_tokens);
+        [[nodiscard]] Place* createPlace(string identifier, uint32_t initial_tokens);
         Place* getPlace(string identifier);
         bool renamePlace(const string &oldId, const string &newId);
         bool removePlace(const string &identifier);
-        Transition* createTransition(string identifier);
+        [[nodiscard]] Transition* createTransition(string identifier);
         bool renameTransition(const string &oldId, const string &newId);
         bool removeTransition(const string &identifier);
         void doTransitions(bool all = true);

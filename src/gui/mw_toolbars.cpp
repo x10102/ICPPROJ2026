@@ -171,6 +171,7 @@ void MainWindow::setupToolbar(){
     darkAct->setCheckable(true);
 
     auto nameAct = netMenu->addAction("Vlastnosti");
+    auto variablesAct = netMenu->addAction("Proměnné");
     auto compileAct = netMenu->addAction("Sestavit interpret");
     auto runAct = netMenu->addAction("Spustit interpret");
 
