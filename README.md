@@ -22,3 +22,26 @@ Akce míst a přechodů mohou být zadány libovolně v C++ kódu, za podmínky,
 ## Interaktivní režim interpretu
 
 Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuštění s parametrem `--interactive`. V interaktivním režimu lze skrz textové rozhraní krokovat, sledovat stav sítě, generovat vstupní události nebo síť v aktuálním stavu připojit k editoru. Přesné instrukce k použití jsou po spuštění interaktivního režimu vypsány na konzoli.
+
+# Implementovaná funkcionalita
+
+## Interpret
+
+- Vytváření míst, přechodů a hran
+- Akce míst, akce přechodů
+- Zpožděné přechody
+- Podmínka vstupní události
+- Podpora inskripčního jazyka
+- Interaktivní režim
+- Komunikace s editorem (částečně, chybí odesílání aktuálních časovačů a hodnot proměnných)
+
+## Editor
+
+- Editace sítí a nastavení parametrů míst/přechodů/hran
+- Import specifikace sítě
+- Export specifikace sítě
+- Nastavení názvu a popisu
+- Definice proměnných
+- Generování kódu a sestavení interpretu
+- Tmavý režim
+- Zobrazení aktuálního počtu tokenů v místech
