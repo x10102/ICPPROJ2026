@@ -234,12 +234,12 @@ void MainWindow::setupFloatingPanels() {
         return btn;
     };
 
-    QPushButton *panBtn    = makeToolBtn("Pan", Tool::Pan);
-    QPushButton *selectBtn = makeToolBtn("Select", Tool::Select);
-    makeToolBtn("Place", Tool::AddPlace);
-    makeToolBtn("Transition", Tool::AddTransition);
-    makeToolBtn("Arc", Tool::AddArc);
-    makeToolBtn("Remove", Tool::Remove);
+    QPushButton *panBtn    = makeToolBtn("Posun", Tool::Pan);
+    QPushButton *selectBtn = makeToolBtn("Výběr", Tool::Select);
+    makeToolBtn("Místo", Tool::AddPlace);
+    makeToolBtn("Přechod", Tool::AddTransition);
+    makeToolBtn("Hrana", Tool::AddArc);
+    makeToolBtn("Odstranit", Tool::Remove);
 
     m_toolPanel->adjustSize();
     m_toolPanel->move(10, 10);
@@ -258,13 +258,13 @@ void MainWindow::setupFloatingPanels() {
     simLayout->setContentsMargins(6,6,6,6);
     simLayout->setSpacing(6);
 
-    QPushButton *stepBtn = new QPushButton("Step", m_simPanel);
+    QPushButton *stepBtn = new QPushButton("Krok", m_simPanel);
     stepBtn->setEnabled(true);
     simLayout->addWidget(stepBtn);
 
     connect(stepBtn, &QPushButton::clicked, this->m_receiver, &UdpConnector::sendStep);
 
-    m_runBtn = new QPushButton("Run", m_simPanel);
+    m_runBtn = new QPushButton("Spustit", m_simPanel);
     m_runBtn->setCheckable(true);
     m_runBtn->setEnabled(false);
     simLayout->addWidget(m_runBtn);
@@ -322,10 +322,10 @@ void MainWindow::setupTerminal() {
 
     m_terminalInput = new QLineEdit;
     m_terminalInput->setFont(f);
-    m_terminalInput->setPlaceholderText("Prikazy sem...");
+    m_terminalInput->setPlaceholderText("Příkaz");
     hbox->addWidget(m_terminalInput);
 
-    QPushButton *sendBtn = new QPushButton("Send");
+    QPushButton *sendBtn = new QPushButton("Odeslat");
     hbox->addWidget(sendBtn);
 
     vbox->addWidget(inputRow);
