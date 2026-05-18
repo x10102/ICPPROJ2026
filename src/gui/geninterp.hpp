@@ -12,14 +12,17 @@
 #include <qchar.h>
 #include <qobject.h>
 #include <qobjectdefs.h>
+#include <qstringliteral.h>
 #include <sstream>
 #include <string>
 #include <QString>
 #include <QProcess>
 
-
-const std::string MAIN_FILENAME = "program.cpp";
-const std::string MAIN_GENERATED = "program.generated.cpp";
+namespace {
+    const std::string MAIN_FILENAME = "program.cpp";
+    const std::string MAIN_GENERATED = "program.generated.cpp";
+    const std::string GENERATED_EXE = "generated.out";
+}
 
 class InterpreterGenerator : public QObject {
     Q_OBJECT

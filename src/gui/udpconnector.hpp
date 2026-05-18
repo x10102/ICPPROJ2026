@@ -27,7 +27,7 @@ private:
 public slots:
     void start();
     void terminate();
-    void sendStep();
+    void sendStep(bool singleIteration = false);
     void connectToInt();
 
 private slots:

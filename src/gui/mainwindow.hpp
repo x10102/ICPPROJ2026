@@ -21,6 +21,9 @@
 #include <QFrame>
 #include <qglobal.h>
 #include <qobject.h>
+#include <qplaintextedit.h>
+#include <qpushbutton.h>
+#include <qtabwidget.h>
 #include "geninterp.hpp"
 #include "gui/picojson.h"
 #include "petriscene.hpp"
@@ -111,6 +114,7 @@ private:
     void populateTransitionSidebar(TransitionItem *transition);
 
     bool           m_interpRunnable     = false;    ///< True if interpreter was built and can be run
+    bool           m_interpRunning      = false;    ///< True if interpreter is currently running
 
     PetriScene     *m_scene             = nullptr;  ///< Petri net scene
     QGraphicsView  *m_view              = nullptr;  ///< View for the scene
@@ -119,6 +123,8 @@ private:
     QFrame         *m_toolPanel         = nullptr;  ///< Floating tool panel (top left)
     QFrame         *m_simPanel          = nullptr;  ///< Floating simulation panel (bottom right)
     QPushButton    *m_runBtn            = nullptr;  ///< Button to start the simulation in the simulation panel
+    QPushButton    *m_stepBtn           = nullptr;  ///< Button to step in the simulation
+    QPushButton    *m_contBtn           = nullptr;  ///< Button to fire all transitions in the simulation
 
     bool            m_isPanning         = false;    ///< Whether the user is currently panning the view by dragging
     QPoint          m_panLastPos;                   ///< Last mouse position during panning, used to calculate the panning offset  
@@ -147,8 +153,10 @@ private:
     QLabel         *m_arcWeightLabel    = nullptr;  ///< Label for the arc weight spin box in the sidebar
 
     QDockWidget    *m_terminalDock      = nullptr;  ///< Terminal dock widget (bottom)
+    QTabWidget     *m_terminalTabs      = nullptr;  ///< Tab widget containing the terminal tabs
     QPlainTextEdit *m_terminal          = nullptr;  ///< GUI log tab
-    QPlainTextEdit *m_build_terminal    = nullptr;  ///< Build log tab
+    QPlainTextEdit *m_buildTerminal     = nullptr;  ///< Build log tab
+    QPlainTextEdit *m_interpTerminal    = nullptr;  ///< Interpreter output tab
     QLineEdit      *m_terminalInput     = nullptr;  ///< Input line for the terminal tab
 
     VariableMap     variables;

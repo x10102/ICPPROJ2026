@@ -180,7 +180,8 @@ void MainWindow::setupSourceGenerator() {
     m_generator->setMarker("#### MARKER ####");
     m_generator->setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO"); // TODO
     connect(m_generator, &InterpreterGenerator::compileStarted, this, [this]() {
-    appendLog("Kompiluji interpret...", TerminalTab::BUILD);
+        m_terminalTabs->setCurrentIndex(TerminalTab::BUILD);
+        appendLog("Kompiluji interpret...", TerminalTab::BUILD);
     });
     connect(m_generator, &InterpreterGenerator::compileProgress, this, [this](QString msg) {
         appendLog(msg, TerminalTab::BUILD);
@@ -191,10 +192,34 @@ void MainWindow::setupSourceGenerator() {
         m_runBtn->setEnabled(true);
     });
     connect(m_generator, &InterpreterGenerator::compileFailed, this, [this]() {
+        m_terminalTabs->setCurrentIndex(TerminalTab::BUILD);
         appendLog("Kompilace selhala. Zkontrolujte syntaxi akcí míst/přechodů.", TerminalTab::BUILD);
         m_interpRunnable = false;
         m_runBtn->setEnabled(false);
     });
+    connect(m_generator, &InterpreterGenerator::interpreterStarted, this, [this]() {
+        m_terminalTabs->setCurrentIndex(TerminalTab::INTERPRETER);
+        appendLog("Interpret spuštěn.", TerminalTab::INTERPRETER);
+        m_interpRunning = true;
+        m_stepBtn->setEnabled(true);
+        m_contBtn->setEnabled(true);
+    });
+    connect(m_generator, &InterpreterGenerator::interpreterOutput, this, [this](QString line) {
+        appendLog(line, TerminalTab::INTERPRETER);
+    });
+    connect(m_generator, &InterpreterGenerator::interpreterStopped, this, [this](int exitCode) {
+        appendLog(QString("Interpret ukončen (kód %1).").arg(exitCode), TerminalTab::INTERPRETER);
+        m_interpRunning = false;
+        m_stepBtn->setEnabled(false);
+        m_contBtn->setEnabled(false);
+    });
+    connect(m_generator, &InterpreterGenerator::interpreterError, this, [this](QString reason) {
+        appendLog("Chyba interpretu: " + reason, TerminalTab::INTERPRETER);
+        m_interpRunning = false;
+        m_stepBtn->setEnabled(false);
+        m_contBtn->setEnabled(false);
+    });
+
 }
 
 void MainWindow::setupUDPThread() {
@@ -214,7 +239,10 @@ void MainWindow::appendLog(const QString &msg, const TerminalTab tab) {
     QPlainTextEdit *selectedTab;
     switch(tab) {
         case TerminalTab::BUILD:
-            selectedTab = m_build_terminal;
+            selectedTab = m_buildTerminal;
+            break;
+        case TerminalTab::INTERPRETER:
+            selectedTab = m_interpTerminal;
             break;
         default:
         case TerminalTab::GUI:

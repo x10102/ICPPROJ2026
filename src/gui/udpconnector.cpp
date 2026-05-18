@@ -32,9 +32,10 @@ void UdpConnector::terminate() {
         this->inSock->close();
 }
 
-void UdpConnector::sendStep() {
-    std::string command = "{\"command\": \"step\"}";
-    QByteArray datagram(command.c_str());
+void UdpConnector::sendStep(bool singleIteration) {
+    const static std::string commandContinue = "{\"command\": \"step\"}";
+    const static std::string commandSingle = "{\"command\": \"stepSingle\"}";
+    QByteArray datagram(singleIteration ? commandSingle.c_str() : commandContinue.c_str());
     this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
 }
 

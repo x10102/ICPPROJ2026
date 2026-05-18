@@ -9,8 +9,10 @@
 #include "debug.hpp"
 #include "gui/picojson.h"
 #include <algorithm>
+#include <asm-generic/socket.h>
 #include <chrono>
 #include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <iomanip>
 #include <memory>
@@ -257,7 +259,8 @@ void Interpreter::doTransitions(bool all) {
                 
             }
         }
-        if(!all) break;
+        if(!all)
+            break;
     } while(fire_count > 0);
 }
 
@@ -284,8 +287,11 @@ void Interpreter::run(uint16_t port) {
         exit(2);
     }
     socklen_t saddr = sizeof(struct sockaddr_in);
+    const int one = 1;
+    setsockopt(sock_recv, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
     if(bind(sock_recv, (struct sockaddr*)&self_addr, saddr) < 0) {
         LOG_I("Application error: failed to bind socket");
+        perror("socket");
         exit(2);
     }
 
@@ -302,13 +308,10 @@ void Interpreter::run(uint16_t port) {
         }
         auto payload = data.get<picojson::object>();
         std::string command = payload["command"].to_str();
-        if(command.compare("step") == 0) {
-            // With the way the interpreter is programmed, we can really only do one step at a time
-            // We could add a parameter for N steps
-            // And also a parameter for "half-steps" - the doTransitions() loop will only run for one cycle and then report back state
-            // Would make it easier to follow convoluted networks where lots of transitions will fire each cycle
-            // TODO: partial steps implemented, add a command for them
-            doTransitions();
+        if(command.compare("stepSingle") == 0) {
+            doTransitions(false);
+        } else if(command.compare("step") == 0) {
+            doTransitions(true);
         } else if(command.compare("event") == 0) {
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {

@@ -215,6 +215,7 @@ void InterpreterGenerator::run() {
         }
     });
 
+    // Connect the crash handler
     connect(interpreterProcess,
             QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, [this](int exitCode, QProcess::ExitStatus status) {
@@ -226,6 +227,7 @@ void InterpreterGenerator::run() {
             emit interpreterStopped(exitCode);
     });
 
+    // Connect the process error handler
     connect(interpreterProcess, &QProcess::errorOccurred,
             this, [this](QProcess::ProcessError error) {
         const QString reason = interpreterProcess
@@ -238,10 +240,15 @@ void InterpreterGenerator::run() {
         emit interpreterError(reason);
     });
 
+    // Connect a kill handler to make sure the interpreter exits with the app
+    connect(interpreterProcess, &QProcess::destroyed, interpreterProcess, &QProcess::kill);
+
     emit interpreterStarted();
 
+    cout << "Will try to run: " << (interpSourcePath / MAIN_GENERATED).string() << endl;
+
     interpreterProcess->start(QString::fromStdString(
-        (interpSourcePath / MAIN_GENERATED).string()), {}, QProcess::ReadWrite);
+        (interpSourcePath / GENERATED_EXE).string()), {}, QProcess::ReadWrite);
 }
 
 void InterpreterGenerator::kill() {

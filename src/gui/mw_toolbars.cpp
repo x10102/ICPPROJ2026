@@ -3,6 +3,7 @@
  * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
  * @brief GUI Tool widgets implementation
  */
+#include "geninterp.hpp"
 #include "gui/udpconnector.hpp"
 #include "mainwindow.hpp"
 #include "variableeditor.hpp"
@@ -18,6 +19,7 @@
 #include <QAction>
 #include <QLineEdit>
 #include <QPushButton>
+#include <qpushbutton.h>
 
 void MainWindow::setupSidebar(){
     m_dock = new QDockWidget("Vlastnosti", this);
@@ -264,16 +266,21 @@ void MainWindow::setupFloatingPanels() {
     simLayout->setContentsMargins(6,6,6,6);
     simLayout->setSpacing(6);
 
-    QPushButton *stepBtn = new QPushButton("Krok", m_simPanel);
-    stepBtn->setEnabled(true);
-    simLayout->addWidget(stepBtn);
+    m_stepBtn = new QPushButton("Krok", m_simPanel);
+    m_stepBtn->setEnabled(false);
+    connect(m_stepBtn, &QPushButton::clicked, this, [this](){this->m_receiver->sendStep(true);});
 
-    connect(stepBtn, &QPushButton::clicked, this->m_receiver, &UdpConnector::sendStep);
-
+    m_contBtn = new QPushButton("Pokračovat", m_simPanel);
+    m_contBtn->setEnabled(false);
+    connect(m_contBtn, &QPushButton::clicked, this->m_receiver, &UdpConnector::sendStep);
+    
     m_runBtn = new QPushButton("Spustit", m_simPanel);
-    m_runBtn->setCheckable(true);
     m_runBtn->setEnabled(false);
+    connect(m_runBtn, &QPushButton::clicked, this->m_generator, &InterpreterGenerator::run);
+
     simLayout->addWidget(m_runBtn);
+    simLayout->addWidget(m_stepBtn);
+    simLayout->addWidget(m_contBtn);
 
     m_simPanel->adjustSize();
     m_simPanel->show();
@@ -313,12 +320,14 @@ void MainWindow::setupTerminal() {
     };
 
     m_terminal  = makeLog();
-    m_build_terminal = makeLog();
+    m_buildTerminal = makeLog();
+    m_interpTerminal = makeLog();
 
-    QTabWidget *tabs = new QTabWidget;
-    tabs->addTab(m_terminal,  "GUI");
-    tabs->addTab(m_build_terminal, "Sestavení");
-    vbox->addWidget(tabs);
+    m_terminalTabs = new QTabWidget;
+    m_terminalTabs->addTab(m_terminal,  "GUI");
+    m_terminalTabs->addTab(m_buildTerminal, "Sestavení");
+    m_terminalTabs->addTab(m_interpTerminal, "Interpret");
+    vbox->addWidget(m_terminalTabs);
 
     // Vstup pro příkazy uživatele
     QWidget *inputRow = new QWidget;

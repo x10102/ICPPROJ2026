@@ -7,6 +7,7 @@
 #define _TERMTAB_HPP
 enum TerminalTab {
     GUI,
-    BUILD
+    BUILD,
+    INTERPRETER
 };
 #endif
