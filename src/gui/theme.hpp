@@ -1,5 +1,5 @@
 /**
- * @file theme.cpp
+ * @file theme.hpp
  * @author Ondřej Turek, xtureko00, Dalibor Kalina, xkalin16
  * @brief GUI Themes interface
  */

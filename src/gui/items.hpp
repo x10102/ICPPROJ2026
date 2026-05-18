@@ -231,6 +231,16 @@ public:
         return m_fireCond;
     }
 
+    /// @brief Returns the delay of the transition
+    int delay() const {
+        return delayMs;
+    }
+
+    /// @brief Sets the delay of the transition
+    void setDelay(int delay) {
+        delayMs = delay;
+    }
+
     /**
      * @brief Sets the firing condition of the transition
      * @param fireCond New firing condition
@@ -289,6 +299,7 @@ private:
     QString m_inputEvent;   ///< Name of input event
     QString m_action;       ///< Transition action
     QString m_fireCond;     ///< Transition firing condition
+    int delayMs = 0;        ///< Transition fire delay
 };
 
 

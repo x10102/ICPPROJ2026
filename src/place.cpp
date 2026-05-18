@@ -1,5 +1,5 @@
 /**
- * @file petri.hpp
+ * @file petri.cpp
  * @author Ondřej Turek, xtureko00
  * @brief Petri net place implementation
  */

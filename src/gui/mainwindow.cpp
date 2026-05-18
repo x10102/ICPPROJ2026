@@ -1,5 +1,5 @@
 /**
- * @file mainwindow.h
+ * @file mainwindow.cpp
  * @author Dalibor Kalina, xkalin16, Ondřej Turek, xtureko00
  * @brief Main application window of the Petri network editor
  */
@@ -86,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_evtNameLabel->setVisible(false);
         m_actionEdit->setVisible(true);
         m_actionLabel->setVisible(true);
+        m_trDelayEdit->setVisible(false);
+        m_trDelayLabel->setVisible(false);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -119,6 +121,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_evtNameLabel->setVisible(true);
         m_actionEdit->setVisible(true);
         m_actionLabel->setVisible(true);
+        m_trDelayEdit->setVisible(true);
+        m_trDelayLabel->setVisible(true);
 
         m_editedArc = nullptr;
         m_arcWeightPanel->setVisible(false);
@@ -137,6 +141,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_fireCondEdit->setText(transition->fireCond());
         m_fireCondEdit->blockSignals(false);
 
+        m_trDelayEdit->blockSignals(true);
+        m_trDelayEdit->setValue(transition->delay());
+        m_trDelayEdit->blockSignals(false);
+
         populateTransitionSidebar(transition);
 
         m_dock->show();
@@ -152,6 +160,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
         m_evtNameLabel->setVisible(false);
         m_actionEdit->setVisible(false);
         m_actionLabel->setVisible(false);
+        m_trDelayEdit->setVisible(false);
+        m_trDelayLabel->setVisible(false);
 
         m_arcWeightPanel->setVisible(true);
         
@@ -457,6 +467,7 @@ bool MainWindow::loadNet() {
         t->setAction(QString::fromStdString(data.tranActionMacro));
         t->setFireCond(QString::fromStdString(data.booleanGuardMacro));
         t->setInputEvtName(QString::fromStdString(data.inputEventName));
+        t->setDelay(data.delayMs);
         m_scene->addItem(t);
         createdTransitions[data.name] = t;
     }

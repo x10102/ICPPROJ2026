@@ -23,6 +23,7 @@
 #include <qobject.h>
 #include <qplaintextedit.h>
 #include <qpushbutton.h>
+#include <qspinbox.h>
 #include <qtabwidget.h>
 #include "geninterp.hpp"
 #include "gui/picojson.h"
@@ -143,6 +144,9 @@ private:
 
     QLineEdit      *m_evtNameEdit      = nullptr;  ///< Line edit for the input event name of the selected transition
     QLabel         *m_evtNameLabel     = nullptr;  ///< Label for the input event edit in the sidebar
+
+    QSpinBox       *m_trDelayEdit      = nullptr;  ///< Spinner for the transition delay
+    QLabel         *m_trDelayLabel     = nullptr;  ///< Label for the transition delay
 
     PlaceItem      *m_editedPlace       = nullptr;  ///< Currently selected place for editing, nullptr if no place is selected
     TransitionItem *m_editedTransition  = nullptr;  ///< Currently selected transition for editing, nullptr if no transition is selected

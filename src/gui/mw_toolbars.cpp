@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <qaction.h>
 #include <qpushbutton.h>
+#include <qspinbox.h>
 
 void MainWindow::setupSidebar(){
     // Attribute sidebar on the right side of the window
@@ -71,6 +72,16 @@ void MainWindow::setupSidebar(){
     fireCondForm->addRow(m_fireCondEdit);
     vbox->addLayout(fireCondForm);
 
+    // Delay of the transition
+    QFormLayout *trDelayForm = new QFormLayout;
+    m_trDelayEdit = new QSpinBox;
+    m_trDelayLabel = new QLabel("Zpoždění přechodu (ms):");
+    m_trDelayEdit->setMinimum(0);
+    m_trDelayEdit->setMaximum(999999);
+    trDelayForm->addRow(m_trDelayLabel);
+    trDelayForm->addRow(m_trDelayEdit);
+    vbox->addLayout(trDelayForm);
+
     // Input event of the transition
     QFormLayout *inputEvtNameForm = new QFormLayout;
     m_evtNameEdit = new QLineEdit;
@@ -78,7 +89,6 @@ void MainWindow::setupSidebar(){
     inputEvtNameForm->addRow(m_evtNameLabel);
     inputEvtNameForm->addRow(m_evtNameEdit);
     vbox->addLayout(inputEvtNameForm);
-
 
     // --- arc-specific attributes ---
     m_arcPanel = new QWidget;
@@ -144,6 +154,12 @@ void MainWindow::setupSidebar(){
         if (m_editedTransition) {
             m_editedTransition->setInputEvtName(text);
             m_spec.getTransition(m_editedTransition->name().toStdString())->inputEventName = text.toStdString();
+        }
+    });
+    connect(m_trDelayEdit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int val){
+        if(m_editedTransition) {
+            m_editedTransition->setDelay(val);
+            m_spec.getTransition(m_editedTransition->name().toStdString())->delayMs = val;
         }
     });
 

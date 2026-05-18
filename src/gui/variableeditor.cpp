@@ -194,12 +194,12 @@ QString CppVariable::toCppDeclaration() const
 
 VariableEditorDialog::VariableEditorDialog(VariableMap &variables, QWidget *parent): QDialog(parent), m_variables(variables)
 {
-    setWindowTitle(tr("Editor Proměnných"));
+    setWindowTitle("Editor Proměnných");
     setMinimumSize(560, 340);
 
     // The table unnnghhhh this took so much time to get right
     m_table = new QTableWidget(0, 3, this);
-    m_table->setHorizontalHeaderLabels({ tr("Jméno"), tr("Typ"), tr("Hodnota") });
+    m_table->setHorizontalHeaderLabels({ "Jméno", "Typ", "Hodnota" });
     m_table->horizontalHeader()->setSectionResizeMode(kColName,  QHeaderView::Stretch);
     m_table->horizontalHeader()->setSectionResizeMode(kColType,  QHeaderView::ResizeToContents);
     m_table->horizontalHeader()->setSectionResizeMode(kColValue, QHeaderView::Stretch);
@@ -291,7 +291,7 @@ void VariableEditorDialog::addVariable()
     const int row = m_table->rowCount();
     m_table->insertRow(row);
 
-    auto *nameItem  = new QTableWidgetItem(tr("variable%1").arg(row + 1));
+    auto *nameItem  = new QTableWidgetItem(QStringLiteral("variable%1").arg(row + 1));
     auto *valueItem = new QTableWidgetItem(QStringLiteral("0"));
 
     m_table->setItem(row, kColName,  nameItem);
@@ -320,7 +320,7 @@ void VariableEditorDialog::removeSelectedVariable()
     m_table->removeRow(row);
 }
 
-void VariableEditorDialog::onCellChanged(int row, int /*column*/)
+void VariableEditorDialog::onCellChanged(int row, int)
 {
     if (m_ignoreChanges) return;
     commitRow(row);
@@ -367,7 +367,7 @@ bool VariableEditorDialog::commitRow(int row)
     var.value = valueItem->text();
 
     if (!var.isValueValid()) {
-        QMessageBox::warning(this, tr("Neplatná hodnota"),
+        QMessageBox::warning(this,"Neplatná hodnota",
             QStringLiteral("\"%1\" není platná hodnota pro typ %2.")
                 .arg(var.value).arg(CppVariable::typeName(var.type)));
         m_table->setCurrentCell(row, kColValue);

@@ -44,7 +44,7 @@ void InterpreterGenerator::emitTransition(const PetriTransition *t) {
             generatedBuffer << t->delayMs << ", ";
             generatedBuffer << t->booleanGuardMacro << ");" << std::endl;
         } else {
-            generatedBuffer << "CONDITION(" << t->name;
+            generatedBuffer << "CONDITION(" << t->name << ", ";
             generatedBuffer << "\"" << t->inputEventName << "\", ";
             generatedBuffer << t->delayMs << ");" << std::endl;
         }

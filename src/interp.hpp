@@ -1,5 +1,5 @@
 /**
- * @file interp.cpp
+ * @file interp.hpp
  * @author Ondřej Turek, xtureko00
  * @brief Interpreter engine interface
  */

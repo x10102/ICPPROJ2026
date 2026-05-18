@@ -1,5 +1,5 @@
 /**
- * @file variableeditor.cpp
+ * @file variableeditor.hpp
  * @author Ondřej Turek, xtureko00
  * @brief Variable editor dialog interface
  */
