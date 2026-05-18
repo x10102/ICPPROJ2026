@@ -10,7 +10,7 @@ clean:
 	cd $(SRCDIR) && make clean
 
 pack: clean
-	zip -r xtureko00-xsramea00-xkalin16.zip ./* -x .gitignore -x doc/* -x *.zip
+	zip -r xtureko00-xsramea00-xkalin16-45-30-25.zip ./* -x .gitignore -x doc/* -x *.zip
 
 doxygen:
 	cd src && doxygen
