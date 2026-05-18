@@ -311,7 +311,6 @@ void Interpreter::run(uint16_t port) {
         } else if(command.compare("step") == 0) {
             doTransitions(true);
         } else if(command.compare("event") == 0) {
-            LOG_I("Process input event");
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {
             terminate();
