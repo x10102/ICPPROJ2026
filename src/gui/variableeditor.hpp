@@ -1,3 +1,9 @@
+/**
+ * @file variableeditor.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Variable editor dialog interface
+ */
+
 #ifndef _VAREDITOR_H
 #define _VAREDITOR_H
 #include "picojson.h"

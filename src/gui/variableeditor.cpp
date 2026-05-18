@@ -1,3 +1,9 @@
+/**
+ * @file variableeditor.cpp
+ * @author Ondřej Turek, xtureko00
+ * @brief Variable editor dialog implementation
+ */
+
 #include "variableeditor.hpp"
 #include "picojson.h"
 
@@ -239,6 +245,9 @@ VariableEditorDialog::VariableEditorDialog(VariableMap &variables, QWidget *pare
         for (int row = 0; row < m_table->rowCount(); ++row) {
             if (!commitRow(row)) return; // commitRow shows the error message
         }
+
+        // This is a QDialog, so we just call accept() and and the main window knows we're good
+        // as with many things, we should have been using this all along
         accept();
     });
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
