@@ -14,6 +14,7 @@
 
 #include "items.hpp"
 #include "picojson.h"
+#include "variableeditor.hpp"
 
 enum ArcType {
     PLACE_TO_TRANSITION,
@@ -66,15 +67,15 @@ struct PetriNetworkSpec {
     void addArcToPlace(std::string placeName, std::string transitionName, unsigned int tokenCount);
     void addInput(std::string inputName);
     void addOutput(std::string outputName);
-    void addVariableDef(std::string definition);
     void setNetworkName(std::string name);
     void setDescription(std::string description);
+
+    void setVariableMap(VariableMap *vars);
 
     void removePlace(std::string name);
     void removeTransition(std::string name);
     void removeArc(PetriPlace *p, PetriTransition *t);
     void removeArc(ArcItem *arc);
-    void undefVariable(std::string name);
     void removeInput(std::string inputName);
     void removeOutput(std::string outputName);
 
@@ -90,7 +91,6 @@ struct PetriNetworkSpec {
 
     std::string name;
     std::string description;
-    std::vector<std::string> variables;
     std::vector<std::string> inputs;
     std::vector<std::string> outputs;
     std::map<std::string, PetriPlace> places;
@@ -98,6 +98,7 @@ struct PetriNetworkSpec {
     std::map<std::pair<std::string, std::string>, PetriArc> arcs;
 
     private:
+        VariableMap *variables = nullptr;
         std::pair<std::string, std::string> getArcMapKey(ArcItem *arc);
 };
 #endif

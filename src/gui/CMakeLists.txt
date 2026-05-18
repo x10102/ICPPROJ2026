@@ -29,8 +29,8 @@ set(PROJECT_SOURCES
         petriscene.cpp
         udpconnector.hpp
         udpconnector.cpp
-        variableeditordialog.cpp
-        variableeditordialog.hpp
+        variableeditor.cpp
+        variableeditor.hpp
         geninterp.cpp
         geninterp.hpp
         styles.hpp

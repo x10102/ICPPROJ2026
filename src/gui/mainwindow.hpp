@@ -28,6 +28,7 @@
 #include "theme.hpp"
 #include "editorstate.hpp"
 #include "udpconnector.hpp"
+#include "variableeditor.hpp"
 
 class QtInterpreter;
 
@@ -149,6 +150,8 @@ private:
     QPlainTextEdit *m_terminal          = nullptr;  ///< GUI log tab
     QPlainTextEdit *m_build_terminal    = nullptr;  ///< Build log tab
     QLineEdit      *m_terminalInput     = nullptr;  ///< Input line for the terminal tab
+
+    VariableMap     variables;
 
     UdpConnector    *m_receiver         = nullptr;
     QThread         *m_receiverThread   = nullptr; 

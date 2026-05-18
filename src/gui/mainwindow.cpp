@@ -58,6 +58,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     m_view->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(m_view);
 
+    m_spec.setVariableMap(&this->variables);
+
     setupSourceGenerator();
     setupUDPThread();
 
@@ -65,9 +67,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupToolbar();
     setupSidebar();
     setupFloatingPanels();
-
-    // TODO: Doesn't work, fix or delete
-    //qInstallMessageHandler(&MainWindow::terminalMessageHandler);
 
     m_view->installEventFilter(this);
     m_view->viewport()->installEventFilter(this);
@@ -179,7 +178,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 void MainWindow::setupSourceGenerator() {
     m_generator = new InterpreterGenerator(this);
     m_generator->setMarker("#### MARKER ####");
-    m_generator->setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO");
+    m_generator->setPath("/mnt/c/users/cracktek/desktop/zdrojovy_kod_velkeho_mleka/ICPHOVNO"); // TODO
     connect(m_generator, &InterpreterGenerator::compileStarted, this, [this]() {
     appendLog("Kompiluji interpret...", TerminalTab::BUILD);
     });

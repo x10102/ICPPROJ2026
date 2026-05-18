@@ -1,7 +1,7 @@
 /**
  * @file geninterp.hpp
  * @author Ondřej Turek, xtureko00
- * @brief Rozhraní generátoru kódu interpretu
+ * @brief Code generator interface
  */
 #ifndef _GENINTERP_H
 #define _GENINTERP_H
@@ -41,7 +41,7 @@ class InterpreterGenerator : public QObject {
         void compile();
 
         /// @brief Runs the interpreter
-        bool run();
+        void run();
 
         /// @brief Terminates the interpreter process
         void kill();

@@ -1,7 +1,7 @@
 /**
  * @file geninterp.cpp
  * @author Ondřej Turek, xtureko00
- * @brief Implementace generátoru kódu interpretu
+ * @brief Code generator implementation
  */
 #include "geninterp.hpp"
 #include "editorstate.hpp"
@@ -15,6 +15,7 @@
 #include <QTextStream>
 #include <QProcess>
 #include <QTimer>
+#include <qprocess.h>
 #include <qregion.h>
 #include <qstringliteral.h>
 
@@ -76,12 +77,11 @@ void InterpreterGenerator::emitAll(const PetriNetworkSpec *spec) {
         this->emitArc(&arc.second); 
 }
 
-// TODO: Make this a signal?
 bool InterpreterGenerator::generateMain(const PetriNetworkSpec *spec) {
     // Clear the buffer
     this->generatedBuffer.str("");
     this->emitAll(spec);
-    // TODO: Raise an exception
+
     filesystem::path mainPath = this->interpSourcePath / MAIN_FILENAME;
     if(!filesystem::exists(mainPath)) {
         cerr << "Error generating interpreter: file " << mainPath << " doesn't exist" << endl;
@@ -177,14 +177,72 @@ void InterpreterGenerator::onProcessFinished(int exitCode, QProcess::ExitStatus 
 }
 
 void InterpreterGenerator::onProcessError(QProcess::ProcessError error) {
-    /*
-    const QString reason = compileProcess
-                           ? compileProcess->errorString()
-                           : QProcess::tr("Neznámá chyba (%1)").arg(error);
-    */
     if (compileProcess) {
         compileProcess->deleteLater();
         compileProcess = nullptr;
     }
     emit compileFailed();
+}
+
+void InterpreterGenerator::run() {
+    if (interpreterProcess)
+        return; // we are already running
+
+    interpreterProcess = new QProcess(this);
+    interpreterProcess->setWorkingDirectory(
+        QString::fromStdString(interpSourcePath.string()));
+
+    // We only have one interpreter terminal, just merge stdout and stderr
+    interpreterProcess->setProcessChannelMode(QProcess::MergedChannels);
+    
+    // Exactly the same awful function as for the compiler, just as a lambda
+    // We don't need any more slots on this class idk
+    connect(interpreterProcess, &QProcess::readyReadStandardOutput,
+            this, [this]() {
+        const QByteArray data = interpreterProcess->readAllStandardOutput();
+        for (const QByteArray &rawLine : data.split('\n')) {
+            const QString line = QString::fromLocal8Bit(rawLine).trimmed();
+            if (!line.isEmpty())
+                emit interpreterOutput(line);
+        }
+    });
+
+    connect(interpreterProcess,
+            QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this](int exitCode, QProcess::ExitStatus status) {
+        interpreterProcess->deleteLater();
+        interpreterProcess = nullptr;
+        if (status == QProcess::CrashExit)
+            emit interpreterError("Interpret havaroval");
+        else
+            emit interpreterStopped(exitCode);
+    });
+
+    connect(interpreterProcess, &QProcess::errorOccurred,
+            this, [this](QProcess::ProcessError error) {
+        const QString reason = interpreterProcess
+                               ? interpreterProcess->errorString()
+                               : QProcess::tr("Neznámá chyba (%1)").arg(error);
+        if (interpreterProcess) {
+            interpreterProcess->deleteLater();
+            interpreterProcess = nullptr;
+        }
+        emit interpreterError(reason);
+    });
+
+    emit interpreterStarted();
+
+    interpreterProcess->start(QString::fromStdString(
+        (interpSourcePath / MAIN_GENERATED).string()), {}, QProcess::ReadWrite);
+}
+
+void InterpreterGenerator::kill() {
+    if (!interpreterProcess)
+        return;
+    interpreterProcess->terminate();
+    // Try to politely ask the process to quit before exploding it with a shotgun after two seconds
+    QTimer::singleShot(2000, this, [this]() {
+        if (interpreterProcess)
+            interpreterProcess->kill();
+    });
 }

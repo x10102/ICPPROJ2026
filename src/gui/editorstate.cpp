@@ -6,6 +6,7 @@
 #include "editorstate.hpp"
 #include "items.hpp"
 #include "picojson.h"
+#include "variableeditor.hpp"
 #include <cstdint>
 #include <iostream>
 #include <string>
@@ -22,7 +23,6 @@ using std::make_pair;
 using std::pair;
 using std::string;
 
-// TODO: Parametric constructor
 PetriPlace::PetriPlace() {
     this->initial_tokens = 0;
 }
@@ -78,6 +78,10 @@ void PetriNetworkSpec::addPlace(PetriPlace p) {
 }
 void PetriNetworkSpec::addTransition(PetriTransition t) {
     this->transitions[t.name] = t;
+}
+
+void PetriNetworkSpec::setVariableMap(VariableMap *vars) {
+    this->variables = vars;
 }
 
 void PetriNetworkSpec::addArcFromPlace(std::string placeName, std::string transitionName, unsigned int tokenCount) {
@@ -201,9 +205,7 @@ void PetriNetworkSpec::addInput(std::string inputName) {
 void PetriNetworkSpec::addOutput(std::string outputName) {
     this->outputs.push_back(outputName);
 }
-void PetriNetworkSpec::addVariableDef(std::string definition) {
-    this->variables.push_back(definition);
-}
+
 void PetriNetworkSpec::setNetworkName(std::string name) {
     this->name = name;
 }
@@ -243,8 +245,8 @@ std::string PetriNetworkSpec::exportJSON() const {
     for (const auto &transition : this->transitions)
         transitions[transition.second.name] = V(transition.second.json());
 
-    for(const auto &var : this->variables)
-        variables.push_back(V(var));
+    //for(const auto &var : this->variables)
+    //    variables.push_back(V(var));
 
     for(const auto &in : this->inputs)
         inputs.push_back(V(in));
@@ -290,7 +292,7 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
         }
     };
 
-    loadStringArray("variables", this->variables);
+    //loadStringArray("variables", this->variables);
     loadStringArray("inputs",    this->inputs);
     loadStringArray("outputs",   this->outputs);
 

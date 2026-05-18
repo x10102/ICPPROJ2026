@@ -74,8 +74,6 @@ void Interpreter::inputEvent(const std::string input, const std::string value) {
 }
 
 void Interpreter::outputEvent(string output, string value) {
-    // TODO: This should at least send the output event to the editor
-    // For now we just log it
     LOG_I("OUTPUT_EVENT: %s=%s", output.c_str(), value.c_str());
     auto unixTimestampMs = chrono::duration_cast<std::chrono::milliseconds>\
         (chrono::steady_clock::now().time_since_epoch()).count();
@@ -176,8 +174,6 @@ Place* Interpreter::getPlace(string identifier) {
 
 // Thread entry point for delayed transitions
 void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
-    // TODO: compensate for the time it takes to start the thread
-    // (might not be significant, have to measure that)
     std::this_thread::sleep_for(std::chrono::milliseconds(delay_ms));
     if(exiting) {
         LOG_I("Ignoring delayed fire of %s while exiting", tr->identifier.c_str());
@@ -255,7 +251,6 @@ void Interpreter::doTransitions(bool all) {
                 uint32_t delay = tr->getFireCondition()->delayMs;
                 LOG_D("Schedule transition %s after %u ms", tr->identifier.c_str(), delay);
                 // No easy way to call an instance method as a thread start other than this
-                // TODO: In the final interpreter, it would make more sense to detach the thread here (or use futures)
                 auto thr = std::thread([this, delay, tr]() {delayedFire(tr, delay);});
                 // Threads aren't copyable - move it into the vector
                 timerThreads.emplace_back(std::move(thr));

@@ -63,8 +63,6 @@ uint32_t tokens(string place_id) {
 uint64_t elapsed(string place_or_transition_id) {
     Place *p = interpreter->getPlace(place_or_transition_id);
     if(p == nullptr) {
-        // TODO: Idk what we're supposed to do here, project spec doesn't make it too clear
-        // Have to ask
         LOG_I("elapsed() called for transition or nonexistent place - not implemented");
         return 0;
     }

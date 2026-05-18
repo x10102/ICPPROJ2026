@@ -5,6 +5,7 @@
  */
 #include "gui/udpconnector.hpp"
 #include "mainwindow.hpp"
+#include "variableeditor.hpp"
 #include "styles.hpp"
 #include <QFormLayout>
 #include <QWidget>
@@ -189,6 +190,10 @@ void MainWindow::setupToolbar(){
 
     connect(btnLoad, &QAction::triggered, this, [this](){
         this->loadNet();
+    });
+
+    connect(variablesAct, &QAction::triggered, this, [this](){
+        showVariableEditor(this->variables, this);
     });
 
     connect(btnSetSource, &QAction::triggered, this, [this](){this->setSourceDir();});

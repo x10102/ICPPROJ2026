@@ -70,7 +70,6 @@ void __INTERNAL_interactive_test(Interpreter *interp) {
 
 // Prefix any local variables here with __INTERNAL_
 // To prevent clash with net variables (user-defined)
-// TODO: Check for name clashes in GUI
 int main(int argc, char *argv[]) {
     
     Interpreter __INTERNAL_interp;
