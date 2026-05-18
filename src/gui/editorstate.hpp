@@ -96,9 +96,9 @@ struct PetriNetworkSpec {
     std::map<std::string, PetriPlace> places;
     std::map<std::string, PetriTransition> transitions;
     std::map<std::pair<std::string, std::string>, PetriArc> arcs;
+    VariableMap *variables = nullptr;
 
     private:
-        VariableMap *variables = nullptr;
         std::pair<std::string, std::string> getArcMapKey(ArcItem *arc);
 };
 #endif

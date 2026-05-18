@@ -7,6 +7,7 @@
 #define _GENINTERP_H
 
 #include "editorstate.hpp"
+#include "variableeditor.hpp"
 #include <filesystem>
 #include <qchar.h>
 #include <qobject.h>
@@ -80,6 +81,8 @@ class InterpreterGenerator : public QObject {
 
         /// @brief Inserts the definition of an arc into the buffer
         void emitArc(const PetriArc *a);
+
+        void emitVariables(const VariableMap *vars);
 
         /// @brief Emits all arcs, transitions and places from the passed specification
         void emitAll(const PetriNetworkSpec *spec);

@@ -68,7 +68,15 @@ void InterpreterGenerator::emitArc(const PetriArc *a) {
     }
 }
 
+void InterpreterGenerator::emitVariables(const VariableMap *vars) {
+    for(const auto &var : *vars) {
+        generatedBuffer << var.toCppDeclaration().toStdString() << endl;
+    }
+}
+
 void InterpreterGenerator::emitAll(const PetriNetworkSpec *spec) {
+    if(spec->variables)
+        emitVariables(spec->variables);
     for(const auto &p : spec->places)
         this->emitPlace(&p.second);
     for(const auto &tr : spec->transitions)

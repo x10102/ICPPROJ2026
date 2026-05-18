@@ -57,6 +57,7 @@ struct CppVariable
 };
 
 // ouuughh modern c++ so coool
+// also ouughhh Qt has its own map so cool we should have been using this the entire time
 using VariableMap = QMap<QString, CppVariable>;
 
 class VariableEditorDialog : public QDialog

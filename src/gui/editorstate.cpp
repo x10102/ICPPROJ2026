@@ -231,8 +231,8 @@ std::string PetriNetworkSpec::exportJSON() const {
     picojson::object root;
     picojson::object places;
     picojson::object transitions;
+    picojson::object variables;
     picojson::array arcs;
-    picojson::array variables;
     picojson::array inputs;
     picojson::array outputs;
 
@@ -245,8 +245,8 @@ std::string PetriNetworkSpec::exportJSON() const {
     for (const auto &transition : this->transitions)
         transitions[transition.second.name] = V(transition.second.json());
 
-    //for(const auto &var : this->variables)
-    //    variables.push_back(V(var));
+    for(const auto &var : *this->variables)
+        variables[var.name.toStdString()] = V(var.toJson());
 
     for(const auto &in : this->inputs)
         inputs.push_back(V(in));
@@ -339,14 +339,13 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
         for (const auto &item : rootObj.at("arcs").get<picojson::array>()) {
 
             if (!item.is<picojson::object>())
-                std::cout << "Breaking couldn't parse as object" << std::endl;
+                continue;;
 
             const auto &obj = item.get<picojson::object>();
 
             if (!obj.count("place") || !obj.count("transition") || !obj.count("arcType") || !obj.count("tokenCount"))
-                std::cout << "Breaking because required attr missing" << std::endl;
+                continue;;
                 
-
             std::string placeName      = obj.at("place").get<std::string>();
             std::string transitionName = obj.at("transition").get<std::string>();
 
@@ -365,6 +364,26 @@ bool PetriNetworkSpec::loadJSON(std::string jsonString) {
             arc.type = (ArcType)typeNum;
 
             this->arcs[{placeName, transitionName}] = arc;
+        }
+    }
+
+    this->variables->clear();
+    if(rootObj.count("variables") && rootObj.at("variables").is<picojson::object>()) {
+        for (const auto &var : rootObj.at("variables").get<picojson::object>()) {
+
+            if (!var.second.is<picojson::object>())
+                continue;
+
+            const auto &obj = var.second.get<picojson::object>();
+
+            if (!obj.count("name") || !obj.count("type") || !obj.count("value"))
+                continue;
+            
+            CppVariable loadedVar;
+            if(!loadedVar.fromJson(obj))
+                continue;
+                
+            this->variables->insert(loadedVar.name, loadedVar);
         }
     }
 
