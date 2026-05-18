@@ -10,6 +10,12 @@ Zadání: Nástroj pro vizuální editaci, generování kódu a monitorování b
 - `make doxygen` vytvoří dokumentaci pod `/doc`
 - `make clean` vyčistí sestavené soubory
 
+# Poznámky
+- Před sestavením interpretu je třeba vybrat adresář, kde se nachází jeho zdrojový kód. (Pomocí Soubor > vybrat zdrojový adresář)
+- Hodnoty vstupů a výstupů se zobrazují na terminálu pod záložkou "Interpret"
+- Příkaz "Krok" provede jednu iteraci odpálení přechodů, tzn. odpálí se pouze přechody, u kterých jsou aktuálně splněny podmínky, i pokud se důsledkem toho naplní podmínky pro další přechody
+- Příkaz "Pokračovat" provádí další iterace, dokud jsou po posledním odpálení splněny podmínky pro jakýkoliv další přechod
+
 # Popis celkové implementace
 
 ## Komunikace interpretu a editoru
