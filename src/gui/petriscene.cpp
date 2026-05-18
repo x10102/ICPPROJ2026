@@ -202,9 +202,6 @@ void PetriScene::mousePressEvent(QGraphicsSceneMouseEvent *event){
 
         case Tool::Select:
         default:
-            if (event->modifiers() & Qt::ControlModifier)
-                event->setModifiers(Qt::NoModifier);
-
             QGraphicsScene::mousePressEvent(event);
 
             if (auto *place = qgraphicsitem_cast<PlaceItem *>(mouseGrabberItem()))
@@ -333,6 +330,12 @@ void PetriScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event){
                     arc->updatePosition();
                 }
             }
+        }
+    }
+
+    for (QGraphicsItem *item : items()){
+        if (auto *arc = qgraphicsitem_cast<ArcItem *>(item)) {
+            arc->setData(0, QPointF(0,0));
         }
     }
 }
