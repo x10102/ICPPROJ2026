@@ -84,6 +84,16 @@ void PetriNetworkSpec::setVariableMap(VariableMap *vars) {
     this->variables = vars;
 }
 
+void PetriNetworkSpec::clearSpec() {
+    this->variables->clear();
+    this->places.clear();
+    this->transitions.clear();
+    this->description.clear();
+    this->name.clear();
+    this->inputs.clear();
+    this->outputs.clear();
+}
+
 void PetriNetworkSpec::addArcFromPlace(std::string placeName, std::string transitionName, unsigned int tokenCount) {
     // Not checking for existence here, if they're not in the map then the logic is wrong
     PetriTransition *transition = &transitions.find(transitionName)->second;

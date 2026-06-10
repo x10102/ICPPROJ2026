@@ -79,6 +79,8 @@ struct PetriNetworkSpec {
     void removeInput(std::string inputName);
     void removeOutput(std::string outputName);
 
+    void clearSpec();
+
     std::string exportJSON() const;
     bool loadJSON(std::string jsonString);
 

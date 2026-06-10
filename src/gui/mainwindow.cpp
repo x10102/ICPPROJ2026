@@ -37,6 +37,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QThread>
+#include <QWidget>
 #include <sstream>
 #include <string>
 
@@ -444,6 +445,9 @@ bool MainWindow::loadNet() {
     }
 
     m_spec.loadJSON(outputFile.readAll().toStdString());
+
+    m_scene->clear();
+    m_spec.clearSpec();
 
     // Create two maps for the transition and place items we create
     // So that we don't have to inefficiently search m_scene.items() on every arc added
