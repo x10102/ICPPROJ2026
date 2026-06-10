@@ -446,6 +446,15 @@ bool MainWindow::loadNet() {
 
     m_spec.loadJSON(outputFile.readAll().toStdString());
 
+    // Kill the interpreter if it's running
+    if(m_interpRunning) {
+        m_generator->kill();
+    }
+
+    // And clear the runnable flag because we have to recompile now
+    m_interpRunnable = false;
+
+    // Clear the scene and spec
     m_scene->clear();
     m_spec.clearSpec();
 
