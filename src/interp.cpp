@@ -185,6 +185,8 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
         this->firedLastStep.push_back(tr->identifier);
         tr->fire();
         LOG_D("Fired transition %s after %u ms delay", tr->identifier.c_str(), delay_ms);
+        sendState();
+        // TODO: Send also transitions which didn't fire
     } else {
         LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr->identifier.c_str());
     }
@@ -271,6 +273,16 @@ void Interpreter::clearFired() {
     this->firedLastStep.clear();
 }
 
+void Interpreter::sendState() {
+    char json_str_buffer[NETWORK_BUFFER_SIZE];
+    std::string json = picojson::value(this->json()).serialize(false);
+    json.copy(json_str_buffer, NETWORK_BUFFER_SIZE);
+    // Terminate the buffer manually because string.copy() doesn't do that apparently???
+    json_str_buffer[json.length()] = '\0';
+    
+    connector->send_buffer(json_str_buffer);
+}
+
 void Interpreter::run(uint16_t port) {
     
     this->connector = std::make_unique<GuiConnector>(port);
@@ -279,8 +291,6 @@ void Interpreter::run(uint16_t port) {
         LOG_I("Critical: socket bind failed, exiting");
         return;
     }
-
-    char json_str_buffer[NETWORK_BUFFER_SIZE];
 
     while(true) {
         picojson::value recv;
@@ -310,12 +320,8 @@ void Interpreter::run(uint16_t port) {
             break;
         }
 
-        std::string json = picojson::value(this->json()).serialize(false);
-        json.copy(json_str_buffer, NETWORK_BUFFER_SIZE);
-        // Terminate the buffer manually because string.copy() doesn't do that apparently???
-        json_str_buffer[json.length()] = '\0';
+        sendState();
         
-        connector->send_buffer(json_str_buffer);
         // Clear the events that fired
         clearFired();
         clearEvents();

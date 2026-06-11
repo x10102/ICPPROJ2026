@@ -65,6 +65,8 @@ class Interpreter {
         bool inputDefined(const std::string input); ///< Checks if an input is defined
         string *lastInputValue(const std::string input); ///< Retrieves the last known value of an input
 
+        void sendState(); ///< Sends the current state through the socket after the connection has been initiated
+
         // Functions for clearing the internal "queues" of events and fired transitions
         void clearFired();
         void clearEvents();
