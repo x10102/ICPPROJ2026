@@ -308,6 +308,7 @@ void Interpreter::sendState() {
 void Interpreter::run(uint16_t port) {
     
     this->connector = std::make_unique<GuiConnector>(port);
+    this->runToEnd = false;
 
     if(!this->connector->bind_socket()) {
         LOG_I("Critical: socket bind failed, exiting");

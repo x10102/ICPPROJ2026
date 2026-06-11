@@ -34,7 +34,7 @@ void UdpConnector::terminate() {
 }
 
 void UdpConnector::sendStep(bool singleIteration) {
-    const static std::string commandContinue = "{\"command\": \"step\"}";
+    const static std::string commandContinue = "{\"command\": \"runToEnd\"}";
     const static std::string commandSingle = "{\"command\": \"stepSingle\"}";
     QByteArray datagram(singleIteration ? commandSingle.c_str() : commandContinue.c_str());
     this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
