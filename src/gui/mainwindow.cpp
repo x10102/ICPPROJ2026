@@ -444,8 +444,6 @@ bool MainWindow::loadNet() {
         appendLog("Chyba: Nelze otevřít soubor " + filename + " pro čtení.");
     }
 
-    m_spec.loadJSON(outputFile.readAll().toStdString());
-
     // Kill the interpreter if it's running
     if(m_interpRunning) {
         m_generator->kill();
@@ -457,6 +455,8 @@ bool MainWindow::loadNet() {
     // Clear the scene and spec
     m_scene->clear();
     m_spec.clearSpec();
+
+    m_spec.loadJSON(outputFile.readAll().toStdString());
 
     // Create two maps for the transition and place items we create
     // So that we don't have to inefficiently search m_scene.items() on every arc added

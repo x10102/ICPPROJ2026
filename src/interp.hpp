@@ -7,10 +7,9 @@
 #ifndef _INTERP_H
 #define _INTERP_H
 
-#define NETWORK_BUFFER_SIZE 8192
-
 #include "petri.hpp"
 #include "gui/picojson.h"
+#include "guiconnector.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -43,6 +42,8 @@ class Interpreter {
         mutex transition_lock;
         uint32_t max_order;
         bool exiting;
+
+        std::unique_ptr<GuiConnector> connector;
 
         void delayedFire(Transition *tr, uint32_t delay_ms);
 

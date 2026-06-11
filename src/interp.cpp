@@ -4,6 +4,7 @@
  * @brief Interpreter engine implementation
  */
 
+#include "guiconnector.hpp"
 #include "petri.hpp"
 #include "interp.hpp"
 #include "debug.hpp"
@@ -271,40 +272,31 @@ void Interpreter::clearFired() {
 }
 
 void Interpreter::run(uint16_t port) {
-    struct sockaddr_in editor_addr;
-    struct sockaddr_in self_addr;
-    char netbuffer[NETWORK_BUFFER_SIZE];
-    memset(&editor_addr, 0, sizeof(struct sockaddr_in));
-    memset(&self_addr, 0, sizeof(struct sockaddr_in));
-    self_addr.sin_addr.s_addr = INADDR_ANY;
-    self_addr.sin_family = AF_INET;
-    self_addr.sin_port = htons(port);
-    int sock_recv = socket(AF_INET, SOCK_DGRAM, 0);
-    if(sock_recv < 0) {
-        LOG_I("Application error: failed to create socket");
-        exit(2);
-    }
-    socklen_t saddr = sizeof(struct sockaddr_in);
-    const int one = 1;
-    setsockopt(sock_recv, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
-    if(bind(sock_recv, (struct sockaddr*)&self_addr, saddr) < 0) {
-        LOG_I("Application error: failed to bind socket");
-        perror("socket");
-        exit(2);
+    
+    this->connector = std::make_unique<GuiConnector>(port);
+
+    if(!this->connector->bind_socket()) {
+        LOG_I("Critical: socket bind failed, exiting");
+        return;
     }
 
-    int recv_len;
-    
+    char json_str_buffer[NETWORK_BUFFER_SIZE];
+
     while(true) {
-        picojson::value data;
-        recv_len = recvfrom(sock_recv, netbuffer, NETWORK_BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&editor_addr, &saddr);
-        editor_addr.sin_port = htons(port-1); // Port 6767, pretty bad way to define it but whatever
-        std::string decode_error = picojson::parse(data, netbuffer);
-        if(!decode_error.empty() || !data.is<picojson::object>()) {
-            LOG_I("Application error: received malformed command, ignoring it.");
+        picojson::value recv;
+        if(!this->connector->receive_command(recv)) {
+            LOG_I("Warning: Ignoring malformed datagram")
             continue;
         }
-        auto payload = data.get<picojson::object>();
+        
+        auto payload = recv.get<picojson::object>();
+        if(payload.count("command") == 0) {
+            LOG_I("Warning: Ignoring malformed datagram")
+            continue;
+        }
+
+        LOG_I("Received");
+
         std::string command = payload["command"].to_str();
         if(command.compare("stepSingle") == 0) {
             doTransitions(false);
@@ -314,18 +306,19 @@ void Interpreter::run(uint16_t port) {
             inputEvent(payload["eventName"].to_str(), payload["eventVal"].to_str());
         } else if(command.compare("exit") == 0) {
             terminate();
-            close(sock_recv);
+            connector->end_connection();
             break;
         }
-        
-        std::string json = picojson::value(this->json()).serialize(false);
-        json.copy(netbuffer, NETWORK_BUFFER_SIZE);
-        // Terminate the buffer manually because string.copy() doesn't do that apparently???
-        netbuffer[json.length()] = '\0';
-        sendto(sock_recv, netbuffer, strlen(netbuffer), 0, (struct sockaddr*)&editor_addr, saddr);
 
+        std::string json = picojson::value(this->json()).serialize(false);
+        json.copy(json_str_buffer, NETWORK_BUFFER_SIZE);
+        // Terminate the buffer manually because string.copy() doesn't do that apparently???
+        json_str_buffer[json.length()] = '\0';
+        
+        connector->send_buffer(json_str_buffer);
         // Clear the events that fired
         clearFired();
         clearEvents();
     }
+
 }
