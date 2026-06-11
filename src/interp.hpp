@@ -32,14 +32,16 @@ class Interpreter {
         unordered_map<string, string> outputValues;                 ///< Maps the output names to their values
         unordered_map<string, unique_ptr<Place>> places;            ///< Maps the place names to their objects
         unordered_map<string, unique_ptr<Transition>> transitions;  ///< Maps the transition names to their objects
+        unordered_map<string, uint32_t> runningTimers;              ///< Maps currently waiting transitions to their remaining time before firing
         vector<OutputEvent> events;                                 ///< Lists the events since the last state send
         vector<string> firedLastStep;                               ///< Lists the names of transitions which fired since last send
 
         unordered_map<string, uint32_t> transitionOrder;
         vector<thread> timerThreads;
-        string last_input;
-        recursive_mutex transition_lock;    ///< This might just be the only time in my life I need a recursive mutex
-        uint32_t max_order;
+        string lastInput;
+        recursive_mutex transitionLock;    ///< This might just be the only time in my life I need a recursive mutex
+        mutex timerMapLock;
+        uint32_t maxOrder;
         bool exiting;
 
         bool runToEnd;  ///< True if no steps are to be done - transitions are performed as soon as the conditions are met

@@ -10,6 +10,7 @@
 #include "debug.hpp"
 #include "gui/picojson.h"
 #include <algorithm>
+#include <mutex>
 #include <unistd.h>
 #include <chrono>
 #include <cstdint>
@@ -25,11 +26,13 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-
 using namespace std;
+using namespace chrono;
+
+#define MS_NOW ((duration_cast<milliseconds>(steady_clock::now().time_since_epoch())).count())
 
 Interpreter::Interpreter() {
-    this->max_order = 0;
+    this->maxOrder = 0;
     this->exiting = false;
 }
 
@@ -42,19 +45,30 @@ picojson::object Interpreter::json() {
     //picojson::array aTransitions;
     picojson::array firedLast;
     picojson::object eventList;
+    picojson::object timers;
 
-    // TODO: timers
+    // Convert places
     for(auto &p : this->places)
         aPlaces[p.second->identifier] = picojson::value(p.second->json());
+
+    // Convert fired transitions
     for(auto &f : this->firedLastStep)
         firedLast.push_back(picojson::value(f));
 
+    // Convert output events
     for(auto &e : this->events) {
         picojson::object evt;
         evt["value"] = picojson::value(e.outputVal);
         evt["timestamp"] = picojson::value(static_cast<double>(e.timestamp));
         eventList[e.outputId] = picojson::value(evt);
     }
+
+    // Convert timers
+    for(auto &e : this->runningTimers) {
+        timers[e.first] = picojson::value((double)e.second);
+    }
+    json["engineTime"] = picojson::value(MS_NOW);
+    json["timers"] = picojson::value(timers);
     json["places"] = picojson::value(aPlaces);
     json["outputEvents"] = picojson::value(eventList);
     json["fired"] = picojson::value(firedLast);
@@ -71,7 +85,7 @@ void Interpreter::inputEvent(const std::string input, const std::string value) {
     }
     LOG_D("Input event: %s=%s", input.c_str(), value.c_str());
     this->inputValues[input] = value;
-    this->last_input = input;
+    this->lastInput = input;
     if(runToEnd) {
         doTransitions();
     }
@@ -126,7 +140,7 @@ Transition* Interpreter::createTransition(string identifier) {
     auto t = make_unique<Transition>(identifier);
     Transition *ptr = t.get();
     transitions.emplace(identifier, std::move(t));
-    this->transitionOrder[identifier] = this->max_order++;
+    this->transitionOrder[identifier] = this->maxOrder++;
     return ptr;
 }
 
@@ -186,7 +200,7 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
         LOG_I("Ignoring delayed fire of %s while exiting", tr->identifier.c_str());
         return;
     }
-    std::lock_guard guard(this->transition_lock);
+    std::lock_guard guard(this->transitionLock);
     if(tr->canFire() && tr->checkGuard()) {
         this->firedLastStep.push_back(tr->identifier);
         tr->fire();
@@ -199,6 +213,8 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
     } else {
         LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr->identifier.c_str());
     }
+    std::lock_guard mapGuard(this->timerMapLock);
+    this->runningTimers.erase(tr->identifier);
 }
 
 void Interpreter::waitForAllTimers() {
@@ -220,18 +236,12 @@ void Interpreter::doTransitions(bool all) {
 
     LOG_T("WAITING ON TRANSITION LOCK")
     // Acquire the transition lock in case any timed transitions want to fire while this is running
-    std::lock_guard tr_lock(this->transition_lock);
+    std::lock_guard tr_lock(this->transitionLock);
     LOG_T("TRANSITION LOCK ACQUIRED")
+
     // RAII magic right there - the lock_guard constructor acquires the lock and the destructor releases it
     // So we effectively lock it for the duration of this scope, C++ does the work for us!
     // Can't decide if this is beautiful or ugly, but it's good practice apparently
-
-    // If we're running to end then we won't be stepping in the run() loop to clear the event buffers every time
-    // have to do it here
-    if(runToEnd) {
-        clearFired();
-        clearEvents();
-    }
 
     do {
         LOG_T("doTransitions() loop start")
@@ -258,7 +268,7 @@ void Interpreter::doTransitions(bool all) {
 
             // Don't even bother with anything else if the transition
             // doesn't fire on this event or boolean guard evals to 'false'
-            if(!transition->firesOnEvent(last_input) || !transition->checkGuard())
+            if(!transition->firesOnEvent(lastInput) || !transition->checkGuard())
                 continue;
 
             if(!transition->isDelayed()) {
@@ -276,6 +286,10 @@ void Interpreter::doTransitions(bool all) {
                 // Threads aren't copyable - move it into the vector
                 timerThreads.emplace_back(std::move(thr));
                 
+                // Save the scheduled fire time to the timer map
+                timerMapLock.lock();
+                runningTimers[tr->identifier] = MS_NOW + tr->getFireCondition()->delayMs;
+                timerMapLock.unlock();
             }
         }
         LOG_T("doTransitions() finished firing")
@@ -285,6 +299,13 @@ void Interpreter::doTransitions(bool all) {
         sendState();
     }
     LOG_T("TRANSITION LOCK RELEASED")
+
+    // If we're running to end then we won't be stepping in the run() loop to clear the event buffers every time
+    // have to do it here
+    if(runToEnd) {
+        clearFired();
+        clearEvents();
+    }
 }
 
 void Interpreter::clearEvents() {
