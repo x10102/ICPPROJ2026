@@ -28,6 +28,7 @@ public slots:
     void terminate();
     void sendStep(bool singleIteration = false);
     void sendEvent(const QString evtName, const QString evtValue);
+    void sendExit();
     void connectToInt();
 
 private slots:

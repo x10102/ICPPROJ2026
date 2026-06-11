@@ -52,6 +52,11 @@ void UdpConnector::connectToInt() {
     this->outSock->connectToHost(local, this->port+1);
 }
 
+void UdpConnector::sendExit() {
+    const QByteArray datagram(R"({"command": "exit"})");
+    this->outSock->writeDatagram(datagram.data(), QHostAddress::LocalHost, port+1);
+}
+
 void UdpConnector::onReadyRead() {
     while(inSock->hasPendingDatagrams()) {
         QByteArray data;
