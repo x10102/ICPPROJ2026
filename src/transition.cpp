@@ -91,6 +91,7 @@ bool Transition::firesOnEvent(const std::string s) const {
 }
 
 bool Transition::canFire() {
+    LOG_D("Checking fire condition for %s", this->identifier.c_str());
     if(enterEdges.empty() || exitEdges.empty()) return false;
     for(auto &edge : enterEdges) {
         if(edge.place->getTokenCount() < edge.weight)

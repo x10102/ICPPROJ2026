@@ -28,20 +28,21 @@ using namespace std;
 class Interpreter {
 
     protected:
-        unordered_map<string, string> inputValues;
-        unordered_map<string, string> outputValues;
-        vector<Variable> variables;
-        unordered_map<string, unique_ptr<Place>> places;
-        unordered_map<string, unique_ptr<Transition>> transitions;
-        vector<OutputEvent> events;
-        vector<string> firedLastStep;
+        unordered_map<string, string> inputValues;                  ///< Maps the input names to their values
+        unordered_map<string, string> outputValues;                 ///< Maps the output names to their values
+        unordered_map<string, unique_ptr<Place>> places;            ///< Maps the place names to their objects
+        unordered_map<string, unique_ptr<Transition>> transitions;  ///< Maps the transition names to their objects
+        vector<OutputEvent> events;                                 ///< Lists the events since the last state send
+        vector<string> firedLastStep;                               ///< Lists the names of transitions which fired since last send
 
         unordered_map<string, uint32_t> transitionOrder;
         vector<thread> timerThreads;
         string last_input;
-        mutex transition_lock;
+        recursive_mutex transition_lock;    ///< This might just be the only time in my life I need a recursive mutex
         uint32_t max_order;
         bool exiting;
+
+        bool runToEnd;  ///< True if no steps are to be done - transitions are performed as soon as the conditions are met
 
         std::unique_ptr<GuiConnector> connector;
 
