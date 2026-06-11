@@ -65,3 +65,4 @@ Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuš
 - Načtení sítě vymaže aktuální pracovní plochu
 - Načtení sítě ukončí aktuálně běžící interpret
 - GUI se aktualizuje s novým stavem po odpálení zpožděných přechodů
+- Tlačítko "Pokračovat" v GUI nechá simulaci běžet samovolně až do konce
