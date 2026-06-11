@@ -60,3 +60,8 @@ Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuš
 - Tmavý režim
 - Zobrazení aktuálního počtu tokenů v místech
 - Zobrazení aktuálního výstupu interpretu
+
+# Rozdíly ve vylepšené verzi
+- Načtení sítě vymaže aktuální pracovní plochu
+- Načtení sítě ukončí aktuálně běžící interpret
+- GUI se aktualizuje s novým stavem po odpálení zpožděných přechodů
