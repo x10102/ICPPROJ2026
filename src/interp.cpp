@@ -194,9 +194,7 @@ void Interpreter::delayedFire(Transition *tr, uint32_t delay_ms) {
         sendState();
         // TODO: Send also transitions which didn't fire
         if(runToEnd) {
-            LOG_D("delayedFire() triggering next transition cycle")
             doTransitions();
-            LOG_D("delayedFire() transitions finished")
         }
     } else {
         LOG_I("Ignored %u ms timer for transition %s", delay_ms, tr->identifier.c_str());
@@ -220,10 +218,10 @@ void Interpreter::doTransitions(bool all) {
     // If any transitions fired during the last loop, we have to run another check
     uint32_t fire_count;
 
-    LOG_D("WAITING ON TRANSITION LOCK")
+    LOG_T("WAITING ON TRANSITION LOCK")
     // Acquire the transition lock in case any timed transitions want to fire while this is running
     std::lock_guard tr_lock(this->transition_lock);
-    LOG_D("TRANSITION LOCK ACQUIRED")
+    LOG_T("TRANSITION LOCK ACQUIRED")
     // RAII magic right there - the lock_guard constructor acquires the lock and the destructor releases it
     // So we effectively lock it for the duration of this scope, C++ does the work for us!
     // Can't decide if this is beautiful or ugly, but it's good practice apparently
@@ -235,10 +233,8 @@ void Interpreter::doTransitions(bool all) {
         clearEvents();
     }
 
-    LOG_D("doTransitions() before loop")
-
     do {
-        LOG_D("doTransitions() loop start")
+        LOG_T("doTransitions() loop start")
         // Clear the list of transitions to fire and reset the count
         to_fire.clear();
         fire_count = 0;
@@ -251,14 +247,12 @@ void Interpreter::doTransitions(bool all) {
                 to_fire.push_back({order, t});
             }
         }
-        LOG_D("doTransitions() built toFire list")
         
         // Pair comparison is defined as comparing the first item, then the second.
         // Comparing Transition pointers does not produce meaningful results but
         // the order numbers are unique, so the pointers will never actually be compared
         std::sort(to_fire.begin(), to_fire.end());
 
-        LOG_D("doTransitions() start firing")
         // Evil C++17 pair unpacking
         for(auto &[order, transition] : to_fire) {
 
@@ -284,13 +278,13 @@ void Interpreter::doTransitions(bool all) {
                 
             }
         }
-        LOG_D("doTransitions() finished firing")
+        LOG_T("doTransitions() finished firing")
         if(!all) break;
     } while(fire_count > 0);
     if(runToEnd) {
         sendState();
     }
-    LOG_D("TRANSITION LOCK RELEASED")
+    LOG_T("TRANSITION LOCK RELEASED")
 }
 
 void Interpreter::clearEvents() {
