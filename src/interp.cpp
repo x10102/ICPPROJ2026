@@ -67,7 +67,7 @@ picojson::object Interpreter::json() {
     for(auto &e : this->runningTimers) {
         timers[e.first] = picojson::value((double)e.second);
     }
-    json["engineTime"] = picojson::value(MS_NOW);
+    json["engineTime"] = picojson::value((double)MS_NOW);
     json["timers"] = picojson::value(timers);
     json["places"] = picojson::value(aPlaces);
     json["outputEvents"] = picojson::value(eventList);
@@ -348,8 +348,6 @@ void Interpreter::run(uint16_t port) {
             LOG_I("Warning: Ignoring malformed datagram")
             continue;
         }
-
-        LOG_I("Received");
 
         std::string command = payload["command"].to_str();
         if(command.compare("stepSingle") == 0) {
