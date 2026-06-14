@@ -52,8 +52,7 @@ bool GuiConnector::receive_command(picojson::value &received) {
 }
 
 void GuiConnector::send_buffer(char *buffer) {
-    // Gets unlocked before return by RAII
-    LOG_I("In fn send_buffer, contents: %s", buffer);
+    // Gets unlocked before return
     std::lock_guard<std::mutex> lg(this->con_mutex);
     socklen_t saddr = sizeof(struct sockaddr_in);
     editor_addr.sin_port = htons(port-1);
