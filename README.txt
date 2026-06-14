@@ -2,6 +2,12 @@
 
 Zadání: Nástroj pro vizuální editaci, generování kódu a monitorování běhu interpretovaných Petriho sítí 
 
+# Rozdíly ve vylepšené verzi
+- Načtení sítě vymaže aktuální pracovní plochu
+- Načtení sítě ukončí aktuálně běžící interpret
+- GUI se aktualizuje s novým stavem po odpálení zpožděných přechodů
+- Tlačítko "Pokračovat" v GUI nechá simulaci běžet samovolně až do konce, tlačítko "krok" posouvá simulaci po jednom kroku
+
 # Spuštění
 
 - `make` nebo `make run` sestaví a spustí editor
@@ -47,7 +53,7 @@ Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuš
 - Podmínka vstupní události
 - Podpora inskripčního jazyka
 - Interaktivní režim
-- Komunikace s editorem (částečně, chybí odesílání aktuálních časovačů a hodnot proměnných. Časovače se zobrazují v terminálu, ale po jejich ukončení se GUI neaktualizuje)
+- Komunikace s editorem (částečně, chybí odesílání aktuálních časovačů a hodnot proměnných. Časovače se zobrazují v terminálu)
 
 ## Editor
 
@@ -61,8 +67,3 @@ Přeložený interpret umožňuje vstup do interaktivního režimu pomocí spuš
 - Zobrazení aktuálního počtu tokenů v místech
 - Zobrazení aktuálního výstupu interpretu
 
-# Rozdíly ve vylepšené verzi
-- Načtení sítě vymaže aktuální pracovní plochu
-- Načtení sítě ukončí aktuálně běžící interpret
-- GUI se aktualizuje s novým stavem po odpálení zpožděných přechodů
-- Tlačítko "Pokračovat" v GUI nechá simulaci běžet samovolně až do konce
