@@ -2,8 +2,8 @@ CC=g++
 ARGS=-g -std=c++17
 
 COMPILE=$(CC) $(ARGS)
-CPPFILES=program.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
-CPPGEN=program.generated.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp
+CPPFILES=program.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp guiconnector.cpp
+CPPGEN=program.generated.cpp place.cpp transition.cpp interp.cpp scripting_helper.cpp guiconnector.cpp
 
 run: gui
 	cd ./gui && ./petri-editor
